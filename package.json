@@ -12,6 +12,9 @@
   },
   "scripts": {
     "populate-tmdb-movie-dump": "tsx src/populate-tmdb-movie-dump.ts",
+    "update-tmdb-movies": "tsx src/update-tmdb-movies.ts",
+    "populate-imdb-movies": "tsx src/populate-imdb-movies.ts",
+    "upsert-movies-to-db": "tsx src/upsert-movies-to-db.ts",
     "build": "tsc",
     "clean": "del build",
     "prebuild": "run-s clean",
@@ -19,6 +22,7 @@
     "test:prettier": "prettier '**/*.{js,jsx,ts,tsx}' --check"
   },
   "dependencies": {
+    "@prisma/client": "^4.5.0",
     "csv-parse": "^5.3.1",
     "dotenv-safe": "^8.2.0",
     "got": "^12.5.2",
@@ -26,7 +30,8 @@
     "make-dir": "^3.1.0",
     "movier": "^2.1.3",
     "p-map": "^5.5.0",
-    "p-throttle": "^5.0.0"
+    "p-throttle": "^5.0.0",
+    "prisma": "^4.5.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",

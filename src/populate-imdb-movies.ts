@@ -5,16 +5,18 @@ import makeDir from 'make-dir'
 import pMap from 'p-map'
 
 import * as types from './types'
-import { getTitleDetailsByIMDBId } from './imdb'
+import { getTitleDetailsByIMDBId } from './lib/imdb'
 
 dotenv.config()
 
-interface IMDBMovies {
-  [imdbId: string]: any
-}
-
 /**
- * TODO
+ * Fetches info on all previously downloaded movies on IMDB using a cheerio-based
+ * scraper called `movier`.
+ *
+ * Note that we strictly rate limit IMDB access in order to prevent IMDB 503s and
+ * IP blacklisting. This results in this script taking hours / days to run fully.
+ * In the future, a more sophisticated distributed scraping method would be
+ * preferred.
  */
 async function main() {
   const srcDir = 'out'
@@ -22,8 +24,8 @@ async function main() {
   await makeDir(outDir)
 
   // TODO: src and out re-used here and it's confusing
-  const imdbMoviesPath = `${srcDir}/imdb-movies.json`
-  const imdbMovies: IMDBMovies = JSON.parse(
+  const imdbMoviesPath = `${srcDir}/imdb-movies-2.json`
+  const imdbMovies: types.IMDBMovies = JSON.parse(
     await fs.readFile(imdbMoviesPath, { encoding: 'utf-8' })
   )
 

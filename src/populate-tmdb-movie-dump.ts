@@ -5,12 +5,13 @@ import makeDir from 'make-dir'
 import pMap from 'p-map'
 
 import * as types from './types'
-import { TMDB } from './tmdb'
+import { TMDB } from './lib/tmdb'
 
 dotenv.config()
 
 /**
- * Takes a TMDB movie dump and fetch all of the movie details from TMDB in batches.
+ * Takes a dump of movies from TMDB and fetches all of the movie details from
+ * TMDB in batches.
  */
 async function main() {
   const outDir = 'out'
@@ -25,7 +26,7 @@ async function main() {
   const dumpedMovies: types.tmdb.DumpedMovie[] = JSON.parse(rawMovieDump)
   dumpedMovies.sort((a, b) => b.popularity - a.popularity)
 
-  const tmdb = new TMDB({ bearerToken: process.env.TMDB_API_KEY })
+  const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN })
 
   const batchSize = 32000
   let batchNum = 0

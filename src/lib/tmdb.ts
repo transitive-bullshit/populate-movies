@@ -1,6 +1,6 @@
 import got from 'got'
 
-import type { tmdb } from './types/tmdb-types'
+import type { tmdb } from '../types'
 
 const BASE_URL_V3 = 'https://api.themoviedb.org/3'
 

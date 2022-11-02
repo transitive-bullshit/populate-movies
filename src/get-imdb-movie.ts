@@ -1,4 +1,4 @@
-import { getTitleDetailsByIMDBId } from './imdb'
+import { getTitleDetailsByIMDBId } from './lib/imdb'
 
 /**
  * TODO

@@ -1,8 +1,10 @@
+import { imdb } from './imdb-types'
 import { omdb } from './omdb-types'
 import { tmdb } from './tmdb-types'
 
 export type { tmdb }
 export type { omdb }
+export type { imdb }
 
 export interface Movie {
   // ids
@@ -15,7 +17,7 @@ export interface Movie {
   language: string
   releaseYear: number | null
   releaseDate: string | null
-  genres: string[]
+  genres: tmdb.Genre[]
   overview: string
   runtime: number
   adult: boolean
@@ -40,4 +42,8 @@ export interface Movie {
   tmdbVotes?: number
 
   // ageRating: string
+}
+
+export interface IMDBMovies {
+  [imdbId: string]: imdb.Movie
 }
