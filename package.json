@@ -1,8 +1,8 @@
 {
-  "name": "populate-movies-meilisearch",
+  "name": "populate-movies",
   "version": "0.0.0",
   "private": true,
-  "description": "Populates a full index of movies on Meilisearch.",
+  "description": "Populates a full database of movies from TMDB and IMDB into Prisma.",
   "author": "Travis Fischer <travis@transitivebullsh.it>",
   "repository": "transitive-bullshit/next-movie",
   "license": "MIT",

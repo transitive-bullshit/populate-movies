@@ -1,8 +1,8 @@
-# Populate Movies Meilisearch
+# Populate Movies
 
-> Populates a full index of movies on Meilisearch.
+> Populates a full database of movies from TMDB and IMDB into Prisma.
 
-[![Build Status](https://github.com/transitive-bullshit/populate-movies-meilisearch/actions/workflows/build.yml/badge.svg)](https://github.com/transitive-bullshit/populate-movies-meilisearch/actions/workflows/build.yml) [![Prettier Code Formatting](https://img.shields.io/badge/code_style-prettier-brightgreen.svg)](https://prettier.io)
+[![Build Status](https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml/badge.svg)](https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml) [![Prettier Code Formatting](https://img.shields.io/badge/code_style-prettier-brightgreen.svg)](https://prettier.io)
 
 ## TODO
 
