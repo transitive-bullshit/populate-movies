@@ -9,6 +9,8 @@
 https://developers.themoviedb.org/3/getting-started/daily-file-exports
 `http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz`
 
+- filter imdb "mainType": "seriesEpisode",
+
 ## License
 
 MIT © [Travis Fischer](https://transitivebullsh.it)

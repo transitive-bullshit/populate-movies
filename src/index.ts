@@ -80,8 +80,6 @@ async function main() {
             return null
           }
 
-          // TODO: filter imdb "mainType": "seriesEpisode",
-
           if (movie.imdbId) {
             const imdbRating = imdbRatings[movie.imdbId]
 
