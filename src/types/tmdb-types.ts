@@ -20,6 +20,7 @@ export namespace tmdb {
     overview: string
     popularity: number
     poster_path?: any
+    genres?: Genre[]
     production_companies: ProductionCompany[]
     production_countries: ProductionCountry[]
     release_date: string
@@ -32,6 +33,10 @@ export namespace tmdb {
     video: boolean
     vote_average: number
     vote_count: number
+
+    // optional via append_to_response
+    videos?: Videos
+    images?: Images
   }
 
   export interface AuthorDetails {
@@ -219,5 +224,48 @@ export namespace tmdb {
   export interface Translations {
     id: number
     translations: Translation[]
+  }
+
+  export interface Images {
+    backdrops: Image[]
+    logos: Image[]
+    posters: Image[]
+  }
+
+  export interface Image {
+    aspect_ratio: number
+    height: number
+    iso_639_1: null | string
+    file_path: string
+    vote_average: number
+    vote_count: number
+    width: number
+  }
+  export interface Videos {
+    results: Video[]
+  }
+
+  export interface Video {
+    iso_639_1: string
+    iso_3166_1: string
+    name: string
+    key: string
+    site: Site
+    size: number
+    type: Type
+    official: boolean
+    published_at: Date
+    id: string
+  }
+
+  export enum Site {
+    YouTube = 'YouTube'
+  }
+
+  export enum Type {
+    Featurette = 'Featurette',
+    Teaser = 'Teaser',
+    Trailer = 'Trailer',
+    Clip = 'Clip'
   }
 }

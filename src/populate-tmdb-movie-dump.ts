@@ -1,14 +1,16 @@
-import dotenv from 'dotenv-safe'
 import fs from 'node:fs/promises'
-import pMap from 'p-map'
-import { TMDB } from './tmdb'
-import * as types from './types'
+
+import dotenv from 'dotenv-safe'
 import makeDir from 'make-dir'
+import pMap from 'p-map'
+
+import * as types from './types'
+import { TMDB } from './tmdb'
 
 dotenv.config()
 
 /**
- * Takes a TMDB movie dump and fetch all movie details from TMDB in batches.
+ * Takes a TMDB movie dump and fetch all of the movie details from TMDB in batches.
  */
 async function main() {
   const outDir = 'out'
@@ -48,7 +50,10 @@ async function main() {
               dumpedMovie.id,
               dumpedMovie.original_title
             )
-            const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id)
+            const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
+              videos: true,
+              images: true
+            })
             return movieDetails
           } catch (err) {
             console.warn('tmdb error', dumpedMovie.id, err)
@@ -69,9 +74,12 @@ async function main() {
       throw new Error(message)
     }
 
+    // console.log(JSON.stringify(movies, null, 2).replaceAll(/^\s*/gm, ''))
+    // break
+
     await fs.writeFile(
       `${outDir}/tmdb-${batchNum}.json`,
-      JSON.stringify(movies, null, 2),
+      JSON.stringify(movies, null, 2).replaceAll(/^\s*/gm, ''),
       {
         encoding: 'utf-8'
       }
