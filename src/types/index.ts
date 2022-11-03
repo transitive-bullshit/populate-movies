@@ -48,6 +48,18 @@ export interface Movie {
   // ageRating: string
 }
 
+// from local cache
 export interface IMDBMovies {
   [imdbId: string]: imdb.Movie
+}
+
+// from data dump
+export interface IMDBRatings {
+  [imdbId: string]: IMDBRating
+}
+
+// from data dump
+export interface IMDBRating {
+  rating: number
+  numVotes: number
 }

@@ -6,7 +6,7 @@
 
 ## Intro
 
-This project includes a series of scripts for resolving movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and eventually upserting them into a MySQL [Prisma](https://www.prisma.io/) database (I use [PlanetScale](https://planetscale.com/)'s free tier). It should be easy to support different databases with a few minor changes to the [Prisma schema](./prisma/schema.prisma).
+This project contains a series of scripts for resolving movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and eventually upserting them into a MySQL [Prisma](https://www.prisma.io/) database (I use [PlanetScale](https://planetscale.com/)'s free tier). It should be easy to support different databases with a few minor changes to the [Prisma schema](./prisma/schema.prisma).
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ This project includes a series of scripts for resolving movies from [TMDB](https
 
 Store your `TMDB_BEARER_TOKEN` and `DATABASE_URL` in a local `.env` file.
 
-You'll need to download a recent [TMDB daily movie ID export](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz) and store the uncompressed version into `data/tmdb_dump_movie_ids.json`. This gives us a list of all TMDB movie IDs to start from.
+You'll need to download a recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz) and store the uncompressed version into `data/tmdb_dump_movie_ids.json`. This gives us a list of all TMDB movie IDs to kick things off.
 
 If you want movies to contain IMDB ratings, you'll also need to download an official [IMDB title ratings data dump](https://www.imdb.com/interfaces/). We're specifically interested in `title.ratings` such as [datasets.imdbws.com/title.ratings.tsv.gz](https://datasets.imdbws.com/title.ratings.tsv.gz) and store the uncompressed version into `data/title.ratings.tsv`. This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that drastically reduces the amount of scraping we need to do. Note that IMDB has [an official API](https://developer.imdb.com/), but it is extremely expensive to use (starting at $50k + usage-based billing).
 
@@ -33,7 +33,7 @@ Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each o
 
 #### Update TMDB Movies
 
-Next, we'll run `npx tsc src/update-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes < 1 minute)_
+Next, we'll run `npx tsc src/process-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes < 1 minute)_
 
 This step also filters movies which are unlikely to be relevant for our use case:
 

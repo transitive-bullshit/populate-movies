@@ -1,20 +1,14 @@
 import fs from 'node:fs/promises'
 
-import dotenv from 'dotenv-safe'
 import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
-import { loadIMDBMoviesFromCache } from './lib/imdb'
-
-dotenv.config()
 
 /**
- * Upserts all movies downloaded on disk as JSON batches into our Prisma database.
+ * Upserts all movies downloaded on disk into our Prisma database.
  */
 async function main() {
-  const imdbMovies = await loadIMDBMoviesFromCache()
-
   let batchNum = 0
 
   do {
@@ -27,13 +21,7 @@ async function main() {
       movies,
       async (movie, index) => {
         try {
-          console.log(
-            `${batchNum}:${index}) imdb ${movie.imdbId} ${movie.title}`
-          )
-
-          if (movie.imdbId && imdbMovies[movie.imdbId]) {
-            const imdbMovie = imdbMovies[movie.imdbId]
-          }
+          console.log(`${batchNum}:${index}) ${movie.imdbId} ${movie.title}`)
 
           // console.log(movie)
           // console.log(imdbMovie)
@@ -48,8 +36,7 @@ async function main() {
 
     console.log()
     console.log(`batch ${batchNum} done`, {
-      numMovies: movies.length,
-      numIMDBMovies: Object.keys(imdbMovies).length
+      numMovies: movies.length
     })
 
     ++batchNum

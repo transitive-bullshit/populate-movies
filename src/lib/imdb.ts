@@ -8,15 +8,6 @@ import pThrottle from 'p-throttle'
 import * as types from '../types'
 import * as config from './config'
 
-export interface IMDBRatings {
-  [imdbId: string]: IMDBRating
-}
-
-export interface IMDBRating {
-  rating: number
-  numVotes: number
-}
-
 /**
  * Rate-limit HTTP requests to IMDB (max 3 per 1200ms). Note that each call to
  * `movier.getTitleDetailsByIMDBId` includes multiple HTTP GET requests to IMDB.
@@ -55,8 +46,8 @@ export async function loadIMDBMoviesFromCache(): Promise<types.IMDBMovies> {
   return imdbMovies
 }
 
-export async function loadIMDBRatingsFromDataDump(): Promise<IMDBRatings> {
-  let imdbRatings: IMDBRatings = {}
+export async function loadIMDBRatingsFromDataDump(): Promise<types.IMDBRatings> {
+  let imdbRatings: types.IMDBRatings = {}
 
   try {
     console.log('loading IMDB ratings data dump')

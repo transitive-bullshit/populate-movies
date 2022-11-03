@@ -11,10 +11,6 @@
     "node": ">=16"
   },
   "scripts": {
-    "populate-tmdb-movie-dump": "tsx src/populate-tmdb-movie-dump.ts",
-    "update-tmdb-movies": "tsx src/update-tmdb-movies.ts",
-    "populate-imdb-movies": "tsx src/populate-imdb-movies.ts",
-    "upsert-movies-to-db": "tsx src/upsert-movies-to-db.ts",
     "build": "tsc",
     "clean": "del build",
     "prebuild": "run-s clean",

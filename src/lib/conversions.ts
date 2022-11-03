@@ -67,6 +67,64 @@ export function convertTMDBMovieDetailsToMovie(
   }
 }
 
+export function populateMovieWithIMDBInfo(
+  movie: types.Movie,
+  {
+    imdbRatings,
+    imdbMovies
+  }: { imdbRatings?: types.IMDBRatings; imdbMovies?: types.IMDBMovies }
+) {
+  if (movie.imdbId) {
+    const imdbRating = imdbRatings[movie.imdbId]
+    const imdbMovie = imdbMovies[movie.imdbId]
+    let hasIMDBRating = false
+
+    if (imdbMovie) {
+      if (imdbMovie.mainRate?.rateSource?.toLowerCase() === 'imdb') {
+        hasIMDBRating = true
+        movie.imdbRating = imdbMovie.mainRate.rate
+        movie.imdbVotes = imdbMovie.mainRate.votesCount
+      }
+
+      const metacriticRate = imdbMovie.allRates?.find(
+        (rate) => rate.rateSource?.toLowerCase() === 'metacritics'
+      )
+      if (metacriticRate) {
+        movie.metacriticRating = metacriticRate.rate
+        movie.metacriticVotes = metacriticRate.votesCount
+      }
+    }
+
+    if (imdbRating) {
+      if (
+        hasIMDBRating &&
+        (movie.imdbRating !== imdbRating.rating ||
+          movie.imdbVotes !== imdbRating.numVotes)
+      ) {
+        console.warn(
+          `imdb rating mismatch ${movie.imdbId} (${movie.status}) ${movie.title}`,
+          {
+            scrapedIMDBRating: movie.imdbRating,
+            scrapedIMDBVotes: movie.imdbVotes,
+            dumpedIMDBRating: imdbRating.rating,
+            dumpedIMDBVotes: imdbRating.numVotes
+          }
+        )
+      }
+
+      hasIMDBRating = true
+      movie.imdbRating = imdbRating.rating
+      movie.imdbVotes = imdbRating.numVotes
+    }
+
+    if (!hasIMDBRating) {
+      console.log(
+        `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
+      )
+    }
+  }
+}
+
 /**
  * This function tries to find the best matching YouTube trailer for a given video.
  *

@@ -1,3 +1,3 @@
-This directory contains data dumps and samples from third-party services for debugging purposes.
+This directory contains samples of movie data from third-party services for debugging purposes.
 
-Larger data dumps and incremental data transformations are ignored by git.
+Larger data dumps are also stored in this directory but are ignored by git.

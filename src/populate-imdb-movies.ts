@@ -39,6 +39,8 @@ async function main() {
               return null
             }
 
+            // filter out movies which are too short to be movies we're interested in,
+            // like shorts, episodes, specials, and art projects
             if (movie.runtime < 30) {
               return null
             }
@@ -48,11 +50,6 @@ async function main() {
             )
             const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
             imdbMovies[movie.imdbId] = imdbMovie
-
-            if (imdbMovie.mainRate.rateSource?.toLowerCase() === 'imdb') {
-              movie.imdbRating = imdbMovie.mainRate.rate
-              movie.imdbVotes = imdbMovie.mainRate.votesCount
-            }
 
             // console.log(movie)
             // console.log(imdbMovie)
