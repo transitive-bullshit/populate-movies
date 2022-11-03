@@ -34,8 +34,6 @@ async function main() {
               create: movie,
               update: movie
             })
-            // console.log(movie)
-            // console.log(imdbMovie)
           } catch (err) {
             console.error(
               'upsert error',
