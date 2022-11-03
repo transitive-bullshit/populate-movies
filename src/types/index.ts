@@ -17,7 +17,7 @@ export interface Movie {
   language: string
   releaseYear: number | null
   releaseDate: string | null
-  genres: tmdb.Genre[]
+  genres: string[]
   overview: string
   runtime: number
   adult: boolean

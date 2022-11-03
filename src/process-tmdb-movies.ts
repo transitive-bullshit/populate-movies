@@ -17,9 +17,10 @@ import {
 /**
  * Processes downloaded TMDB movies with the following transforms:
  * - transforms TMDB movies to a common schema
+ * - filters adult movies
  * - filters movies which are not released yet
  * - filters movies which do not have a valid IMDB id
- * - filters movies which do not have a valid trailer
+ * - filters movies which do not have a valid YouTube trailer
  * - adds IMDB ratings from an official IMDB data dump
  */
 async function main() {
@@ -49,26 +50,26 @@ async function main() {
           const movie = convertTMDBMovieDetailsToMovie(tmdbMovie)
 
           if (movie.adult) {
-            console.log('warn adult movie', movie.tmdbId, movie.title)
+            // console.log('warn adult movie', movie.tmdbId, movie.title)
             return null
           }
 
           if (movie.status !== 'Released') {
-            console.log(
-              `warn status (${movie.status})`,
-              movie.tmdbId,
-              movie.title
-            )
+            // console.log(
+            //   `warn status (${movie.status})`,
+            //   movie.tmdbId,
+            //   movie.title
+            // )
             return null
           }
 
           if (!movie.imdbId) {
-            console.log('warn missing imdb id', movie.tmdbId, movie.title)
+            // console.log('warn missing imdb id', movie.tmdbId, movie.title)
             return null
           }
 
           if (!movie.trailerUrl) {
-            console.log('warn missing trailer', movie.tmdbId, movie.title)
+            // console.log('warn missing trailer', movie.tmdbId, movie.title)
             return null
           }
 

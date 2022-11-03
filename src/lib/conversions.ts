@@ -34,6 +34,8 @@ export function convertTMDBMovieDetailsToMovie(
     }
   }
 
+  const genres = movieDetails.genres?.map((genre) => genre.name)
+
   return {
     // ids
     tmdbId: movieDetails.id,
@@ -45,7 +47,7 @@ export function convertTMDBMovieDetailsToMovie(
     language: movieDetails.original_language,
     releaseDate,
     releaseYear,
-    genres: movieDetails.genres,
+    genres,
     overview: movieDetails.overview,
     runtime: movieDetails.runtime,
     adult: movieDetails.adult,

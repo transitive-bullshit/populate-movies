@@ -6,14 +6,14 @@
 
 ## Intro
 
-This project contains a series of scripts for resolving movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and eventually upserting them into a MySQL [Prisma](https://www.prisma.io/) database (I use [PlanetScale](https://planetscale.com/)'s free tier). It should be easy to support different databases with a few minor changes to the [Prisma schema](./prisma/schema.prisma).
+This project contains a series of scripts for resolving movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and eventually upserting them into a Postgres [Prisma](https://www.prisma.io/) database.
 
 ## Prerequisites
 
 - `node >= 16`
 - `pnpm >= 7`
 - [TMDB API v3 bearer token](https://developers.themoviedb.org/3/getting-started/introduction)
-- [Prisma MySQL database URL](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases/connect-your-database-typescript-postgres) ([Planetscale guide](https://planetscale.com/docs/onboarding/create-an-account))
+- [Prisma Postgres database URL](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases/connect-your-database-typescript-postgres)
 
 Store your `TMDB_BEARER_TOKEN` and `DATABASE_URL` in a local `.env` file.
 
@@ -25,23 +25,28 @@ If you want movies to contain IMDB ratings, you'll also need to download an offi
 
 Once we have the data dumps downloaded into `data/` and our environment variables setup, we can start processing movies. Most of the processing steps break things up into batches (defaults to 32000 movies per batch) in order to allow for incremental processing and easier debugging.
 
-**All scripts are idempotent**, so you can run these steps repeatedly and expect the same results (with the exception of occasional HTTP errors which are expected).
+**All scripts are idempotent**, so you can run these steps repeatedly and expect up-to-date results (ignoring occasional HTTP errors which are inevitable).
 
-Before getting started, make sure you've run `pnpm install`.
+Before getting started, make sure you've run `pnpm install` to initialize the Node.js project.
 
 #### Populate TMDB Movies
 
 Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each of the TMDB movie IDs with its corresponding TMDB movie details and stores the results into a series of batched JSON files `out/tmdb-0.json`, `out/tmdb-1.json`, etc. _(takes ~1 hour)_
 
+The result is ~655k movies in 24 batches of 32k.
+
 #### Process TMDB Movies
 
-Next, we'll run `npx tsc src/process-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes < 1 minute)_
+Next, we'll run `npx tsc src/process-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
 
-This step also filters movies which are unlikely to be relevant for our use case:
+We also filters movies which are unlikely to be relevant for our use case:
 
-- filters movies which are not released yet
-- filters movies which do not have a valid IMDB id
-- filters movies which do not have a valid trailer
+- filters adult movies
+- filters movies which are not released yet (~1.5%)
+- filters movies which do not have a valid IMDB id (~40%)
+- filters movies which do not have a valid YouTube trailer (~58%)
+
+The result is ~95k movies.
 
 #### Populate IMDB Movies
 
@@ -49,7 +54,15 @@ The next **optional** step is to download additional IMDB info for each movie, u
 
 If you want to download additional IMDB metadata for all movies, including additional rating info, you'll need to run `npx tsc src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, process each movie individually with `movier` and store the results in JSON hashmap keyed by IMDB ID to `out/imdb-movies.json`
 
+Once you are finished populating IMDB movies, you'll need to re-run `npx tsc src/process-tmdb-movies.ts`, which will now take into account the extra IMDB metadata that was downloaded to our local cache.
+
 #### Upsert Movies into Prisma
+
+```bash
+npx prisma db push
+```
+
+`npx tsc src/upsert-movies-to-db.ts`
 
 TODO
 

@@ -47,6 +47,11 @@ async function main() {
               dumpedMovie.original_title
             )
 
+            // ignore adult movies
+            if (dumpedMovie.adult) {
+              return null
+            }
+
             const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
               videos: true,
               images: true

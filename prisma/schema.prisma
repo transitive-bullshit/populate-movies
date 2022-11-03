@@ -2,71 +2,53 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Movie {
-  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tmdbId Int    @unique
+  tmdbId Int    @id @unique
   imdbId String @unique
 
-  title         String       @db.VarChar(256)
-  originalTitle String?      @db.VarChar(256)
+  title         String   @db.VarChar(256)
+  originalTitle String?  @db.VarChar(256)
   language      String?
   releaseYear   Int?
   releaseDate   String?
-  genres        MovieGenre[]
-  overview      String       @db.VarChar(4096)
+  genres        String[]
+  overview      String   @db.VarChar(4096)
   runtime       Int
-  adult         Boolean      @default(false)
+  adult         Boolean  @default(false)
   budget        Int
   revenue       Int
-  homepage      String?      @db.VarChar(511)
+  homepage      String?  @db.VarChar(511)
   status        String
 
   // media
   posterUrl        String? @db.VarChar(512)
   backdropUrl      String? @db.VarChar(512)
   trailerUrl       String? @db.VarChar(512)
-  trailerYoutubeId String?
+  trailerYouTubeId String?
 
   // imdb
-  imdbRating Int?
+  imdbRating Float?
   imdbVotes  Int?
 
   // tmdb
-  tmdbPopularity Int?
-  tmdbRating     Int?
+  tmdbPopularity Float?
+  tmdbRating     Float?
   tmdbVotes      Int?
 
   // metacritic
-  metacriticRating Int?
+  metacriticRating Float?
   metacriticVotes  Int?
 
-  @@index([tmdbId])
   @@index([imdbId])
-}
-
-model MovieGenre {
-  id          Int    @id @default(autoincrement())
-  genre       Genre  @relation(fields: [genreId], references: [id])
-  genreId     Int
-  Movie       Movie? @relation(fields: [movieTmdbId], references: [tmdbId])
-  movieTmdbId Int?
-}
-
-model Genre {
-  id          Int          @id @unique
-  name        String       @unique
-  movieGenres MovieGenre[]
 }
