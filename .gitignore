@@ -45,4 +45,5 @@ next-env.d.ts
 
 # data dumps
 /data/tmdb_dump_*.json
+/data/movie_ids_*.json
 /data/*.tsv

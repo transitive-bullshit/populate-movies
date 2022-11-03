@@ -17,12 +17,9 @@ async function main() {
   const outDir = 'out'
   await makeDir(outDir)
 
-  const rawMovieDump = await fs.readFile(
-    './data/tmdb_dump_movie_ids_10_30_2022.json',
-    {
-      encoding: 'utf-8'
-    }
-  )
+  const rawMovieDump = await fs.readFile('./data/tmdb_dump_movie_ids.json', {
+    encoding: 'utf-8'
+  })
   const dumpedMovies: types.tmdb.DumpedMovie[] = JSON.parse(rawMovieDump)
   dumpedMovies.sort((a, b) => b.popularity - a.popularity)
 

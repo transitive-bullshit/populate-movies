@@ -8,7 +8,6 @@ import pMap from 'p-map'
 
 import * as types from './types'
 import { convertTMDBMovieDetailsToMovie } from './lib/conversions'
-import { getTitleDetailsByIMDBId } from './lib/imdb'
 
 dotenv.config()
 
@@ -35,23 +34,37 @@ async function main() {
   await makeDir(outDir)
 
   console.log('parsing IMDB ratings')
-  const parse: any = util.promisify(parseCSV)
-  const imdbRatingsFile = 'data/title.ratings.tsv'
-  const rawCSV = await fs.readFile(imdbRatingsFile, { encoding: 'utf-8' })
-  const imdbRatingsRaw: Array<Array<string>> = await parse(rawCSV, {
-    delimiter: '\t'
-  })
-  const imdbRatings: IMDBRatings = {}
-  for (const imdbRatingRaw of imdbRatingsRaw) {
-    const [imdbId, ratingRaw, numVotesRaw] = imdbRatingRaw
+  let imdbRatings: IMDBRatings = {}
+  const imdbRatingsFilePath = 'data/title.ratings.tsv'
+  try {
+    const parse: any = util.promisify(parseCSV)
+    const rawCSV = await fs.readFile(imdbRatingsFilePath, { encoding: 'utf-8' })
+    const imdbRatingsRaw: Array<Array<string>> = await parse(rawCSV, {
+      delimiter: '\t'
+    })
 
-    const rating = Number.parseFloat(ratingRaw)
-    const numVotes = Number.parseInt(numVotesRaw)
+    for (const imdbRatingRaw of imdbRatingsRaw) {
+      const [imdbId, ratingRaw, numVotesRaw] = imdbRatingRaw
 
-    imdbRatings[imdbId] = {
-      rating,
-      numVotes
+      const rating = Number.parseFloat(ratingRaw)
+      const numVotes = Number.parseInt(numVotesRaw)
+
+      imdbRatings[imdbId] = {
+        rating,
+        numVotes
+      }
     }
+
+    console.log(
+      `loaded ${
+        Object.keys(imdbRatings).length
+      } IMDB ratings data dump (${imdbRatingsFilePath})`
+    )
+  } catch (err) {
+    console.warn(
+      `warn: unable to load IMDB ratings data dump (${imdbRatingsFilePath})`,
+      err
+    )
   }
 
   const numTmdbBatches = 24

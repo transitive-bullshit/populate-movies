@@ -23,11 +23,23 @@ async function main() {
   const outDir = 'out'
   await makeDir(outDir)
 
-  // TODO: src and out re-used here and it's confusing
-  const imdbMoviesPath = `${srcDir}/imdb-movies-2.json`
-  const imdbMovies: types.IMDBMovies = JSON.parse(
-    await fs.readFile(imdbMoviesPath, { encoding: 'utf-8' })
-  )
+  const imdbMoviesPath = `${srcDir}/imdb-movies.json`
+  let imdbMovies: types.IMDBMovies = {}
+  try {
+    imdbMovies = JSON.parse(
+      await fs.readFile(imdbMoviesPath, { encoding: 'utf-8' })
+    )
+    console.log(
+      `loaded ${
+        Object.keys(imdbMovies).length
+      } IMDB movies from cache (${imdbMoviesPath})`
+    )
+  } catch (err) {
+    console.warn(
+      `warn: unable to load existing IMDB movie cache (${imdbMoviesPath})`,
+      err
+    )
+  }
 
   const numBatches = 24
   let batchNum = 0
