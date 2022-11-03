@@ -1,24 +1,15 @@
 import fs from 'node:fs/promises'
-import util from 'node:util'
 
-import { parse as parseCSV } from 'csv-parse'
-import dotenv from 'dotenv-safe'
 import makeDir from 'make-dir'
 import pMap from 'p-map'
 
+import * as config from './lib/config'
 import * as types from './types'
 import { convertTMDBMovieDetailsToMovie } from './lib/conversions'
-
-dotenv.config()
-
-interface IMDBRatings {
-  [imdbId: string]: IMDBRating
-}
-
-interface IMDBRating {
-  rating: number
-  numVotes: number
-}
+import {
+  loadIMDBMoviesFromCache,
+  loadIMDBRatingsFromDataDump
+} from './lib/imdb'
 
 /**
  * Updates downloaded TMDB movies with the following transforms:
@@ -29,52 +20,18 @@ interface IMDBRating {
  * - adds IMDB ratings from an official IMDB data dump
  */
 async function main() {
-  const srcDir = 'out'
-  const outDir = 'out'
-  await makeDir(outDir)
+  await makeDir(config.outDir)
 
-  console.log('parsing IMDB ratings')
-  let imdbRatings: IMDBRatings = {}
-  const imdbRatingsFilePath = 'data/title.ratings.tsv'
-  try {
-    const parse: any = util.promisify(parseCSV)
-    const rawCSV = await fs.readFile(imdbRatingsFilePath, { encoding: 'utf-8' })
-    const imdbRatingsRaw: Array<Array<string>> = await parse(rawCSV, {
-      delimiter: '\t'
-    })
-
-    for (const imdbRatingRaw of imdbRatingsRaw) {
-      const [imdbId, ratingRaw, numVotesRaw] = imdbRatingRaw
-
-      const rating = Number.parseFloat(ratingRaw)
-      const numVotes = Number.parseInt(numVotesRaw)
-
-      imdbRatings[imdbId] = {
-        rating,
-        numVotes
-      }
-    }
-
-    console.log(
-      `loaded ${
-        Object.keys(imdbRatings).length
-      } IMDB ratings data dump (${imdbRatingsFilePath})`
-    )
-  } catch (err) {
-    console.warn(
-      `warn: unable to load IMDB ratings data dump (${imdbRatingsFilePath})`,
-      err
-    )
-  }
+  const imdbRatings = await loadIMDBRatingsFromDataDump()
+  const imdbMovies = await loadIMDBMoviesFromCache()
 
   const numTmdbBatches = 24
   let batchNum = 0
-  let numMissingIMDBInfo = 0
-  let numMovies = 0
+  let numMoviesTotal = 0
 
   console.log('converting TMDB movies')
   do {
-    const srcFile = `${srcDir}/tmdb-${batchNum}.json`
+    const srcFile = `${config.outDir}/tmdb-${batchNum}.json`
     const tmdbMovies: types.tmdb.MovieDetails[] = JSON.parse(
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
@@ -101,15 +58,50 @@ async function main() {
 
           if (movie.imdbId) {
             const imdbRating = imdbRatings[movie.imdbId]
+            const imdbMovie = imdbMovies[movie.imdbId]
+            let hasIMDBRating = false
+
+            if (imdbMovie) {
+              if (imdbMovie.mainRate?.rateSource?.toLowerCase() === 'imdb') {
+                hasIMDBRating = true
+                movie.imdbRating = imdbMovie.mainRate.rate
+                movie.imdbVotes = imdbMovie.mainRate.votesCount
+              }
+
+              const metacriticRate = imdbMovie.allRates?.find(
+                (rate) => rate.rateSource?.toLowerCase() === 'metacritics'
+              )
+              if (metacriticRate) {
+                movie.metacriticRating = metacriticRate.rate
+                movie.metacriticVotes = metacriticRate.votesCount
+              }
+            }
 
             if (imdbRating) {
+              if (
+                hasIMDBRating &&
+                (movie.imdbRating !== imdbRating.rating ||
+                  movie.imdbVotes !== imdbRating.numVotes)
+              ) {
+                console.warn(
+                  `imdb rating mismatch ${movie.imdbId} (${movie.status}) ${movie.title}`,
+                  {
+                    scrapedIMDBRating: movie.imdbRating,
+                    scrapedIMDBVotes: movie.imdbVotes,
+                    dumpedIMDBRating: imdbRating.rating,
+                    dumpedIMDBVotes: imdbRating.numVotes
+                  }
+                )
+              }
+
+              hasIMDBRating = true
               movie.imdbRating = imdbRating.rating
               movie.imdbVotes = imdbRating.numVotes
-            } else {
-              ++numMissingIMDBInfo
+            }
 
+            if (!hasIMDBRating) {
               console.log(
-                `missing rating ${movie.imdbId} (${movie.status}) ${movie.title}`
+                `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
               )
             }
           }
@@ -122,7 +114,7 @@ async function main() {
       )
     ).filter(Boolean)
 
-    numMovies += movies.length
+    numMoviesTotal += movies.length
     console.log()
     console.log(`batch ${batchNum} done`, {
       numTMDBMovies,
@@ -131,7 +123,7 @@ async function main() {
     })
 
     await fs.writeFile(
-      `${outDir}/movies-${batchNum}.json`,
+      `${config.outDir}/movies-${batchNum}.json`,
       JSON.stringify(movies, null, 2),
       { encoding: 'utf-8' }
     )
@@ -141,8 +133,7 @@ async function main() {
 
   console.log()
   console.log('done', {
-    numMissingIMDBInfo,
-    numMovies
+    numMoviesTotal
   })
 }
 

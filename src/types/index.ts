@@ -41,6 +41,10 @@ export interface Movie {
   tmdbRating?: number
   tmdbVotes?: number
 
+  // metacritic
+  metacriticRating?: number
+  metacriticVotes?: number
+
   // ageRating: string
 }
 

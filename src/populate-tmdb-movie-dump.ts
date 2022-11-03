@@ -1,38 +1,35 @@
 import fs from 'node:fs/promises'
 
-import dotenv from 'dotenv-safe'
 import makeDir from 'make-dir'
 import pMap from 'p-map'
 
+import * as config from './lib/config'
 import * as types from './types'
 import { TMDB } from './lib/tmdb'
-
-dotenv.config()
 
 /**
  * Takes a dump of movies from TMDB and fetches all of the movie details from
  * TMDB in batches.
  */
 async function main() {
-  const outDir = 'out'
-  await makeDir(outDir)
+  await makeDir(config.outDir)
 
-  const rawMovieDump = await fs.readFile('./data/tmdb_dump_movie_ids.json', {
+  const rawMovieDump = await fs.readFile(config.tmdbMovieIdsDumpPath, {
     encoding: 'utf-8'
   })
   const dumpedMovies: types.tmdb.DumpedMovie[] = JSON.parse(rawMovieDump)
+
+  // sort input movies by popularity so we process more popular movies first
   dumpedMovies.sort((a, b) => b.popularity - a.popularity)
 
   const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN })
-
-  const batchSize = 32000
   let batchNum = 0
 
   do {
-    const startIndex = batchNum * batchSize
+    const startIndex = batchNum * config.batchSize
     const dumpedMoviesBatch = dumpedMovies.slice(
       startIndex,
-      startIndex + batchSize
+      startIndex + config.batchSize
     )
     if (!dumpedMoviesBatch.length) {
       break
@@ -48,10 +45,12 @@ async function main() {
               dumpedMovie.id,
               dumpedMovie.original_title
             )
+
             const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
               videos: true,
               images: true
             })
+
             return movieDetails
           } catch (err) {
             console.warn('tmdb error', dumpedMovie.id, err)
@@ -76,7 +75,7 @@ async function main() {
     // break
 
     await fs.writeFile(
-      `${outDir}/tmdb-${batchNum}.json`,
+      `${config.outDir}/tmdb-${batchNum}.json`,
       JSON.stringify(movies, null, 2).replaceAll(/^\s*/gm, ''),
       {
         encoding: 'utf-8'

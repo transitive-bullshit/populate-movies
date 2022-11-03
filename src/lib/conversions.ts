@@ -1,5 +1,8 @@
 import * as types from '../types'
 
+/**
+ * Converts a TMDB movie to our normalized format.
+ */
 export function convertTMDBMovieDetailsToMovie(
   movieDetails: types.tmdb.MovieDetails
 ): types.Movie {
@@ -25,7 +28,7 @@ export function convertTMDBMovieDetailsToMovie(
   if (movieDetails.videos?.results?.length) {
     const video = getBestTMDBTrailerVideo(movieDetails.videos.results)
 
-    if (video) {
+    if (video && video.key) {
       trailerUrl = `https://youtube.com/watch?v=${video.key}`
       trailerYouTubeId = video.key
     }
@@ -64,6 +67,13 @@ export function convertTMDBMovieDetailsToMovie(
   }
 }
 
+/**
+ * This function tries to find the best matching YouTube trailer for a given video.
+ *
+ * Ideally, this would be the official trailer in English, but we also consider a
+ * series of fallbacks like teaser trailers and film clips of no trailer videos are
+ * included in the data from TMDB.
+ */
 export function getBestTMDBTrailerVideo(
   inputVideos: types.tmdb.Video[]
 ): types.tmdb.Video | null {

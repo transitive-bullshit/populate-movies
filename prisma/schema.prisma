@@ -48,7 +48,10 @@ model Movie {
   tmdbPopularity Int?
   tmdbRating     Int?
   tmdbVotes      Int?
-  // @@index([imdbRating, releaseYear, trailerYoutubeId])
+
+  // metacritic
+  metacriticRating Int?
+  metacriticVotes  Int?
 
   @@index([tmdbId])
   @@index([imdbId])

@@ -3,7 +3,9 @@ import fs from 'node:fs/promises'
 import dotenv from 'dotenv-safe'
 import pMap from 'p-map'
 
+import * as config from './lib/config'
 import * as types from './types'
+import { loadIMDBMoviesFromCache } from './lib/imdb'
 
 dotenv.config()
 
@@ -11,18 +13,12 @@ dotenv.config()
  * Upserts all movies downloaded on disk as JSON batches into our Prisma database.
  */
 async function main() {
-  const srcDir = 'out'
+  const imdbMovies = await loadIMDBMoviesFromCache()
 
-  const imdbMoviesPath = `${srcDir}/imdb-movies-2.json`
-  const imdbMovies: types.IMDBMovies = JSON.parse(
-    await fs.readFile(imdbMoviesPath, { encoding: 'utf-8' })
-  )
-
-  const numBatches = 24
   let batchNum = 0
 
   do {
-    const srcFile = `${srcDir}/movies-${batchNum}.json`
+    const srcFile = `${config.outDir}/movies-${batchNum}.json`
     const movies: types.Movie[] = JSON.parse(
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
@@ -57,7 +53,7 @@ async function main() {
     })
 
     ++batchNum
-  } while (batchNum < numBatches)
+  } while (batchNum < config.numBatches)
 
   console.log('done')
 }

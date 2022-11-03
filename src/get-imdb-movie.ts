@@ -1,7 +1,7 @@
 import { getTitleDetailsByIMDBId } from './lib/imdb'
 
 /**
- * TODO
+ * Quick utility to scrape an individual IMDB title's information.
  */
 async function main() {
   // const imdbId = 'tt1502370'

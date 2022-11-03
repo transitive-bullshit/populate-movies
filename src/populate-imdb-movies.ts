@@ -1,13 +1,11 @@
 import fs from 'node:fs/promises'
 
-import dotenv from 'dotenv-safe'
 import makeDir from 'make-dir'
 import pMap from 'p-map'
 
+import * as config from './lib/config'
 import * as types from './types'
-import { getTitleDetailsByIMDBId } from './lib/imdb'
-
-dotenv.config()
+import { getTitleDetailsByIMDBId, loadIMDBMoviesFromCache } from './lib/imdb'
 
 /**
  * Fetches info on all previously downloaded movies on IMDB using a cheerio-based
@@ -19,34 +17,15 @@ dotenv.config()
  * preferred.
  */
 async function main() {
-  const srcDir = 'out'
-  const outDir = 'out'
-  await makeDir(outDir)
+  await makeDir(config.outDir)
 
-  const imdbMoviesPath = `${srcDir}/imdb-movies.json`
-  let imdbMovies: types.IMDBMovies = {}
-  try {
-    imdbMovies = JSON.parse(
-      await fs.readFile(imdbMoviesPath, { encoding: 'utf-8' })
-    )
-    console.log(
-      `loaded ${
-        Object.keys(imdbMovies).length
-      } IMDB movies from cache (${imdbMoviesPath})`
-    )
-  } catch (err) {
-    console.warn(
-      `warn: unable to load existing IMDB movie cache (${imdbMoviesPath})`,
-      err
-    )
-  }
+  const imdbMovies = await loadIMDBMoviesFromCache()
 
-  const numBatches = 24
   let batchNum = 0
   let numMovies = 0
 
   do {
-    const srcFile = `${srcDir}/movies-${batchNum}.json`
+    const srcFile = `${config.outDir}/movies-${batchNum}.json`
     const movies: types.Movie[] = JSON.parse(
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
@@ -97,13 +76,13 @@ async function main() {
     })
 
     await fs.writeFile(
-      `${outDir}/imdb-movies-2.json`,
+      config.imdbMoviesPath,
       JSON.stringify(imdbMovies, null, 2),
       { encoding: 'utf-8' }
     )
 
     ++batchNum
-  } while (batchNum < numBatches)
+  } while (batchNum < config.numBatches)
 
   console.log()
   console.log('done', {
