@@ -29,13 +29,13 @@ Once we have the data dumps downloaded into `data/` and our environment variable
 
 Before getting started, make sure you've run `pnpm install` to initialize the Node.js project.
 
-#### Populate TMDB Movies
+### Populate TMDB Movies
 
 Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each of the TMDB movie IDs with its corresponding TMDB movie details and stores the results into a series of batched JSON files `out/tmdb-0.json`, `out/tmdb-1.json`, etc. _(takes ~1 hour)_
 
 The result is ~655k movies in 24 batches of 32k.
 
-#### Process TMDB Movies
+### Process TMDB Movies
 
 Next, we'll run `npx tsc src/process-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
 
@@ -48,7 +48,7 @@ We also filters movies which are unlikely to be relevant for our use case:
 
 The result is ~95k movies.
 
-#### Populate IMDB Movies
+### Populate IMDB Movies
 
 The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). Note that we self-impose a strict rate-limit on the IMDB scraping, so this step will take a long time to run and requires a solid internet connection with minimal interruptions. _(takes 1-2 days)_
 
@@ -56,7 +56,7 @@ If you want to download additional IMDB metadata for all movies, including addit
 
 Once you are finished populating IMDB movies, you'll need to re-run `npx tsc src/process-tmdb-movies.ts`, which will now take into account the extra IMDB metadata that was downloaded to our local cache.
 
-#### Upsert Movies into Prisma
+### Upsert Movies into Prisma
 
 ```bash
 npx prisma db push
