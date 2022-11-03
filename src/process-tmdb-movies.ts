@@ -33,7 +33,6 @@ async function main() {
   let numTMDBMoviesTotal = 0
   let numMoviesTotal = 0
 
-  console.log()
   console.log('processing TMDB movies')
   do {
     const srcFile = `${config.outDir}/tmdb-${batchNum}.json`
@@ -42,6 +41,10 @@ async function main() {
     )
 
     const numTMDBMovies = tmdbMovies.length
+
+    console.log(
+      `\nprocessing ${numTMDBMovies} TMDB movies in batch ${batchNum} (${srcFile})\n`
+    )
 
     const movies = (
       await pMap(
@@ -73,8 +76,15 @@ async function main() {
             return null
           }
 
-          populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })
-          return movie
+          if (movie.genres?.length === 1 && movie.genres[0] === 'Music') {
+            return null
+          }
+
+          if (movie.runtime < 60) {
+            return null
+          }
+
+          return populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })
         },
         {
           concurrency: 4

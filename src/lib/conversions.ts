@@ -55,6 +55,9 @@ export function convertTMDBMovieDetailsToMovie(
     revenue: movieDetails.revenue,
     homepage: movieDetails.homepage,
     status: movieDetails.status,
+    keywords: [],
+    countriesOfOrigin: [],
+    languages: [],
 
     // media
     posterUrl,
@@ -75,13 +78,48 @@ export function populateMovieWithIMDBInfo(
     imdbRatings,
     imdbMovies
   }: { imdbRatings?: types.IMDBRatings; imdbMovies?: types.IMDBMovies }
-) {
+): types.Movie | null {
   if (movie.imdbId) {
     const imdbRating = imdbRatings[movie.imdbId]
     const imdbMovie = imdbMovies[movie.imdbId]
     let hasIMDBRating = false
 
     if (imdbMovie) {
+      if (imdbMovie.mainType !== 'movie') {
+        // ignore 'series' and 'seriesEpisode'
+        return null
+      }
+
+      if (imdbMovie.keywords) {
+        movie.keywords = imdbMovie.keywords
+      }
+
+      if (imdbMovie.countriesOfOrigin) {
+        movie.countriesOfOrigin = imdbMovie.countriesOfOrigin
+      }
+
+      if (imdbMovie.languages) {
+        movie.languages = imdbMovie.languages
+      }
+
+      if (imdbMovie.ageCategoryTitle) {
+        movie.ageRating = imdbMovie.ageCategoryTitle
+      }
+
+      if (imdbMovie.plot) {
+        movie.overview = imdbMovie.plot
+      }
+
+      if (imdbMovie.boxOffice) {
+        if (imdbMovie.boxOffice.budget > 0) {
+          movie.budget = imdbMovie.boxOffice.budget
+        }
+
+        if (imdbMovie.boxOffice.worldwide > 0) {
+          movie.revenue = imdbMovie.boxOffice.worldwide
+        }
+      }
+
       if (imdbMovie.mainRate?.rateSource?.toLowerCase() === 'imdb') {
         hasIMDBRating = true
         movie.imdbRating = imdbMovie.mainRate.rate
@@ -113,6 +151,8 @@ export function populateMovieWithIMDBInfo(
       )
     }
   }
+
+  return movie
 }
 
 /**

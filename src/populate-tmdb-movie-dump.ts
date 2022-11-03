@@ -36,6 +36,10 @@ async function main() {
       break
     }
 
+    console.log(
+      `\npopulating ${dumpedMoviesBatch.length} movies in batch ${batchNum} (${config.tmdbMovieIdsDumpPath})\n`
+    )
+
     const movies = (
       await pMap(
         dumpedMoviesBatch,

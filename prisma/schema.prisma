@@ -17,19 +17,23 @@ model Movie {
   tmdbId Int    @id @unique
   imdbId String @unique
 
-  title         String   @db.VarChar(256)
-  originalTitle String?  @db.VarChar(256)
-  language      String?
-  releaseYear   Int?
-  releaseDate   String?
-  genres        String[]
-  overview      String   @db.VarChar(4096)
-  runtime       Int
-  adult         Boolean  @default(false)
-  budget        Int
-  revenue       Int
-  homepage      String?  @db.VarChar(511)
-  status        String
+  title             String   @db.VarChar(256)
+  originalTitle     String?  @db.VarChar(256)
+  language          String?
+  releaseYear       Int?
+  releaseDate       String?
+  genres            String[]
+  overview          String   @db.VarChar(4096)
+  runtime           Int
+  adult             Boolean  @default(false)
+  budget            Int
+  revenue           Int
+  homepage          String?  @db.VarChar(511)
+  status            String
+  ageRating         String?
+  keywords          String[] @default([])
+  countriesOfOrigin String[] @default([])
+  languages         String[] @default([])
 
   // media
   posterUrl        String? @db.VarChar(512)

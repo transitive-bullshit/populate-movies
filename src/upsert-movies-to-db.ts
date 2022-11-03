@@ -10,6 +10,12 @@ import { prisma } from './lib/db'
  * Upserts all movies downloaded on disk into our Prisma database.
  */
 async function main() {
+  // WARNING: this makes it less of an upsert and more of a replacement
+  if (process.env.DROP_MOVIES) {
+    console.log('dropping movies from db')
+    await prisma.movie.deleteMany()
+  }
+
   let batchNum = 0
   let numMoviesTotal = 0
   let numMoviesUpsertedTotal = 0
@@ -20,6 +26,11 @@ async function main() {
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
 
+    console.log(
+      `\nupserting ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
+    )
+
+    // TODO: if DROP_MOVIES, then we can use `createMany`
     const upsertedMovies = (
       await pMap(
         movies,

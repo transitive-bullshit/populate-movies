@@ -30,6 +30,10 @@ async function main() {
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
 
+    console.log(
+      `\npopulating ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
+    )
+
     const imdbOutputMovies = (
       await pMap(
         movies,

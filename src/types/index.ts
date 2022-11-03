@@ -25,6 +25,10 @@ export interface Movie {
   revenue: number
   homepage: string
   status: string
+  ageRating?: string
+  keywords: string[]
+  countriesOfOrigin: string[]
+  languages: string[]
 
   // media
   posterUrl?: string | null
