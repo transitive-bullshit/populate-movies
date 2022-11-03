@@ -12,12 +12,12 @@ This project contains a series of scripts for resolving movies from [TMDB](https
 
 - `node >= 16`
 - `pnpm >= 7`
-- [TMDB v3 API bearer token](https://developers.themoviedb.org/3/getting-started/introduction)
+- [TMDB API v3 bearer token](https://developers.themoviedb.org/3/getting-started/introduction)
 - [Prisma MySQL database URL](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases/connect-your-database-typescript-postgres) ([Planetscale guide](https://planetscale.com/docs/onboarding/create-an-account))
 
 Store your `TMDB_BEARER_TOKEN` and `DATABASE_URL` in a local `.env` file.
 
-You'll need to download a recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz) and store the uncompressed version into `data/tmdb_dump_movie_ids.json`. This gives us a list of all TMDB movie IDs to kick things off.
+You'll need to download a recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz) and store the uncompressed version into `data/tmdb_dump_movie_ids.json`. This gives us a full list of TMDB movie IDs to kick things off.
 
 If you want movies to contain IMDB ratings, you'll also need to download an official [IMDB title ratings data dump](https://www.imdb.com/interfaces/). We're specifically interested in `title.ratings` such as [datasets.imdbws.com/title.ratings.tsv.gz](https://datasets.imdbws.com/title.ratings.tsv.gz) and store the uncompressed version into `data/title.ratings.tsv`. This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that drastically reduces the amount of scraping we need to do. Note that IMDB has [an official API](https://developer.imdb.com/), but it is extremely expensive to use (starting at $50k + usage-based billing).
 
