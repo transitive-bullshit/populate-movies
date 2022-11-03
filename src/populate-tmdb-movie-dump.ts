@@ -24,6 +24,7 @@ async function main() {
 
   const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN })
   let batchNum = 0
+  let numMoviesTotal = 0
 
   do {
     const startIndex = batchNum * config.batchSize
@@ -62,6 +63,8 @@ async function main() {
       )
     ).filter(Boolean)
 
+    numMoviesTotal += movies.length
+
     if (!movies.length) {
       const message = `error batch ${batchNum} failed to fetch any movies`
       console.error()
@@ -89,7 +92,9 @@ async function main() {
     ++batchNum
   } while (true)
 
-  console.log('done')
+  console.log(`done; ${batchNum} batches;`, {
+    numMoviesTotal
+  })
 }
 
 main()

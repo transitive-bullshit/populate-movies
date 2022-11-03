@@ -23,7 +23,9 @@ If you want movies to contain IMDB ratings, you'll also need to download an offi
 
 ## Steps
 
-Once we have the data dumps downloaded into `data/` and our environment variables setup, we can start processing movies. Most of the processing steps are broken up into batches (defaults to 32000 movies per batch) in order to allow for incremental processing and debugging.
+Once we have the data dumps downloaded into `data/` and our environment variables setup, we can start processing movies. Most of the processing steps break things up into batches (defaults to 32000 movies per batch) in order to allow for incremental processing and easier debugging.
+
+**All scripts are idempotent**, so you can run these steps repeatedly and expect the same results (with the exception of occasional HTTP errors which are expected).
 
 Before getting started, make sure you've run `pnpm install`.
 
@@ -31,7 +33,7 @@ Before getting started, make sure you've run `pnpm install`.
 
 Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each of the TMDB movie IDs with its corresponding TMDB movie details and stores the results into a series of batched JSON files `out/tmdb-0.json`, `out/tmdb-1.json`, etc. _(takes ~1 hour)_
 
-#### Update TMDB Movies
+#### Process TMDB Movies
 
 Next, we'll run `npx tsc src/process-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes < 1 minute)_
 
@@ -41,7 +43,7 @@ This step also filters movies which are unlikely to be relevant for our use case
 - filters movies which do not have a valid IMDB id
 - filters movies which do not have a valid trailer
 
-#### Popoulate IMDB Movies
+#### Populate IMDB Movies
 
 The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). Note that we self-impose a strict rate-limit on the IMDB scraping, so this step will take a long time to run and requires a solid internet connection with minimal interruptions. _(takes 1-2 days)_
 

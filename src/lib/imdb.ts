@@ -38,9 +38,12 @@ export async function loadIMDBMoviesFromCache(): Promise<types.IMDBMovies> {
     )
   } catch (err) {
     console.warn(
-      `warn: unable to load existing IMDB movie cache (${config.imdbMoviesPath})`,
-      err
+      `warn: unable to load existing IMDB movie cache (${config.imdbMoviesPath})`
     )
+    console.warn(
+      'You can safely ignore this warning if this is the first time running the IMDB population script.'
+    )
+    console.warn(err)
   }
 
   return imdbMovies
@@ -50,7 +53,7 @@ export async function loadIMDBRatingsFromDataDump(): Promise<types.IMDBRatings> 
   let imdbRatings: types.IMDBRatings = {}
 
   try {
-    console.log('loading IMDB ratings data dump')
+    console.log('loading IMDB ratings from data dump')
     const parse: any = util.promisify(parseCSV)
     const rawCSV = await fs.readFile(config.imdbRatingsPath, {
       encoding: 'utf-8'
@@ -72,13 +75,13 @@ export async function loadIMDBRatingsFromDataDump(): Promise<types.IMDBRatings> 
     }
 
     console.log(
-      `loaded ${Object.keys(imdbRatings).length} IMDB ratings data dump (${
+      `loaded ${Object.keys(imdbRatings).length} IMDB ratings from data dump (${
         config.imdbRatingsPath
       })`
     )
   } catch (err) {
     console.warn(
-      `warn: unable to load IMDB ratings data dump (${config.imdbRatingsPath})`,
+      `warn: unable to load IMDB ratings from data dump (${config.imdbRatingsPath})`,
       err
     )
   }

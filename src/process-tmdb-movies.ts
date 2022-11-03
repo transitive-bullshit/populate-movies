@@ -29,9 +29,11 @@ async function main() {
   const imdbMovies = await loadIMDBMoviesFromCache()
 
   let batchNum = 0
+  let numTMDBMoviesTotal = 0
   let numMoviesTotal = 0
 
-  console.log('converting TMDB movies')
+  console.log()
+  console.log('processing TMDB movies')
   do {
     const srcFile = `${config.outDir}/tmdb-${batchNum}.json`
     const tmdbMovies: types.tmdb.MovieDetails[] = JSON.parse(
@@ -46,15 +48,27 @@ async function main() {
         async (tmdbMovie): Promise<types.Movie> => {
           const movie = convertTMDBMovieDetailsToMovie(tmdbMovie)
 
+          if (movie.adult) {
+            console.log('warn adult movie', movie.tmdbId, movie.title)
+            return null
+          }
+
           if (movie.status !== 'Released') {
+            console.log(
+              `warn status (${movie.status})`,
+              movie.tmdbId,
+              movie.title
+            )
             return null
           }
 
           if (!movie.imdbId) {
+            console.log('warn missing imdb id', movie.tmdbId, movie.title)
             return null
           }
 
           if (!movie.trailerUrl) {
+            console.log('warn missing trailer', movie.tmdbId, movie.title)
             return null
           }
 
@@ -68,12 +82,15 @@ async function main() {
     ).filter(Boolean)
 
     numMoviesTotal += movies.length
+    numTMDBMoviesTotal += numTMDBMovies
+
     console.log()
     console.log(`batch ${batchNum} done`, {
       numTMDBMovies,
       numMovies: movies.length,
       percentMovies: `${((movies.length / numTMDBMovies) * 100) | 0}%`
     })
+    console.log()
 
     await fs.writeFile(
       `${config.outDir}/movies-${batchNum}.json`,
@@ -86,7 +103,9 @@ async function main() {
 
   console.log()
   console.log('done', {
-    numMoviesTotal
+    numTMDBMoviesTotal,
+    numMoviesTotal,
+    percentMoviesTotal: `${((numMoviesTotal / numTMDBMoviesTotal) * 100) | 0}%`
   })
 }
 

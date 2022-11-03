@@ -96,25 +96,13 @@ export function populateMovieWithIMDBInfo(
     }
 
     if (imdbRating) {
-      if (
-        hasIMDBRating &&
-        (movie.imdbRating !== imdbRating.rating ||
-          movie.imdbVotes !== imdbRating.numVotes)
-      ) {
-        console.warn(
-          `imdb rating mismatch ${movie.imdbId} (${movie.status}) ${movie.title}`,
-          {
-            scrapedIMDBRating: movie.imdbRating,
-            scrapedIMDBVotes: movie.imdbVotes,
-            dumpedIMDBRating: imdbRating.rating,
-            dumpedIMDBVotes: imdbRating.numVotes
-          }
-        )
+      // if we have IMDB ratings from two sources, take the one with more votes,
+      // which is likely to be more recent
+      if (!hasIMDBRating || imdbRating.numVotes > movie.imdbVotes) {
+        hasIMDBRating = true
+        movie.imdbRating = imdbRating.rating
+        movie.imdbVotes = imdbRating.numVotes
       }
-
-      hasIMDBRating = true
-      movie.imdbRating = imdbRating.rating
-      movie.imdbVotes = imdbRating.numVotes
     }
 
     if (!hasIMDBRating) {
