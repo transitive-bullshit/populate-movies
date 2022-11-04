@@ -25,6 +25,7 @@ async function main() {
   // })
   // console.log(JSON.stringify(res, null, 2))
 
+  // my extremely subjective query for "quality" movies that I might be interested in
   const res = await prisma.movie.findMany({
     where: {
       imdbRating: {

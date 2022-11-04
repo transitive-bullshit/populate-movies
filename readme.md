@@ -5,6 +5,7 @@
 [![Build Status](https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml/badge.svg)](https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml) [![Prettier Code Formatting](https://img.shields.io/badge/code_style-prettier-brightgreen.svg)](https://prettier.io)
 
 - [Intro](#intro)
+- [Movie Schema](#movie-schema)
 - [Prerequisites](#prerequisites)
 - [Steps](#steps)
   - [Populate TMDB Movies](#populate-tmdb-movies)
@@ -12,15 +13,60 @@
   - [Populate IMDB Movies](#populate-imdb-movies)
   - [Upsert Movies into Prisma](#upsert-movies-into-prisma)
   - [Query Movies from Prisma](#query-movies-from-prisma)
-- [Movie Schema](#movie-schema)
 - [Interesting Stats](#interesting-stats)
 - [License](#license)
 
 ## Intro
 
-This project contains a series of scripts for resolving a full set of movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and eventually storing them into a Postgres [Prisma](https://www.prisma.io/) database.
+This project contains a series of scripts for resolving a full set of movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and storing them into a Postgres [Prisma](https://www.prisma.io/) database.
 
-This process includes data normalization, cleaning, and filtering.
+This process includes data normalization, cleaning, and filtering. All steps are idempotent, so you should be able to re-run them whenever you want to refresh your data.
+
+## Movie Schema
+
+Movies are transformed into the following format, which largely follows the TMDB movie details format converted to snakeCase with some additional data from IMDB like ratings and keywords.
+
+```json
+{
+  "createdAt": "2022-11-03T21:15:23.423Z",
+  "updatedAt": "2022-11-03T21:15:23.423Z",
+  "tmdbId": 118,
+  "imdbId": "tt0367594",
+  "title": "Charlie and the Chocolate Factory",
+  "originalTitle": "Charlie and the Chocolate Factory",
+  "language": "en",
+  "releaseYear": 2005,
+  "releaseDate": "2005-07-13",
+  "genres": ["adventure", "comedy", "family", "fantasy"],
+  "overview": "A young boy wins a tour through the most magnificent chocolate factory in the world, led by the world's most unusual candy maker.",
+  "runtime": 115,
+  "adult": false,
+  "budget": 150000000,
+  "revenue": 474968763,
+  "homepage": "https://www.warnerbros.com/charlie-and-chocolate-factory",
+  "status": "released",
+  "ageRating": "PG",
+  "keywords": [
+    "psychotherapy",
+    "chocolate factory",
+    "chocolate",
+    "golden ticket"
+  ],
+  "countriesOfOrigin": ["United States", "United Kingdom"],
+  "languages": ["English"],
+  "posterUrl": "https://image.tmdb.org/t/p/w780/wfGfxtBkhBzQfOZw4S8IQZgrH0a.jpg",
+  "backdropUrl": "https://image.tmdb.org/t/p/w1280/atoIgfAk2Ig2HFJLD0VUnjiPWEz.jpg",
+  "trailerUrl": "https://youtube.com/watch?v=FZkIlAEbHi4",
+  "trailerYouTubeId": "FZkIlAEbHi4",
+  "imdbRating": 6.7,
+  "imdbVotes": 479685,
+  "tmdbPopularity": 190.224,
+  "tmdbRating": 7.034,
+  "tmdbVotes": 13036,
+  "metacriticRating": 72,
+  "metacriticVotes": 40
+}
+```
 
 ## Prerequisites
 
@@ -75,7 +121,7 @@ Once you are finished populating IMDB movies, you'll need to re-run `npx tsx src
 
 ### Upsert Movies into Prisma
 
-The final **optional** step is to upsert all movies into your Prisma database. (_takes a few minutes)_
+The final **optional** step is to upsert all movies into your Prisma database. (_takes ~30 seconds)_
 
 Make sure that you run have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`).
 
@@ -83,55 +129,9 @@ Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will r
 
 ### Query Movies from Prisma
 
-You should now have a fully populated Prisma Postgres database of movies, complete with the most important metadata from TMDB and IMDB. Huzzah!
+You should now have a Postgres database fully populated with movies, complete with the most important metadata from TMDB and IMDB. Huzzah!
 
 You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
-
-## Movie Schema
-
-Movies are transformed into the following format, which largely follows the TMDB movie details format converted to snakeCase with some additional data from IMDB like ratings and keywords.
-
-```json
-{
-  "createdAt": "2022-11-03T21:15:23.423Z",
-  "updatedAt": "2022-11-03T21:15:23.423Z",
-  "tmdbId": 118,
-  "imdbId": "tt0367594",
-  "title": "Charlie and the Chocolate Factory",
-  "originalTitle": "Charlie and the Chocolate Factory",
-  "language": "en",
-  "releaseYear": 2005,
-  "releaseDate": "2005-07-13",
-  "genres": ["adventure", "comedy", "family", "fantasy"],
-  "overview": "A young boy wins a tour through the most magnificent chocolate factory in the world, led by the world's most unusual candy maker.",
-  "runtime": 115,
-  "adult": false,
-  "budget": 150000000,
-  "revenue": 474968763,
-  "homepage": "https://www.warnerbros.com/charlie-and-chocolate-factory",
-  "status": "released",
-  "ageRating": "PG",
-  "keywords": [
-    "psychotherapy",
-    "chocolate factory",
-    "chocolate",
-    "golden ticket"
-  ],
-  "countriesOfOrigin": ["United States", "United Kingdom"],
-  "languages": ["English"],
-  "posterUrl": "https://image.tmdb.org/t/p/w780/wfGfxtBkhBzQfOZw4S8IQZgrH0a.jpg",
-  "backdropUrl": "https://image.tmdb.org/t/p/w1280/atoIgfAk2Ig2HFJLD0VUnjiPWEz.jpg",
-  "trailerUrl": "https://youtube.com/watch?v=FZkIlAEbHi4",
-  "trailerYouTubeId": "FZkIlAEbHi4",
-  "imdbRating": 6.7,
-  "imdbVotes": 479685,
-  "tmdbPopularity": 190.224,
-  "tmdbRating": 7.034,
-  "tmdbVotes": 13036,
-  "metacriticRating": 72,
-  "metacriticVotes": 40
-}
-```
 
 ## Interesting Stats
 

@@ -2,6 +2,9 @@ import * as types from '../types'
 
 /**
  * Converts a TMDB movie to our normalized format.
+ *
+ * Also extracts the highest quality images and YouTube trailer using a series
+ * of heuristics.
  */
 export function convertTMDBMovieDetailsToMovie(
   movieDetails: types.tmdb.MovieDetails
@@ -79,6 +82,14 @@ export function convertTMDBMovieDetailsToMovie(
   }
 }
 
+/**
+ * Augments a normalized TMDB movie with additional metadata from IMDB.
+ *
+ * In most cases, we prefer the IMDB data over TMDB equivalents.
+ *
+ * This function also filters many movies which are unlikely to be relevant
+ * for most use cases.
+ */
 export function populateMovieWithIMDBInfo(
   movie: types.Movie,
   {
@@ -126,7 +137,12 @@ export function populateMovieWithIMDBInfo(
       }
 
       if (imdbMovie.plot) {
-        movie.overview = imdbMovie.plot
+        if (movie.overview && imdbMovie.plot?.trim().endsWith('Read all')) {
+          // ignore truncated plots
+        } else {
+          // otherwise favor the IMDB plot over the TMDB plot
+          movie.overview = imdbMovie.plot.replace(/\.\.\. read all$/i, '...')
+        }
       }
 
       if (imdbMovie.boxOffice) {
@@ -190,11 +206,11 @@ export function populateMovieWithIMDBInfo(
       }
     }
 
-    if (!hasIMDBRating) {
-      console.warn(
-        `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
-      )
-    }
+    // if (!hasIMDBRating) {
+    //   console.warn(
+    //     `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
+    //   )
+    // }
   }
 
   if (isMovieLikelyStandupSpecial(movie)) {
