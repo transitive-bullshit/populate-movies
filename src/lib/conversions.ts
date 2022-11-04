@@ -34,7 +34,14 @@ export function convertTMDBMovieDetailsToMovie(
     }
   }
 
-  const genres = movieDetails.genres?.map((genre) => genre.name)
+  const genreMappings = {
+    'science fiction': 'scifi'
+  }
+  const genres =
+    movieDetails.genres
+      ?.map((genre) => genre.name?.toLowerCase())
+      .filter(Boolean)
+      .map((name) => genreMappings[name] ?? name) ?? []
 
   return {
     // ids
@@ -54,7 +61,7 @@ export function convertTMDBMovieDetailsToMovie(
     budget: movieDetails.budget,
     revenue: movieDetails.revenue,
     homepage: movieDetails.homepage,
-    status: movieDetails.status,
+    status: movieDetails.status?.toLowerCase(),
     keywords: [],
     countriesOfOrigin: [],
     languages: [],
@@ -86,8 +93,20 @@ export function populateMovieWithIMDBInfo(
 
     if (imdbMovie) {
       if (imdbMovie.mainType !== 'movie') {
-        // ignore 'series' and 'seriesEpisode'
+        if ((imdbMovie.mainType as any) === 'tvSpecial') {
+          console.log('ignoring tv special', movie)
+        }
+
+        // ignore non-movie titles
         return null
+      }
+
+      if (imdbMovie.genres) {
+        const genres = imdbMovie.genres.map((genre) => genre.toLowerCase())
+        movie.genres = movie.genres.concat(genres)
+
+        // ensure genres are unique
+        movie.genres = Array.from(new Set(movie.genres))
       }
 
       if (imdbMovie.keywords) {
@@ -146,9 +165,13 @@ export function populateMovieWithIMDBInfo(
     }
 
     if (!hasIMDBRating) {
-      console.log(
+      console.warn(
         `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
       )
+    }
+
+    if (isMovieLikelyStandupSpecial(movie)) {
+      movie.genres.push('stand up')
     }
   }
 
@@ -252,4 +275,73 @@ export function getBestTMDBTrailerVideo(
   if (candidate) return candidate
 
   return null
+}
+
+function isTextLikelyStandupSpecial(text: string): boolean {
+  if (!text) {
+    return false
+  }
+
+  if (/\bstand[ -]up comedy special\b/.test(text)) {
+    return true
+  }
+
+  if (/\bstand[ -]up special\b/.test(text)) {
+    return true
+  }
+
+  if (/\bstand[ -]up comedy\b/.test(text)) {
+    return true
+  }
+
+  return false
+}
+
+function isMovieLikelyStandupSpecial(movie: types.Movie): boolean {
+  const keywords = new Set(movie.keywords)
+
+  if (
+    !keywords.has('stand up') &&
+    !keywords.has('stand-up') &&
+    !isTextLikelyStandupSpecial(movie.overview)
+  ) {
+    return false
+  }
+
+  const standupKeywords = [
+    'tv special',
+    'live performance',
+    'stand up special',
+    'stand-up special',
+    'stand up act',
+    'stand-up act',
+    'stand up comedy',
+    'stand-up comedy'
+  ]
+
+  for (const keyword of standupKeywords) {
+    if (keywords.has(keyword)) {
+      console.log('comedy1', movie)
+
+      return true
+    }
+  }
+
+  const genres = new Set(movie.genres)
+
+  if (!genres.has('comedy')) {
+    return false
+  }
+
+  if (genres.has('documentary')) {
+    if (genres.size !== 2) {
+      // potentially a documentary about stand up comedy
+      return false
+    }
+  } else if (genres.size > 1) {
+    return false
+  }
+
+  console.log('comedy2', movie)
+  return true
 }

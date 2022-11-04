@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises'
+import { deflateSync } from 'node:zlib'
 
+import delay from 'delay'
 import makeDir from 'make-dir'
 import pMap from 'p-map'
 
@@ -17,6 +19,7 @@ import { getTitleDetailsByIMDBId, loadIMDBMoviesFromCache } from './lib/imdb'
  * preferred.
  */
 async function main() {
+  const overrideExistingIMDBMovies = !!process.env.OVERRIDE_IMDB_MOVIES
   await makeDir(config.outDir)
 
   const imdbMovies = await loadIMDBMoviesFromCache()
@@ -38,30 +41,46 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<types.Movie> => {
-          try {
-            if (!movie.imdbId || imdbMovies[movie.imdbId]) {
-              return null
-            }
-
-            // filter out movies which are too short to be movies we're interested in,
-            // like shorts, episodes, specials, and art projects
-            if (movie.runtime < 30) {
-              return null
-            }
-
-            console.log(
-              `${index} imdb ${movie.imdbId} (${movie.status}) ${movie.title}`
-            )
-            const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
-            imdbMovies[movie.imdbId] = imdbMovie
-
-            // console.log(movie)
-            // console.log(imdbMovie)
-          } catch (err) {
-            console.error('imdb error', movie.imdbId, err)
+          if (!movie.imdbId) {
+            return null
           }
 
-          return movie
+          // filter out movies which are too short like shorts, tv episodes, specials,
+          // and art projects
+          if (movie.runtime < 30) {
+            return null
+          }
+
+          if (!overrideExistingIMDBMovies && imdbMovies[movie.imdbId]) {
+            return null
+          }
+
+          let numErrors = 0
+
+          while (true) {
+            try {
+              console.log(
+                `${index} imdb ${movie.imdbId} (${movie.status}) ${movie.title}`
+              )
+
+              const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
+              imdbMovies[movie.imdbId] = {
+                ...imdbMovies[movie.imdbId],
+                ...imdbMovie
+              }
+
+              // console.log(movie)
+              // console.log(imdbMovie)
+
+              return movie
+            } catch (err) {
+              console.error('imdb error', movie.imdbId, err)
+              if (++numErrors > 2) {
+                return null
+              }
+              await delay(1000 * numErrors * numErrors)
+            }
+          }
         },
         {
           concurrency: 4

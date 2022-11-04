@@ -10,8 +10,8 @@ import { prisma } from './lib/db'
  * Upserts all movies downloaded on disk into our Prisma database.
  */
 async function main() {
-  // WARNING: this makes it less of an upsert and more of a replacement
-  if (process.env.DROP_MOVIES) {
+  const dropMovies = !process.env.NO_DROP_MOVIES
+  if (dropMovies) {
     console.log('dropping movies from db')
     await prisma.movie.deleteMany()
   }
@@ -30,46 +30,85 @@ async function main() {
       `\nupserting ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
     )
 
-    // TODO: if DROP_MOVIES, then we can use `createMany`
-    const upsertedMovies = (
-      await pMap(
-        movies,
-        async (movie, index) => {
-          try {
-            console.log(
-              `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title}`
-            )
+    let numMoviesUpserted = 0
 
-            return await prisma.movie.upsert({
-              where: { tmdbId: movie.tmdbId },
-              create: movie,
-              update: movie
+    if (dropMovies) {
+      const insertBatchSize = 512
+      const numInsertBatches = Math.ceil(movies.length / insertBatchSize)
+      const batches = []
+
+      for (let i = 0; i < numInsertBatches; ++i) {
+        batches.push(i)
+      }
+
+      await pMap(
+        batches,
+        async (_, index) => {
+          const start = index * insertBatchSize
+          const end = start + insertBatchSize
+          const movieBatch = movies.slice(start, end)
+
+          console.log(
+            `${batchNum}:${index} inserting ${movieBatch.length} movies`
+          )
+
+          try {
+            const res = await prisma.movie.createMany({
+              data: movieBatch
             })
+
+            numMoviesUpserted += res.count
           } catch (err) {
-            console.error(
-              'upsert error',
-              movie.tmdbId,
-              movie.imdbId,
-              movie.title,
-              err
-            )
+            console.error(`${batchNum}:${index} insert error`, err)
           }
         },
         {
-          concurrency: 16
+          concurrency: 8
         }
       )
-    ).filter(Boolean)
+    } else {
+      const upsertedMovies = (
+        await pMap(
+          movies,
+          async (movie, index) => {
+            try {
+              console.log(
+                `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title}`
+              )
+
+              return await prisma.movie.upsert({
+                where: { tmdbId: movie.tmdbId },
+                create: movie,
+                update: movie
+              })
+            } catch (err) {
+              console.error(
+                'upsert error',
+                movie.tmdbId,
+                movie.imdbId,
+                movie.title,
+                err
+              )
+            }
+          },
+          {
+            concurrency: 16
+          }
+        )
+      ).filter(Boolean)
+
+      numMoviesUpserted += upsertedMovies.length
+    }
 
     numMoviesTotal += movies.length
-    numMoviesUpsertedTotal += upsertedMovies.length
+    numMoviesUpsertedTotal += numMoviesUpserted
 
     console.log()
     console.log(`batch ${batchNum} done`, {
       numMovies: movies.length,
-      numUpsertedMovies: upsertedMovies.length,
-      percenUpsertedtMovies: `${
-        ((upsertedMovies.length / movies.length) * 100) | 0
+      numMoviesUpserted,
+      percenMoviesUpserted: `${
+        ((numMoviesUpserted / movies.length) * 100) | 0
       }%`
     })
     console.log()
@@ -80,7 +119,7 @@ async function main() {
   console.log('done', {
     numMoviesTotal,
     numMoviesUpsertedTotal,
-    percenUpsertedtMoviesTotal: `${
+    percenMoviesUpsertedTotal: `${
       ((numMoviesUpsertedTotal / numMoviesTotal) * 100) | 0
     }%`
   })

@@ -57,7 +57,7 @@ async function main() {
             return null
           }
 
-          if (movie.status !== 'Released') {
+          if (movie.status !== 'released') {
             // console.log(
             //   `warn status (${movie.status})`,
             //   movie.tmdbId,
@@ -76,12 +76,24 @@ async function main() {
             return null
           }
 
-          if (movie.genres?.length === 1 && movie.genres[0] === 'Music') {
+          if (movie.runtime < 60) {
             return null
           }
 
-          if (movie.runtime < 60) {
-            return null
+          const hasMusic = movie.genres.find((genre) => genre === 'music')
+          const hasDocumentary = movie.genres.find(
+            (genre) => genre === 'documentary'
+          )
+          const numGenres = movie.genres.length
+
+          if (hasMusic) {
+            if (numGenres === 1) {
+              return null
+            }
+
+            if (numGenres === 2 && hasDocumentary) {
+              return null
+            }
           }
 
           return populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })

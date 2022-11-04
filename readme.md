@@ -45,8 +45,10 @@ We also filters movies which are unlikely to be relevant for our use case:
 - filters movies which are not released yet (~1.5%)
 - filters movies which do not have a valid IMDB id (~40%)
 - filters movies which do not have a valid YouTube trailer (~58%)
+- filters music videos
+- filters movies which are too short
 
-The result is ~95k movies.
+The result is ~78k movies.
 
 ### Populate IMDB Movies
 
@@ -58,13 +60,15 @@ Once you are finished populating IMDB movies, you'll need to re-run `npx tsc src
 
 ### Upsert Movies into Prisma
 
-```bash
-npx prisma db push
-```
+The final **optional** step is to upsert all movies into your Prisma database. (_takes a few minutes)_
 
-`npx tsc src/upsert-movies-to-db.ts`
+Make sure that you run have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`).
 
-TODO
+Now you should be ready to run `npx tsc src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and upsert each movie into the Prisma database.
+
+### Query Movies from Prisma
+
+You should now have a fully populated Prisma Postgres database of movies, complete with the most important metadata from TMDB and IMDB. Huzzah!
 
 ## Movie Schema
 
@@ -72,34 +76,46 @@ Movies are transformed into the following format, which largely follows the TMDB
 
 ```json
 {
+  "createdAt": "2022-11-03T21:15:23.423Z",
+  "updatedAt": "2022-11-03T21:15:23.423Z",
   "tmdbId": 118,
   "imdbId": "tt0367594",
   "title": "Charlie and the Chocolate Factory",
   "originalTitle": "Charlie and the Chocolate Factory",
   "language": "en",
-  "releaseDate": "2005-07-13",
   "releaseYear": 2005,
-  "genres": ["Adventure", "Comedy", "Family", "Fantasy"],
+  "releaseDate": "2005-07-13",
+  "genres": ["adventure", "comedy", "family", "fantasy"],
   "overview": "A young boy wins a tour through the most magnificent chocolate factory in the world, led by the world's most unusual candy maker.",
   "runtime": 115,
   "adult": false,
   "budget": 150000000,
   "revenue": 474968763,
   "homepage": "https://www.warnerbros.com/charlie-and-chocolate-factory",
-  "status": "Released",
+  "status": "released",
+  "ageRating": "PG",
+  "keywords": [
+    "cannibalism",
+    "psychotherapy",
+    "chocolate factory",
+    "chocolate",
+    "golden ticket"
+  ],
+  "countriesOfOrigin": ["United States", "United Kingdom"],
+  "languages": ["English"],
   "posterUrl": "https://image.tmdb.org/t/p/w780/wfGfxtBkhBzQfOZw4S8IQZgrH0a.jpg",
   "backdropUrl": "https://image.tmdb.org/t/p/w1280/atoIgfAk2Ig2HFJLD0VUnjiPWEz.jpg",
   "trailerUrl": "https://youtube.com/watch?v=FZkIlAEbHi4",
   "trailerYouTubeId": "FZkIlAEbHi4",
-  "tmdbPopularity": 190.224,
   "imdbRating": 6.7,
-  "imdbVotes": 479487
+  "imdbVotes": 479685,
+  "tmdbPopularity": 190.224,
+  "tmdbRating": 7.034,
+  "tmdbVotes": 13036,
+  "metacriticRating": 72,
+  "metacriticVotes": 40
 }
 ```
-
-## TODO
-
-- filter imdb "mainType": "seriesEpisode",
 
 ## License
 

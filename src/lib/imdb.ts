@@ -31,7 +31,7 @@ export async function loadIMDBMoviesFromCache(): Promise<types.IMDBMovies> {
       await fs.readFile(config.imdbMoviesPath, { encoding: 'utf-8' })
     )
 
-    console.log(
+    console.warn(
       `loaded ${Object.keys(imdbMovies).length} IMDB movies from cache (${
         config.imdbMoviesPath
       })`
@@ -74,7 +74,7 @@ export async function loadIMDBRatingsFromDataDump(): Promise<types.IMDBRatings> 
       }
     }
 
-    console.log(
+    console.warn(
       `loaded ${Object.keys(imdbRatings).length} IMDB ratings from data dump (${
         config.imdbRatingsPath
       })`
