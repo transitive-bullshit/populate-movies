@@ -41,7 +41,7 @@ async function main() {
     const imdbOutputMovies = (
       await pMap(
         movies,
-        async (movie, index): Promise<types.Movie> => {
+        async (movie, index): Promise<types.imdb.Movie | null> => {
           if (!movie.imdbId) {
             return null
           }
@@ -61,7 +61,7 @@ async function main() {
           while (true) {
             try {
               console.log(
-                `${index} imdb ${movie.imdbId} (${movie.status}) ${movie.title}`
+                `${batchNum}:${index} imdb ${movie.imdbId} (${movie.status}) ${movie.title}`
               )
 
               const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
@@ -79,13 +79,15 @@ async function main() {
               // console.log(movie)
               // console.log(imdbMovie)
 
-              return movie
+              return imdbMovies[movie.imdbId]
             } catch (err) {
-              console.error('imdb error', movie.imdbId, err)
-              if (++numErrors > 2) {
+              console.error('imdb error', movie.imdbId, movie.title, err)
+
+              if (++numErrors >= 3) {
                 return null
+              } else {
+                await delay(1000 * numErrors * numErrors)
               }
-              await delay(1000 * numErrors * numErrors)
             }
           }
         },

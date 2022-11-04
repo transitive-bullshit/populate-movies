@@ -92,15 +92,6 @@ export function populateMovieWithIMDBInfo(
     let hasIMDBRating = false
 
     if (imdbMovie) {
-      if (imdbMovie.mainType !== 'movie') {
-        if ((imdbMovie.mainType as any) === 'tvSpecial') {
-          console.log('ignoring tv special', movie)
-        }
-
-        // ignore non-movie titles
-        return null
-      }
-
       if (imdbMovie.genres) {
         const genres = imdbMovie.genres.map((genre) => genre.toLowerCase())
         movie.genres = movie.genres.concat(genres)
@@ -152,6 +143,30 @@ export function populateMovieWithIMDBInfo(
         movie.metacriticRating = metacriticRate.rate
         movie.metacriticVotes = metacriticRate.votesCount
       }
+
+      const genres = new Set(movie.genres)
+
+      // TODO: this should be at the top, but moving it here for testing...
+      movie.imdbType = imdbMovie.mainType
+
+      if (
+        imdbMovie.mainType !== 'movie' &&
+        (imdbMovie.mainType as any) !== 'video'
+      ) {
+        if ((imdbMovie.mainType as any) === 'tvSpecial') {
+          console.log('ignoring tv special', movie)
+        } else if ((imdbMovie.mainType as any) === 'tvMovie') {
+          console.log('ignoring tv movie', movie)
+        }
+
+        // ignore non-movie / non-video titles
+        return null
+      }
+
+      if (genres.has('short')) {
+        // ignore IMDB-labeled short films
+        return null
+      }
     }
 
     if (imdbRating) {
@@ -169,10 +184,10 @@ export function populateMovieWithIMDBInfo(
         `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
       )
     }
+  }
 
-    if (isMovieLikelyStandupSpecial(movie)) {
-      movie.genres.push('stand up')
-    }
+  if (isMovieLikelyStandupSpecial(movie)) {
+    movie.genres.push('stand up')
   }
 
   return movie
@@ -321,8 +336,6 @@ function isMovieLikelyStandupSpecial(movie: types.Movie): boolean {
 
   for (const keyword of standupKeywords) {
     if (keywords.has(keyword)) {
-      console.log('comedy1', movie)
-
       return true
     }
   }
@@ -339,9 +352,9 @@ function isMovieLikelyStandupSpecial(movie: types.Movie): boolean {
       return false
     }
   } else if (genres.size > 1) {
+    // comedy + non-documentary genre => likely a film related to stand up comedy
     return false
   }
 
-  console.log('comedy2', movie)
   return true
 }

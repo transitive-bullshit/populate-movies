@@ -44,6 +44,7 @@ model Movie {
   // imdb
   imdbRating Float?
   imdbVotes  Int?
+  imdbType   String?
 
   // tmdb
   tmdbPopularity Float?

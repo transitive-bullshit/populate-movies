@@ -39,6 +39,7 @@ export interface Movie {
   // imdb
   imdbRating?: number
   imdbVotes?: number
+  imdbType?: IMDBType
 
   // tmdb
   tmdbPopularity?: number
@@ -48,9 +49,16 @@ export interface Movie {
   // metacritic
   metacriticRating?: number
   metacriticVotes?: number
-
-  // ageRating: string
 }
+
+export type IMDBType =
+  | 'movie'
+  | 'short'
+  | 'series'
+  | 'seriesEpisode'
+  | 'tvSpecial'
+  | 'tvMovie'
+  | 'video'
 
 // from local cache
 export interface IMDBMovies {

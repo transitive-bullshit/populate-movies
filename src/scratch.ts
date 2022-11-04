@@ -20,7 +20,7 @@ async function main() {
 
   // const res = await prisma.movie.findUnique({
   //   where: {
-  //     tmdbId: 118
+  //     imdbId: 'tt0130827'
   //   }
   // })
   // console.log(JSON.stringify(res, null, 2))
@@ -54,11 +54,11 @@ async function main() {
     }
   })
 
-  // for (const movie of res) {
-  //   const m = imdbMovies[movie.imdbId]
+  // // for (const movie of res) {
+  // //   const m = imdbMovies[movie.imdbId]
 
-  //   // ;(movie as any).genres2 = m.genres
-  // }
+  // //   // ;(movie as any).genres2 = m.genres
+  // // }
 
   console.warn(res.length)
   // // console.log(res)
