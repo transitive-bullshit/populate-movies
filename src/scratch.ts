@@ -25,17 +25,17 @@ async function main() {
   // })
   // console.log(JSON.stringify(res, null, 2))
 
-  const res = await prisma.movie.count({
+  const res = await prisma.movie.findMany({
     where: {
-      // imdbRating: {
-      //   gte: 7
-      // },
-      // releaseYear: {
-      //   gte: 1985
-      // },
-      // runtime: {
-      //   gte: 60
-      // },
+      imdbRating: {
+        gte: 7
+      },
+      releaseYear: {
+        gte: 1985
+      },
+      runtime: {
+        gte: 60
+      },
       imdbVotes: {
         gte: 1000
       },
