@@ -102,6 +102,15 @@ export function populateMovieWithIMDBInfo(
 
       if (imdbMovie.keywords) {
         movie.keywords = imdbMovie.keywords
+
+        const keywords = new Set(movie.keywords)
+        if (
+          keywords.has('edited from tv series') ||
+          keywords.has('compilation movie') ||
+          keywords.has('live performance')
+        ) {
+          return null
+        }
       }
 
       if (imdbMovie.countriesOfOrigin) {
@@ -144,27 +153,29 @@ export function populateMovieWithIMDBInfo(
         movie.metacriticVotes = metacriticRate.votesCount
       }
 
-      const genres = new Set(movie.genres)
-
-      // TODO: this should be at the top, but moving it here for testing...
       movie.imdbType = imdbMovie.mainType
+
+      const genres = new Set(movie.genres)
+      if (genres.has('short')) {
+        if (imdbMovie.mainType === 'movie') {
+          movie.imdbType = 'short'
+        }
+
+        // ignore IMDB-labeled short films
+        return null
+      }
 
       if (
         imdbMovie.mainType !== 'movie' &&
         (imdbMovie.mainType as any) !== 'video'
       ) {
-        if ((imdbMovie.mainType as any) === 'tvSpecial') {
-          console.log('ignoring tv special', movie)
-        } else if ((imdbMovie.mainType as any) === 'tvMovie') {
-          console.log('ignoring tv movie', movie)
-        }
+        // if ((imdbMovie.mainType as any) === 'tvSpecial') {
+        //   console.log('ignoring tv special', movie)
+        // } else if ((imdbMovie.mainType as any) === 'tvMovie') {
+        //   console.log('ignoring tv movie', movie)
+        // }
 
         // ignore non-movie / non-video titles
-        return null
-      }
-
-      if (genres.has('short')) {
-        // ignore IMDB-labeled short films
         return null
       }
     }
@@ -312,15 +323,31 @@ function isTextLikelyStandupSpecial(text: string): boolean {
   return false
 }
 
+const comedySpecialIMDBIds = new Set(['tt1794821'])
+
 function isMovieLikelyStandupSpecial(movie: types.Movie): boolean {
+  if (comedySpecialIMDBIds.has(movie.imdbId)) {
+    return true
+  }
+
   const keywords = new Set(movie.keywords)
 
   if (
     !keywords.has('stand up') &&
     !keywords.has('stand-up') &&
+    !keywords.has('stand up special') &&
+    !keywords.has('stand-up special') &&
     !isTextLikelyStandupSpecial(movie.overview)
   ) {
-    return false
+    if (
+      (keywords.has('stand up comedy') || keywords.has('stand-up comedy')) &&
+      movie.imdbType !== 'movie'
+    ) {
+      // likely a video / Q&A session
+      return true
+    } else {
+      return false
+    }
   }
 
   const standupKeywords = [

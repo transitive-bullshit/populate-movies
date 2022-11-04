@@ -8,6 +8,9 @@ import { prisma } from './lib/db'
 
 /**
  * Upserts all movies downloaded on disk into our Prisma database.
+ *
+ * @note The batch create version is ~14x faster than the upsert version, so it's
+ * the default. (~30s vs ~7 minutes)
  */
 async function main() {
   const dropMovies = !process.env.NO_DROP_MOVIES
