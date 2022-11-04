@@ -25,17 +25,17 @@ async function main() {
   // })
   // console.log(JSON.stringify(res, null, 2))
 
-  const res = await prisma.movie.findMany({
+  const res = await prisma.movie.count({
     where: {
-      imdbRating: {
-        gte: 7
-      },
-      releaseYear: {
-        gte: 1985
-      },
-      runtime: {
-        gte: 60
-      },
+      // imdbRating: {
+      //   gte: 7
+      // },
+      // releaseYear: {
+      //   gte: 1985
+      // },
+      // runtime: {
+      //   gte: 60
+      // },
       imdbVotes: {
         gte: 1000
       },
@@ -49,7 +49,7 @@ async function main() {
           },
           {
             genres: {
-              hasSome: ['stand up', 'documentary']
+              hasSome: ['stand up', 'documentary', 'short']
             }
           }
         ]
@@ -57,10 +57,6 @@ async function main() {
     },
     orderBy: {
       imdbRating: 'desc'
-    },
-    select: {
-      imdbRating: true,
-      imdbVotes: true
     }
   })
 

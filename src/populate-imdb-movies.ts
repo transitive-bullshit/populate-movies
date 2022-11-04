@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises'
-import { deflateSync } from 'node:zlib'
 
 import delay from 'delay'
 import makeDir from 'make-dir'

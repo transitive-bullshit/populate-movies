@@ -117,6 +117,11 @@ Movies are transformed into the following format, which largely follows the TMDB
 }
 ```
 
+## Interesting Stats
+
+- 28 unique IMDB movie genres
+- ~42k unique IMDB movie keywords
+
 ## License
 
 MIT © [Travis Fischer](https://transitivebullsh.it)

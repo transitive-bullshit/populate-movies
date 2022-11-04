@@ -355,10 +355,14 @@ function isMovieLikelyStandupSpecial(movie: types.Movie): boolean {
     'live performance',
     'stand up special',
     'stand-up special',
+    'stand up comedy',
+    'stand-up comedy',
     'stand up act',
     'stand-up act',
-    'stand up comedy',
-    'stand-up comedy'
+    'stand up routine',
+    'stand-up routine',
+    'stand up comedy performance',
+    'stand-up comedy performance'
   ]
 
   for (const keyword of standupKeywords) {
