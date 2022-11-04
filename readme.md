@@ -35,9 +35,9 @@ Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each o
 
 The result is ~655k movies in 24 batches of 32k.
 
-### Process TMDB Movies
+### Process Movies
 
-Next, we'll run `npx tsc src/process-tmdb-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
+Next, we'll run `npx tsc src/process-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
 
 We also filters movies which are unlikely to be relevant for our use case:
 
@@ -47,6 +47,7 @@ We also filters movies which are unlikely to be relevant for our use case:
 - filters movies which do not have a valid YouTube trailer (~58%)
 - filters music videos
 - filters movies which are too short
+- adds additional IMDB info from any previous `populate-tmdb-movies` cache (if `out/tmdb-movies.json` exists)
 
 The result is ~78k movies.
 
@@ -56,7 +57,7 @@ The next **optional** step is to download additional IMDB info for each movie, u
 
 If you want to download additional IMDB metadata for all movies, including additional rating info, you'll need to run `npx tsc src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, process each movie individually with `movier` and store the results in JSON hashmap keyed by IMDB ID to `out/imdb-movies.json`
 
-Once you are finished populating IMDB movies, you'll need to re-run `npx tsc src/process-tmdb-movies.ts`, which will now take into account the extra IMDB metadata that was downloaded to our local cache.
+Once you are finished populating IMDB movies, you'll need to re-run `npx tsc src/process-movies.ts`, which will now take into account the extra IMDB metadata that was downloaded to our local cache.
 
 ### Upsert Movies into Prisma
 
@@ -95,7 +96,6 @@ Movies are transformed into the following format, which largely follows the TMDB
   "status": "released",
   "ageRating": "PG",
   "keywords": [
-    "cannibalism",
     "psychotherapy",
     "chocolate factory",
     "chocolate",
@@ -120,7 +120,23 @@ Movies are transformed into the following format, which largely follows the TMDB
 ## Interesting Stats
 
 - 28 unique IMDB movie genres
-- ~42k unique IMDB movie keywords
+- 42k unique IMDB movie keywords
+- 750k "movies" in TMDB
+- 73k movies
+  - 8.6k documentaries
+  - 44k english movies
+  - 34k movies made in the U.S.
+    - (80% of these are made exclusively in the U.S.)
+  - 4.3k movies made in India
+    - (99% of these are made exclusively in India)
+  - 1.3k movies made in China
+    - (40% of these are made exclusively in China)
+  - 30k movies have at least 1k votes on IMDB
+  - 17k movies have at least an IMDB rating of 7
+  - 29k movies have at least an IMDB rating of 6.5
+  - 40k movies have at least an IMDB rating of 6
+
+(_all stats are approximate_)
 
 ## License
 

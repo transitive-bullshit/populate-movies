@@ -22,6 +22,7 @@ import {
  * - filters movies which do not have a valid IMDB id
  * - filters movies which do not have a valid YouTube trailer
  * - adds IMDB ratings from an official IMDB data dump
+ * - adds additional IMDB metadata from previous `populate-imdb-movies` cache
  */
 async function main() {
   await makeDir(config.outDir)
