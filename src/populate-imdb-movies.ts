@@ -25,7 +25,8 @@ async function main() {
   const imdbMovies = await loadIMDBMoviesFromCache()
 
   let batchNum = 0
-  let numMovies = 0
+  let numMoviesTotal = 0
+  let numIMDBMoviesDownloadedTotal = 0
 
   do {
     const srcFile = `${config.outDir}/movies-${batchNum}.json`
@@ -69,6 +70,12 @@ async function main() {
                 ...imdbMovie
               }
 
+              if (index === 0) {
+                console.log()
+                console.log(JSON.stringify(imdbMovies[movie.imdbId], null, 2))
+                console.log()
+              }
+
               // console.log(movie)
               // console.log(imdbMovie)
 
@@ -88,11 +95,17 @@ async function main() {
       )
     ).filter(Boolean)
 
-    numMovies += movies.length
+    const numMovies = movies.length
+    const numIMDBMoviesDownloaded = imdbOutputMovies.length
+
+    numMoviesTotal += numMovies
+    numIMDBMoviesDownloadedTotal += numIMDBMoviesDownloaded
+
     console.log()
     console.log(`batch ${batchNum} done`, {
       numMovies,
-      numIMDBMovies: Object.keys(imdbMovies).length
+      numIMDBMoviesDownloaded,
+      numIMDBMoviesTotal: Object.keys(imdbMovies).length
     })
 
     await fs.writeFile(
@@ -106,8 +119,9 @@ async function main() {
 
   console.log()
   console.log('done', {
-    numMovies,
-    numIMDBMovies: Object.keys(imdbMovies).length
+    numMoviesTotal,
+    numIMDBMoviesDownloadedTotal,
+    numIMDBMoviesTotal: Object.keys(imdbMovies).length
   })
 }
 

@@ -17,8 +17,8 @@ import * as config from './config'
  * would need to use a stricter rate-limit here (originally max 1 per 1000ms).
  */
 const throttle = pThrottle({
-  limit: 3,
-  interval: 1200
+  limit: 4,
+  interval: 1000
 })
 
 export const getTitleDetailsByIMDBId = throttle(movier.getTitleDetailsByIMDBId)
