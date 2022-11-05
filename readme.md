@@ -168,8 +168,7 @@ Support my open source work by <a href="https://twitter.com/transitive_bs">follo
 
 <p>
   <a href="https://developers.themoviedb.org/3/getting-started/introduction"><img alt="TMDB" src="/media/tmdb.svg" height="65"></a>
-</p>
-
-<p>
+  &nbsp; &nbsp; &nbsp; &nbsp;
+  &nbsp; &nbsp; &nbsp; &nbsp;
   <a href="https://www.imdb.com/interfaces/"><img alt="IMDB" src="/media/imdb.png" height="65"></a>
 </p>
