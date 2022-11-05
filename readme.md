@@ -21,7 +21,7 @@
   - [Populate IMDB Movies](#populate-imdb-movies)
   - [Upsert Movies into Prisma](#upsert-movies-into-prisma)
   - [Query Movies from Prisma](#query-movies-from-prisma)
-- [Interesting Stats](#interesting-stats)
+- [Stats](#stats)
 - [License](#license)
 
 ## Intro
@@ -141,7 +141,7 @@ You should now have a Postgres database fully populated with movies, complete wi
 
 You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 
-## Interesting Stats
+## Stats
 
 - 750k "movies" in TMDB
 - 73k movies
@@ -165,3 +165,6 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 MIT © [Travis Fischer](https://transitivebullsh.it)
 
 Support my open source work by <a href="https://twitter.com/transitive_bs">following me on twitter <img src="https://storage.googleapis.com/saasify-assets/twitter-logo.svg" alt="twitter" height="24px" align="center"></a>
+
+<a href="https://developers.themoviedb.org/3/getting-started/introduction"><img alt="TMDB" src="/media/tmdb.svg" height="129"></a>
+<a href="https://www.imdb.com/interfaces/"><img alt="IMDB" src="/media/imdb.png" height="129"></a>
