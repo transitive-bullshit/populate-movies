@@ -133,7 +133,7 @@ Once this step finishes, you'll need to re-run `npx tsx src/process-movies.ts`, 
 
 ### Upsert Movies into Prisma
 
-The final **optional** step is to upsert all movies into your Prisma database. (_takes ~30 seconds)_
+The final **optional** step is to upsert all of the movies into your Prisma database. (_takes ~30 seconds)_
 
 Make sure that you have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`). You can alternatively use `prisma db migrate` and `prisma generate` if you prefer that workflow.
 

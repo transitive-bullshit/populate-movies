@@ -224,7 +224,7 @@ export function populateMovieWithIMDBInfo(
  * This function tries to find the best matching YouTube trailer for a given video.
  *
  * Ideally, this would be the official trailer in English, but we also consider a
- * series of fallbacks like teaser trailers and film clips of no trailer videos are
+ * series of fallbacks like teaser trailers and film clips if no trailer videos are
  * included in the data from TMDB.
  */
 export function getBestTMDBTrailerVideo(

@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 
+import delay from 'delay'
 import makeDir from 'make-dir'
 import pMap from 'p-map'
 
@@ -24,7 +25,7 @@ async function main() {
 
   const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN })
   let batchNum = 0
-  let numMoviesTotal = 0
+  let numPopulatedMoviesTotal = 0
 
   do {
     const startIndex = batchNum * config.batchSize
@@ -40,30 +41,47 @@ async function main() {
       `\npopulating ${dumpedMoviesBatch.length} movies in batch ${batchNum} (${config.tmdbMovieIdsDumpPath})\n`
     )
 
-    const movies = (
+    const populatedMovies = (
       await pMap(
         dumpedMoviesBatch,
         async (dumpedMovie, index) => {
-          try {
-            console.log(
-              `${batchNum}:${index})`,
-              dumpedMovie.id,
-              dumpedMovie.original_title
-            )
+          // ignore adult movies
+          if (dumpedMovie.adult) {
+            return null
+          }
 
-            // ignore adult movies
-            if (dumpedMovie.adult) {
-              return null
+          let numErrors = 0
+
+          while (true) {
+            try {
+              console.log(
+                `${batchNum}:${index})`,
+                dumpedMovie.id,
+                dumpedMovie.original_title
+              )
+
+              const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
+                videos: true,
+                images: true
+              })
+
+              return movieDetails
+            } catch (err) {
+              console.warn('tmdb error', dumpedMovie.id, err)
+
+              if (++numErrors >= 4 || err.response?.statusCode === 404) {
+                console.error(
+                  'tmdb unrecoverable error',
+                  dumpedMovie.id,
+                  dumpedMovie,
+                  err
+                )
+
+                return null
+              } else {
+                await delay(1000 * numErrors * numErrors)
+              }
             }
-
-            const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
-              videos: true,
-              images: true
-            })
-
-            return movieDetails
-          } catch (err) {
-            console.warn('tmdb error', dumpedMovie.id, err)
           }
         },
         {
@@ -72,9 +90,10 @@ async function main() {
       )
     ).filter(Boolean)
 
-    numMoviesTotal += movies.length
+    const numPopulatedMovies = populatedMovies.length
+    numPopulatedMoviesTotal += numPopulatedMovies
 
-    if (!movies.length) {
+    if (!populatedMovies.length) {
       const message = `error batch ${batchNum} failed to fetch any movies`
       console.error()
       console.error(message)
@@ -83,26 +102,36 @@ async function main() {
       throw new Error(message)
     }
 
-    // console.log(JSON.stringify(movies, null, 2).replaceAll(/^\s*/gm, ''))
+    // console.log(JSON.stringify(populatedMovies, null, 2).replaceAll(/^\s*/gm, ''))
     // break
 
     await fs.writeFile(
       `${config.outDir}/tmdb-${batchNum}.json`,
-      JSON.stringify(movies, null, 2).replaceAll(/^\s*/gm, ''),
+      JSON.stringify(populatedMovies, null, 2).replaceAll(/^\s*/gm, ''),
       {
         encoding: 'utf-8'
       }
     )
 
     console.log()
-    console.log(`batch ${batchNum} done (${movies.length} movies)`)
+    console.log(`batch ${batchNum} done`, {
+      numMoviesInBatch: dumpedMoviesBatch.length,
+      numPopulatedMovies,
+      percentPopulatedMovies: `${
+        ((numPopulatedMovies / dumpedMoviesBatch.length) * 100) | 0
+      }%`
+    })
     console.log()
 
     ++batchNum
   } while (true)
 
   console.log(`done; ${batchNum} batches;`, {
-    numMoviesTotal
+    numDumpedMoviesTotal: dumpedMovies.length,
+    numPopulatedMoviesTotal,
+    percentPopulatedMoviesTotal: `${
+      ((numPopulatedMoviesTotal / dumpedMovies.length) * 100) | 0
+    }%`
   })
 }
 
