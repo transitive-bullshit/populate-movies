@@ -144,7 +144,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 ## Stats
 
 - 750k "movies" in TMDB
-- 73k movies
+- 73k movies after resolving and filtering
   - 8.6k documentaries
   - 44k english movies
   - 34k movies made in the U.S.
