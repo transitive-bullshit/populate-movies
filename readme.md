@@ -167,7 +167,7 @@ MIT © [Travis Fischer](https://transitivebullsh.it)
 Support my open source work by <a href="https://twitter.com/transitive_bs">following me on twitter <img src="https://storage.googleapis.com/saasify-assets/twitter-logo.svg" alt="twitter" height="24px" align="center"></a>
 
 <p align="center">
-  <a href="https://developers.themoviedb.org/3/getting-started/introduction"><img alt="TMDB" src="/media/tmdb.svg" height="129"></a>
+  <a href="https://developers.themoviedb.org/3/getting-started/introduction"><img alt="TMDB" src="/media/tmdb.svg" height="65"></a>
   &nbsp; &nbsp; &nbsp; &nbsp;
-  <a href="https://www.imdb.com/interfaces/"><img alt="IMDB" src="/media/imdb.png" height="129"></a>
+  <a href="https://www.imdb.com/interfaces/"><img alt="IMDB" src="/media/imdb.png" height="65"></a>
 </p>
