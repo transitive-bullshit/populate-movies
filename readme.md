@@ -36,8 +36,6 @@ Movies are transformed into the following format, which largely follows the TMDB
 
 ```json
 {
-  "createdAt": "2022-11-03T21:15:23.423Z",
-  "updatedAt": "2022-11-03T21:15:23.423Z",
   "tmdbId": 118,
   "imdbId": "tt0367594",
   "title": "Charlie and the Chocolate Factory",
@@ -72,7 +70,9 @@ Movies are transformed into the following format, which largely follows the TMDB
   "tmdbRating": 7.034,
   "tmdbVotes": 13036,
   "metacriticRating": 72,
-  "metacriticVotes": 40
+  "metacriticVotes": 40,
+  "createdAt": "2022-11-03T21:15:23.423Z",
+  "updatedAt": "2022-11-03T21:15:23.423Z"
 }
 ```
 
