@@ -67,18 +67,18 @@ async function main() {
 
               return movieDetails
             } catch (err) {
-              console.warn('tmdb error', dumpedMovie.id, err)
-
-              if (++numErrors >= 4 || err.response?.statusCode === 404) {
+              if (++numErrors >= 3 || err.response?.statusCode === 404) {
                 console.error(
                   'tmdb unrecoverable error',
                   dumpedMovie.id,
                   dumpedMovie,
-                  err
+                  err.toString()
                 )
 
                 return null
               } else {
+                console.warn('tmdb error', dumpedMovie.id, err.toString())
+
                 await delay(1000 * numErrors * numErrors)
               }
             }

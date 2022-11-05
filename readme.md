@@ -22,6 +22,7 @@
   - [Upsert Movies into Prisma](#upsert-movies-into-prisma)
   - [Query Movies from Prisma](#query-movies-from-prisma)
 - [Stats](#stats)
+- [Database Notes](#database-notes)
 - [License](#license)
 
 ## Intro
@@ -119,7 +120,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 - filters live concerts
 - adds additional IMDB info from any previous `populate-tmdb-movies` cache (if `out/tmdb-movies.json` exists)
 
-The result is ~73k movies.
+The result is ~72k movies.
 
 ### Populate IMDB Movies
 
@@ -137,7 +138,9 @@ The final **optional** step is to upsert all of the movies into your Prisma data
 
 Make sure that you have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`). You can alternatively use `prisma db migrate` and `prisma generate` if you prefer that workflow.
 
-Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and upsert each movie into the Prisma database.
+**NOTE**: this step defaults to emptying any existing movies from your database before inserting the new ones. This functionality can be tweaked to perform a less destructive per-movie `upsert` instead, though this approach is quite a bit slower. See the source file for details.
+
+Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into your database.
 
 ### Query Movies from Prisma
 
@@ -148,7 +151,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 ## Stats
 
 - ~750k "movies" in TMDB
-- ~73k movies after resolving and filtering
+- ~72k movies after resolving and filtering
   - 8.6k documentaries
   - 44k english movies
   - 34k movies made in the U.S.
@@ -163,6 +166,12 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
   - 40k movies have at least an IMDB rating of 6
 
 (_all stats are approximate_)
+
+## Database Notes
+
+The resulting movie dataset is ~70MB and can fit in most free-tier Postgres instances.
+
+If to want to switch to a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. The easiest will be switching to any [database supported by Prisma](https://www.prisma.io/stack), including as MongoDB, MySQL, and SQLite.
 
 ## License
 
