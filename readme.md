@@ -1,8 +1,17 @@
-# Populate Movies <!-- omit in toc -->
+<p href="https://dub.sh">
+  <img alt="Populates a full database of movies from TMDB and IMDB into Prisma." src="/media/banner.jpg">
 
-> Populates a full database of movies from TMDB and IMDB into Prisma.
+  <h1 align="center">Populate Movies</h1>
+</p>
 
-[![Build Status](https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml/badge.svg)](https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml) [![Prettier Code Formatting](https://img.shields.io/badge/code_style-prettier-brightgreen.svg)](https://prettier.io)
+<p align="center">
+  Populates a full database of movies from TMDB and IMDB into Prisma.
+</p>
+
+<p align="center">
+  <a href="https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml"><img alt="Build Status" src="https://github.com/transitive-bullshit/populate-movies/actions/workflows/test.yml/badge.svg"></a>&nbsp;
+  <a href="https://prettier.io"><img alt="Prettier Code Formatting" src="https://img.shields.io/badge/code_style-prettier-brightgreen.svg"></a>
+</p>
 
 - [Intro](#intro)
 - [Movie Schema](#movie-schema)
