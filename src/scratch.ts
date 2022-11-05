@@ -40,13 +40,129 @@ async function main() {
       imdbVotes: {
         gte: 1000
       },
-      language: 'en',
+      // language: 'en',
       NOT: {
         OR: [
           {
-            countriesOfOrigin: {
-              equals: ['India']
+            title: {
+              startsWith: 'National Theatre Live'
             }
+          },
+          {
+            countriesOfOrigin: {
+              hasSome: ['India', 'Bangladesh', 'Pakistan', 'Indonesia']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Romania']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Serbia']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Iran']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['China']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Hong Kong']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['China', 'Hong Kong']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Nepal']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Turkey']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Lithuania']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Federal Republic of Yugoslavia']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Egypt']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Bulgaria']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Malaysia']
+            }
+          },
+          {
+            countriesOfOrigin: {
+              equals: ['Greece']
+            }
+          },
+          {
+            languages: {
+              equals: ['Romanian']
+            }
+          },
+          {
+            languages: {
+              equals: ['Persian']
+            }
+          },
+          {
+            languages: {
+              equals: ['Arabic']
+            }
+          },
+          {
+            languages: {
+              equals: ['Urdu']
+            }
+          },
+          {
+            languages: {
+              equals: ['Mandarin']
+            }
+          },
+          {
+            languages: {
+              equals: ['Hungarian']
+            }
+          },
+          {
+            languages: {
+              equals: ['Bosnian']
+            }
+          },
+          {
+            language: 'kr'
+          },
+          {
+            language: 'ka'
           },
           {
             genres: {
@@ -60,6 +176,8 @@ async function main() {
       imdbRating: 'desc'
     }
   })
+
+  // filter korean movies aside from Parasite? and the handmaiden?
 
   // for (const movie of res) {
   //   const m = imdbMovies[movie.imdbId]
