@@ -2,7 +2,7 @@
   "name": "populate-movies",
   "version": "0.0.0",
   "private": true,
-  "description": "Populates a full database of movies from TMDB and IMDB into Prisma.",
+  "description": "Populates a full database of movies from TMDB and IMDB into Postgres.",
   "author": "Travis Fischer <travis@transitivebullsh.it>",
   "repository": "transitive-bullshit/populate-movies",
   "license": "MIT",
