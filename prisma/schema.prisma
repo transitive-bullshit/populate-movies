@@ -58,7 +58,7 @@ model Movie {
   imdbCustomPopularity Float?
 
   // TODO
-  // @@index([imdbRating, releaseYear, runtime, imdbVotes, countriesOfOrigin, genres])
+  // @@index([releaseYear, relevancyScore, imdbRating, foreign, genres])
 
   @@index([imdbId])
 }

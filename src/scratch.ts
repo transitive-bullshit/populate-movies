@@ -7,14 +7,11 @@ import { prisma } from './lib/db'
 async function main() {
   const res = await prisma.movie.findMany({
     where: {
-      imdbRating: {
-        gte: 6
-      },
+      // imdbRating: {
+      //   gte: 6
+      // },
       releaseYear: {
         gte: 1972
-      },
-      imdbVotes: {
-        lt: 30000
       },
       relevancyScore: {
         gte: 31000
