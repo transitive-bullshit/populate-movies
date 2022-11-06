@@ -27,9 +27,9 @@
 
 ## Intro
 
-This project contains a series of scripts for resolving a full set of movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches and storing them into a Postgres database via [Prisma](https://www.prisma.io/).
+This project resolves a full set of movies from [TMDB](https://www.themoviedb.org/) and [IMDB](https://imdb.com/) in batches, storing them into a Postgres database using [Prisma](https://www.prisma.io/).
 
-This process includes data fetching, normalization, cleaning, and filtering. All steps are idempotent, so you should be able to re-run them whenever you want to refresh your data.
+This includes data fetching, normalization, cleaning, and filtering. All steps are idempotent, so you should be able to re-run them whenever you want to refresh your data.
 
 ## Movie Schema
 
