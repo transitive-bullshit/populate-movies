@@ -130,6 +130,8 @@ The next **optional** step is to download additional IMDB info for each movie, u
 
 If you want to proceed with downloading additional IMDB metadata, you'll need to run `npx tsx src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each IMDB movie individually with `movier` and store the results to `out/imdb-movies.json`
 
+If you are running into rate-limit issues (likely `503` errors), then you'll need to adjust the rate-limit in [src/lib/imdb.ts](./src/lib/imdb.ts).
+
 Once this step finishes, you'll need to re-run `npx tsx src/process-movies.ts`, which will now take into account all of the extra IMDB metadata that was downloaded to our local cache.
 
 ### Upsert Movies into Prisma
@@ -151,7 +153,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 ## Stats
 
 - ~750k "movies" in TMDB
-- ~72k movies after resolving and filtering
+- **~72k movies** after resolving and filtering
   - 8.6k documentaries
   - 44k english movies
   - 34k movies made in the U.S.
@@ -160,10 +162,13 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
     - (99% of these are made exclusively in India)
   - 1.3k movies made in China
     - (40% of these are made exclusively in China)
-  - 30k movies have at least 1k votes on IMDB
-  - 17k movies have at least an IMDB rating of 7
-  - 29k movies have at least an IMDB rating of 6.5
-  - 40k movies have at least an IMDB rating of 6
+  - IMDB stats
+    - 30k movies have at least 1k votes on IMDB
+    - 40k movies have at least an IMDB rating of 6
+    - 29k movies have at least an IMDB rating of 6.5
+    - 17k movies have at least an IMDB rating of 7
+    - 3k movies have at least an IMDB rating of 8
+    - 300 movies have at least an IMDB rating of 9
 
 (_all stats are approximate_)
 
