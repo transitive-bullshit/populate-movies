@@ -47,7 +47,8 @@ export function processMovie(movie: types.Movie): types.Movie | null {
   )
   const recencyFactor = Math.max(
     1,
-    Math.min(50, (Math.sqrt(12 * (daysOld + 10)) * 40.0) / daysOld - 6)
+    // Math.min(40, (Math.sqrt(12 * (daysOld + 10)) * 40.0) / daysOld - 6)
+    Math.min(30, (Math.log10(1 + 0.35 * daysOld) * 300) / daysOld - 3)
   )
   movie.imdbCustomPopularity = movie.imdbVotes
     ? movie.imdbVotes * recencyFactor
@@ -100,13 +101,13 @@ export function processMovie(movie: types.Movie): types.Movie | null {
     } else {
       switch (movie.language) {
         case 'ko':
-          if (movie.imdbVotes < 100000 && movie.imdbCustomPopularity < 400000) {
+          if (movie.imdbVotes < 100000 && movie.imdbCustomPopularity < 150000) {
             movie.foreign = true
           }
           break
 
         case 'ja':
-          if (movie.imdbVotes < 140000 && movie.imdbCustomPopularity < 400000) {
+          if (movie.imdbVotes < 140000 && movie.imdbCustomPopularity < 150000) {
             // allow for some anime
             if (!genres.has('animation') || movie.imdbVotes < 70000) {
               movie.foreign = true
@@ -130,19 +131,19 @@ export function processMovie(movie: types.Movie): types.Movie | null {
           break
 
         case 'de':
-          if (movie.imdbVotes < 100000 && movie.imdbCustomPopularity < 400000) {
+          if (movie.imdbVotes < 100000 && movie.imdbCustomPopularity < 150000) {
             movie.foreign = true
           }
           break
 
         case 'da':
-          if (movie.imdbVotes < 100000 && movie.imdbCustomPopularity < 400000) {
+          if (movie.imdbVotes < 100000 && movie.imdbCustomPopularity < 150000) {
             movie.foreign = true
           }
           break
 
         case 'zh':
-          if (movie.imdbVotes < 150000 && movie.imdbCustomPopularity < 400000) {
+          if (movie.imdbVotes < 150000 && movie.imdbCustomPopularity < 150000) {
             movie.foreign = true
           }
           break
@@ -158,7 +159,7 @@ export function processMovie(movie: types.Movie): types.Movie | null {
 
         default:
           // 'fr', 'pt', 'es', 'da', 'sv', 'cn', 'pl', etc.
-          if (movie.imdbVotes < 200000 && movie.imdbCustomPopularity < 500000) {
+          if (movie.imdbVotes < 200000 && movie.imdbCustomPopularity < 200000) {
             movie.foreign = true
           }
       }

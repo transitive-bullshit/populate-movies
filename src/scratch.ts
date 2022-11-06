@@ -14,7 +14,10 @@ async function main() {
         gte: 1972
       },
       imdbVotes: {
-        gte: 30000
+        lt: 30000
+      },
+      relevancyScore: {
+        gte: 31000
       },
       foreign: false,
       NOT: {
@@ -26,6 +29,7 @@ async function main() {
     select: {
       title: true,
       releaseYear: true,
+      releaseDate: true,
       imdbRating: true,
       imdbVotes: true,
       tmdbPopularity: true,
