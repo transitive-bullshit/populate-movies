@@ -171,7 +171,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 
 The resulting movie dataset is ~70MB and can fit in most free-tier Postgres instances.
 
-If you want to switch to a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. The easiest will be switching to any [database supported by Prisma](https://www.prisma.io/stack), including as MongoDB, MySQL, and SQLite.
+If you want to switch to a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. The easiest will be switching to any [database supported by Prisma](https://www.prisma.io/docs/concepts/database-connectors), including as MongoDB, MySQL, and SQLite.
 
 ## License
 

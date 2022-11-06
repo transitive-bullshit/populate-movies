@@ -42,13 +42,18 @@ export interface Movie {
   imdbType?: IMDBType
 
   // tmdb
-  tmdbPopularity?: number
+  tmdbPopularity?: number // https://developers.themoviedb.org/3/getting-started/popularity
   tmdbRating?: number
   tmdbVotes?: number
 
   // metacritic
   metacriticRating?: number
   metacriticVotes?: number
+
+  // custom
+  foreign?: boolean
+  relevancyScore?: number
+  imdbCustomPopularity?: number
 }
 
 export type IMDBType =

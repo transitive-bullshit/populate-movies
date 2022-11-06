@@ -52,6 +52,11 @@ model Movie {
   metacriticRating Float?
   metacriticVotes  Int?
 
+  // custom / application-specific)
+  foreign              Boolean? @default(false)
+  relevancyScore       Float?
+  imdbCustomPopularity Float?
+
   // TODO
   // @@index([imdbRating, releaseYear, runtime, imdbVotes, countriesOfOrigin, genres])
 

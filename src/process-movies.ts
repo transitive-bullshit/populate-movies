@@ -6,23 +6,25 @@ import pMap from 'p-map'
 import * as config from './lib/config'
 import * as types from './types'
 import {
-  convertTMDBMovieDetailsToMovie,
-  populateMovieWithIMDBInfo
-} from './lib/conversions'
-import {
   loadIMDBMoviesFromCache,
   loadIMDBRatingsFromDataDump
 } from './lib/imdb'
+import { processMovie } from './lib/process-movie'
+import {
+  convertTMDBMovieDetailsToMovie,
+  populateMovieWithIMDBInfo
+} from './lib/utils'
 
 /**
  * Processes downloaded TMDB movies with the following transforms:
- * - transforms TMDB movies to a common schema
- * - filters adult movies
- * - filters movies which are not released yet
- * - filters movies which do not have a valid IMDB id
- * - filters movies which do not have a valid YouTube trailer
- * - adds IMDB ratings from an official IMDB data dump
- * - adds additional IMDB metadata from previous `populate-imdb-movies` cache
+ *
+ *  - transforms TMDB movies to a common schema
+ *  - filters adult movies
+ *  - filters movies which are not released yet
+ *  - filters movies which do not have a valid IMDB id
+ *  - filters movies which do not have a valid YouTube trailer
+ *  - adds IMDB ratings from an official IMDB data dump
+ *  - adds additional IMDB metadata from previous `populate-imdb-movies` cache
  */
 async function main() {
   await makeDir(config.outDir)
@@ -97,7 +99,11 @@ async function main() {
             }
           }
 
-          return populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })
+          if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })) {
+            return null
+          }
+
+          return processMovie(movie)
         },
         {
           concurrency: 4

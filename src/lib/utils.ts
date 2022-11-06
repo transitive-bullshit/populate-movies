@@ -113,15 +113,6 @@ export function populateMovieWithIMDBInfo(
 
       if (imdbMovie.keywords) {
         movie.keywords = imdbMovie.keywords
-
-        const keywords = new Set(movie.keywords)
-        if (
-          keywords.has('edited from tv series') ||
-          keywords.has('compilation movie') ||
-          keywords.has('live performance')
-        ) {
-          return null
-        }
       }
 
       if (imdbMovie.countriesOfOrigin) {
@@ -211,10 +202,6 @@ export function populateMovieWithIMDBInfo(
     //     `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
     //   )
     // }
-  }
-
-  if (isMovieLikelyStandupSpecial(movie)) {
-    movie.genres.push('stand up')
   }
 
   return movie
@@ -317,91 +304,4 @@ export function getBestTMDBTrailerVideo(
   if (candidate) return candidate
 
   return null
-}
-
-function isTextLikelyStandupSpecial(text: string): boolean {
-  if (!text) {
-    return false
-  }
-
-  if (/\bstand[ -]up comedy special\b/.test(text)) {
-    return true
-  }
-
-  if (/\bstand[ -]up special\b/.test(text)) {
-    return true
-  }
-
-  if (/\bstand[ -]up comedy\b/.test(text)) {
-    return true
-  }
-
-  return false
-}
-
-const comedySpecialIMDBIds = new Set(['tt1794821'])
-
-function isMovieLikelyStandupSpecial(movie: types.Movie): boolean {
-  if (comedySpecialIMDBIds.has(movie.imdbId)) {
-    return true
-  }
-
-  const keywords = new Set(movie.keywords)
-
-  if (
-    !keywords.has('stand up') &&
-    !keywords.has('stand-up') &&
-    !keywords.has('stand up special') &&
-    !keywords.has('stand-up special') &&
-    !isTextLikelyStandupSpecial(movie.overview)
-  ) {
-    if (
-      (keywords.has('stand up comedy') || keywords.has('stand-up comedy')) &&
-      movie.imdbType !== 'movie'
-    ) {
-      // likely a video / Q&A session
-      return true
-    } else {
-      return false
-    }
-  }
-
-  const standupKeywords = [
-    'tv special',
-    'live performance',
-    'stand up special',
-    'stand-up special',
-    'stand up comedy',
-    'stand-up comedy',
-    'stand up act',
-    'stand-up act',
-    'stand up routine',
-    'stand-up routine',
-    'stand up comedy performance',
-    'stand-up comedy performance'
-  ]
-
-  for (const keyword of standupKeywords) {
-    if (keywords.has(keyword)) {
-      return true
-    }
-  }
-
-  const genres = new Set(movie.genres)
-
-  if (!genres.has('comedy')) {
-    return false
-  }
-
-  if (genres.has('documentary')) {
-    if (genres.size !== 2) {
-      // potentially a documentary about stand up comedy
-      return false
-    }
-  } else if (genres.size > 1) {
-    // comedy + non-documentary genre => likely a film related to stand up comedy
-    return false
-  }
-
-  return true
 }
