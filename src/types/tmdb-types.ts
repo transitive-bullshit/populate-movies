@@ -252,7 +252,7 @@ export namespace tmdb {
     key: string
     site: Site
     size: number
-    type: Type
+    type: VideoType
     official: boolean
     published_at: Date
     id: string
@@ -262,10 +262,31 @@ export namespace tmdb {
     YouTube = 'YouTube'
   }
 
-  export enum Type {
+  export enum VideoType {
     Featurette = 'Featurette',
     Teaser = 'Teaser',
     Trailer = 'Trailer',
     Clip = 'Clip'
+  }
+
+  export interface Credits {
+    id: string
+    cast: Credit[]
+    crew: Credit[]
+  }
+
+  export interface Credit {
+    adult: boolean
+    gender: number
+    id: number
+    known_for_department: string
+    name: string
+    original_name: string
+    popularity: number
+    profile_path: string
+    cast_id: number
+    character: string
+    credit_id: string
+    order: number
   }
 }

@@ -37,6 +37,12 @@ export class TMDB {
     return this._get<tmdb.MovieDetails>(`/movie/${movieId}`, opts)
   }
 
+  public async getMovieCredits(
+    movieId: string | number
+  ): Promise<tmdb.Credits> {
+    return this._get<tmdb.Credits>(`/movie/${movieId}/credits`)
+  }
+
   private async _get<T>(path: string, opts?: GetOptions): Promise<T> {
     const url = `${BASE_URL_V3}${path}`
 
