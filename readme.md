@@ -159,11 +159,13 @@ This script also filters movies which are unlikely to be relevant for most use c
 - adds additional IMDB info from any previous `populate-tmdb-movies` cache (if `out/tmdb-movies.json` exists)
 - adds additional Rotten Tomatoes and Flick Metrix info from any previous `populate-flick-metrix` cache (if `out/flick-metrix-movies.json` exists)
 
+**NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, as it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in other steps into a normalized format and performing some filtering.
+
 The result is ~72k movies.
 
 ### Populate IMDB Movies
 
-The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the IMDB scraping, so this step will take a long time to run and requires a solid internet connection with minimal interruptions. _(takes 1-2 days)_
+The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the IMDB scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes 1-2 days)_
 
 **NOTE**: see [IMDB's personal and non-commercial licensing](https://help.imdb.com/article/imdb/general-information/can-i-use-imdb-data-in-my-software/G5JTRESSHJBBHTGX#) before proceeding. This step is **optional** for a reason.
 
