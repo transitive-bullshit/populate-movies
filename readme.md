@@ -94,7 +94,7 @@ In addition to basic movie metadata, most movies also include:
 
 - Ratings
   - IMDB rating
-  - Rotten Tomatoes critic and audience ratings
+  - Rotten Tomatoes critic and audience scores
   - Metacritic rating
   - Letterboxd rating
   - FlickMetrix rating
@@ -103,7 +103,7 @@ In addition to basic movie metadata, most movies also include:
   - Poster image
   - Backdrop image
 
-We also compute some useful custom fields like `foreign`, which is a flag for whether or not most Western audience members would recognize the movie. This includes most English movies as well as many popular foreign films.
+We also compute some useful custom fields like `foreign`, which is a flag for whether or not most Western audience members would recognize the movie. This includes most English movies as well as many of the most popular foreign films.
 
 This format aims to be as compact as possible while still including the most important metadata, so for certain fields like the trailer, we choose the best possible YouTube video according to a set of heuristics and ignore any other related videos.
 
@@ -205,11 +205,11 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
     - (40% of these are made exclusively in China)
   - IMDB stats
     - 30k movies have at least 1k votes on IMDB
-    - 40k movies have at least an IMDB rating of 6
-    - 29k movies have at least an IMDB rating of 6.5
-    - 17k movies have at least an IMDB rating of 7
-    - 3k movies have at least an IMDB rating of 8
-    - 300 movies have at least an IMDB rating of 9
+    - 40k movies have an IMDB rating of at least 6
+    - 29k movies have an IMDB rating of at least 6.5
+    - 17k movies have an IMDB rating of at least 7
+    - 3k movies have an IMDB rating of at least 8
+    - 300 movies have an IMDB rating of at least 9
 
 (_all stats are approximate_)
 
@@ -217,7 +217,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 
 The resulting movie dataset is ~70MB and can fit in most free-tier Postgres instances.
 
-If you want to use a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. For the database portion itself, [Prisma supports several popular databases](https://www.prisma.io/docs/concepts/database-connectors), including as MongoDB, MySQL, and SQLite.
+If you want to use a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. Note that [Prisma supports several popular databases](https://www.prisma.io/docs/concepts/database-connectors), including MongoDB, MySQL, and SQLite.
 
 ## License
 
