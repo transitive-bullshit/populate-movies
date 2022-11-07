@@ -50,6 +50,8 @@ async function main() {
             return null
           }
 
+          let movieDetails: types.tmdb.MovieDetails
+          // let movieCredits: types.tmdb.Credits
           let numErrors = 0
 
           while (true) {
@@ -60,10 +62,31 @@ async function main() {
                 dumpedMovie.original_title
               )
 
-              const movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
-                videos: true,
-                images: true
-              })
+              if (!movieDetails) {
+                movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
+                  videos: true,
+                  images: true
+                })
+              }
+
+              // uncomment if you want to record credits as well
+              // if (!movieCredits) {
+              //   movieCredits = await tmdb.getMovieCredits(dumpedMovie.id)
+
+              //   // we only store a slimmed down version of the credits
+              //   movieDetails.cast =
+              //     movieCredits.cast?.map(
+              //       (credit) => credit.name || credit.original_name
+              //     ) || []
+
+              //   const director = movieCredits.crew?.find(
+              //     (credit) => credit.job === 'Director'
+              //   )
+              //   if (director) {
+              //     movieDetails.director =
+              //       director.name || director.original_name
+              //   }
+              // }
 
               return movieDetails
             } catch (err) {
@@ -102,8 +125,8 @@ async function main() {
       throw new Error(message)
     }
 
-    // console.log(JSON.stringify(populatedMovies, null, 2).replaceAll(/^\s*/gm, ''))
-    // break
+    console.log(JSON.stringify(populatedMovies, null, 2))
+    break
 
     await fs.writeFile(
       `${config.outDir}/tmdb-${batchNum}.json`,

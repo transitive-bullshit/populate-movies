@@ -5,8 +5,12 @@ const comedySpecialIMDBIds = new Set(['tt1794821'])
 /**
  * Performs application-specific post-processing of a movie.
  */
-export function processMovie(movie: types.Movie): types.Movie | null {
+export function processMovie(
+  movie: types.Movie,
+  { flickMetrixMovies }: { flickMetrixMovies?: types.FlickMetrixMovies } = {}
+): types.Movie | null {
   const genres = new Set(movie.genres)
+  const numGenres = genres.size
   const keywords = new Set(movie.keywords)
   const countriesOfOrigin = new Set(movie.countriesOfOrigin)
   const isSingleCountryOfOrigin = countriesOfOrigin.size === 1
@@ -16,6 +20,23 @@ export function processMovie(movie: types.Movie): types.Movie | null {
   if (movie.imdbType !== 'movie' && (movie.imdbType as any) !== 'video') {
     // ignore non-movie / non-video titles
     return null
+  }
+
+  const hasMusicGenre = genres.has('music')
+  const hasDocumentaryGenre = genres.has('documentary')
+
+  if (hasMusicGenre) {
+    if (numGenres === 1) {
+      // tends to be music videos
+      // TODO: this may lead to false negatives
+      return null
+    }
+
+    if (numGenres === 2 && hasDocumentaryGenre) {
+      // tends to be documentaries about bands / touring
+      // TODO: this may lead to false negatives
+      return null
+    }
   }
 
   if (
@@ -60,6 +81,8 @@ export function processMovie(movie: types.Movie): types.Movie | null {
     : 0
   movie.relevancyScore = imdbRatingFactor * movie.imdbCustomPopularity
 
+  // figure out whether or not we should classify this movie as a primarily
+  // foreign film
   movie.foreign = false
 
   if (movie.language === 'en') {
@@ -163,6 +186,69 @@ export function processMovie(movie: types.Movie): types.Movie | null {
             movie.foreign = true
           }
       }
+    }
+  }
+
+  // optionally fill in additional metadata from flickmetrix.com
+  const flickMetrixMovie = flickMetrixMovies
+    ? flickMetrixMovies[movie.imdbId]
+    : null
+
+  if (flickMetrixMovie) {
+    if (!movie.cast?.length) {
+      movie.cast = flickMetrixMovie.Cast?.split(',') ?? []
+    }
+
+    if (!movie.director) {
+      movie.director = flickMetrixMovie.Director || null
+    }
+
+    movie.production = flickMetrixMovie.Production || null
+    movie.awardsSummary = flickMetrixMovie.Awards || null
+
+    // rotten tomatoes
+    movie.rtCriticRating = flickMetrixMovie.CriticRating ?? null
+    movie.rtCriticVotes = flickMetrixMovie.CriticReviews ?? null
+    movie.rtAudienceRating = flickMetrixMovie.AudienceRating ?? null
+    movie.rtAudienceVotes = flickMetrixMovie.AudienceReviews ?? null
+    movie.rtUrl = flickMetrixMovie.RTUrl || null
+
+    if (movie.rtUrl) {
+      movie.rtUrl = movie.rtUrl.replace(/\/$/g, '').trim()
+    }
+
+    // letterboxd
+    movie.letterboxdScore = flickMetrixMovie.LetterboxdScore ?? null
+    movie.letterboxdVotes = flickMetrixMovie.letterboxdVotes ?? null
+
+    // flickmetrix
+    movie.flickMetrixId = flickMetrixMovie.ID || null
+    movie.flickMetrixScore = flickMetrixMovie.ComboScore ?? null
+
+    // Empirically, a lot of the youtube trailers that exist on flickmetrix that
+    // don't exist on tmdb are videos that have been removed from youtube.
+    // if (flickMetrixMovie.Trailer && !movie.trailerYouTubeId) {
+    //   movie.trailerYouTubeId = flickMetrixMovie.Trailer
+    //   movie.trailerUrl = `https://youtube.com/watch?v=${movie.trailerYouTubeId}`
+    //   console.log('flickmetrix new trailer', movie.trailerUrl)
+    // }
+
+    const movieHasIMDBRating = movie.imdbRating && movie.imdbVotes
+    const flickMetrixMovieHasIMDBRating =
+      flickMetrixMovie.imdbRating && flickMetrixMovie.imdbVotes
+
+    // if we have IMDB ratings from two sources, take the one with more votes,
+    // which is likely to be more recent
+    if (
+      flickMetrixMovieHasIMDBRating &&
+      (!movieHasIMDBRating || flickMetrixMovie.imdbVotes > movie.imdbVotes)
+    ) {
+      movie.imdbRating = flickMetrixMovie.imdbRating
+      movie.imdbVotes = flickMetrixMovie.imdbVotes
+    }
+
+    if (!movie.overview && flickMetrixMovie.Plot) {
+      movie.overview = flickMetrixMovie.Plot
     }
   }
 

@@ -37,6 +37,10 @@ export namespace tmdb {
     // optional via append_to_response
     videos?: Videos
     images?: Images
+
+    // added separately
+    cast?: string[]
+    director?: string
   }
 
   export interface AuthorDetails {
@@ -271,11 +275,11 @@ export namespace tmdb {
 
   export interface Credits {
     id: string
-    cast: Credit[]
-    crew: Credit[]
+    cast: CastCredit[]
+    crew: CrewCredit[]
   }
 
-  export interface Credit {
+  export interface CastCredit {
     adult: boolean
     gender: number
     id: number
@@ -288,5 +292,19 @@ export namespace tmdb {
     character: string
     credit_id: string
     order: number
+  }
+
+  export interface CrewCredit {
+    adult: boolean
+    gender: number
+    id: number
+    known_for_department: string
+    name: string
+    original_name: string
+    popularity: number
+    profile_path: null
+    credit_id: string
+    department: string
+    job: string
   }
 }

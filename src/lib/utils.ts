@@ -68,6 +68,8 @@ export function convertTMDBMovieDetailsToMovie(
     keywords: [],
     countriesOfOrigin: [],
     languages: [],
+    cast: movieDetails.cast || [],
+    director: movieDetails.director || null,
 
     // media
     posterUrl,

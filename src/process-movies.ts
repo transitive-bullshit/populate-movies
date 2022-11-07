@@ -5,6 +5,7 @@ import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
+import { loadFlickMetrixMoviesFromCache } from './lib/flick-metrix'
 import {
   loadIMDBMoviesFromCache,
   loadIMDBRatingsFromDataDump
@@ -29,14 +30,21 @@ import {
 async function main() {
   await makeDir(config.outDir)
 
-  const imdbRatings = await loadIMDBRatingsFromDataDump()
-  const imdbMovies = await loadIMDBMoviesFromCache()
+  // const imdbRatings = await loadIMDBRatingsFromDataDump()
+  // const imdbMovies = await loadIMDBMoviesFromCache()
+  // const flickMetrixMovies = await loadFlickMetrixMoviesFromCache()
+
+  const [imdbRatings, imdbMovies, flickMetrixMovies] = await Promise.all([
+    loadIMDBRatingsFromDataDump(),
+    loadIMDBMoviesFromCache(),
+    loadFlickMetrixMoviesFromCache()
+  ])
 
   let batchNum = 0
   let numTMDBMoviesTotal = 0
   let numMoviesTotal = 0
 
-  console.log('processing TMDB movies')
+  console.log(`\nprocessing TMDB movies in ${config.numBatches} batches\n`)
   do {
     const srcFile = `${config.outDir}/tmdb-${batchNum}.json`
     const tmdbMovies: types.tmdb.MovieDetails[] = JSON.parse(
@@ -74,36 +82,24 @@ async function main() {
             return null
           }
 
-          if (!movie.trailerUrl) {
-            // console.log('warn missing trailer', movie.tmdbId, movie.title)
-            return null
-          }
-
           if (movie.runtime < 60) {
             return null
-          }
-
-          const hasMusic = movie.genres.find((genre) => genre === 'music')
-          const hasDocumentary = movie.genres.find(
-            (genre) => genre === 'documentary'
-          )
-          const numGenres = movie.genres.length
-
-          if (hasMusic) {
-            if (numGenres === 1) {
-              return null
-            }
-
-            if (numGenres === 2 && hasDocumentary) {
-              return null
-            }
           }
 
           if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })) {
             return null
           }
 
-          return processMovie(movie)
+          if (!processMovie(movie, { flickMetrixMovies })) {
+            return null
+          }
+
+          if (!movie.trailerUrl) {
+            // console.log('warn missing trailer', movie.tmdbId, movie.title)
+            return null
+          }
+
+          return movie
         },
         {
           concurrency: 4
