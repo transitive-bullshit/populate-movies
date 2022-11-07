@@ -90,7 +90,7 @@ Movies are transformed into the following format, which combines metadata from T
 }
 ```
 
-In addition to the basic metadata, note that most movies also include:
+In addition to basic movie metadata, most movies also include:
 
 - Ratings
   - IMDB rating
@@ -105,9 +105,9 @@ In addition to the basic metadata, note that most movies also include:
 
 We also compute some useful custom fields like `foreign`, which is a flag for whether or not most Western audience members would recognize the movie. This includes most English movies as well as many popular foreign films.
 
-The aim is to have as compact of a format as possible — while still including the most important metadata across different movie providers — so for certain fields like the trailer, we choose the best possible YouTube video according to a set of heuristics and ignore any other related videos.
+This format aims to be as compact as possible while still including the most important metadata, so for certain fields like the trailer, we choose the best possible YouTube video according to a set of heuristics and ignore any other related videos.
 
-This may result in less metadata in your database for fallbacks and such, but the project is explicitly designed to be re-run regularly to keep your data valid and up-to-date, relying on these third-parties to deal with data drift.
+This may result in less metadata in your database for fallbacks and such, but the project is explicitly designed to be re-run regularly so your data remains valid and up-to-date, relying on these third-parties to deal with data drift.
 
 ## Prerequisites
 
@@ -120,7 +120,7 @@ Store your `TMDB_BEARER_TOKEN` and `DATABASE_URL` in a local `.env` file.
 
 You'll need to download a recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz) and store the uncompressed version into `data/tmdb_dump_movie_ids.json`. This gives us a full list of TMDB movie IDs to kick things off.
 
-If you want movies to contain IMDB ratings, you'll also need to download an official [IMDB title ratings data dump](https://www.imdb.com/interfaces/). We're interested in `title.ratings` ([datasets.imdbws.com/title.ratings.tsv.gz](https://datasets.imdbws.com/title.ratings.tsv.gz)). Store the uncompressed version into `data/title.ratings.tsv`. This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that drastically reduces the amount of scraping we need to do. Note that IMDB has [an official API](https://developer.imdb.com/), but it is extremely expensive to use (starting at $50k + usage-based billing).
+If you want movies to contain IMDB ratings (**optional**), you'll also need to download an official [IMDB title ratings data dump](https://www.imdb.com/interfaces/). You'll want to download `title.ratings` ([datasets.imdbws.com/title.ratings.tsv.gz](https://datasets.imdbws.com/title.ratings.tsv.gz)) and store the uncompressed version into `data/title.ratings.tsv`. This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that drastically reduces the amount of scraping we need to do. Note that IMDB has [an official API](https://developer.imdb.com/), but it is extremely expensive to use (starting at $50k + usage-based billing).
 
 ## Steps
 
