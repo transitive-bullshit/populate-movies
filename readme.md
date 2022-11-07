@@ -159,17 +159,17 @@ This script also filters movies which are unlikely to be relevant for most use c
 - adds additional IMDB info from any previous `populate-tmdb-movies` cache (if `out/tmdb-movies.json` exists)
 - adds additional Rotten Tomatoes and Flick Metrix info from any previous `populate-flick-metrix` cache (if `out/flick-metrix-movies.json` exists)
 
-**NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, as it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in other steps into a normalized format and performing some filtering.
+**NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, since it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in the other steps into a normalized format and performing some filtering.
 
 The result is ~72k movies.
 
 ### Populate IMDB Movies
 
-The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the IMDB scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes 1-2 days)_
+The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the IMDB scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~12 hours)_
 
 **NOTE**: see [IMDB's personal and non-commercial licensing](https://help.imdb.com/article/imdb/general-information/can-i-use-imdb-data-in-my-software/G5JTRESSHJBBHTGX#) before proceeding. This step is **optional** for a reason.
 
-If you want to proceed with downloading additional IMDB metadata, you'll need to run `npx tsx src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each IMDB movie individually with `movier` and store the results to `out/imdb-movies.json`
+If you want to proceed with this step, you'll need to run `npx tsx src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each IMDB movie individually with `movier` and store the results to `out/imdb-movies.json`.
 
 If you are running into rate-limit issues (likely `503` errors), then you'll need to adjust the rate-limit in [src/lib/imdb.ts](./src/lib/imdb.ts).
 
@@ -177,13 +177,13 @@ Once this step finishes, you'll need to re-run `npx tsx src/process-movies.ts`, 
 
 ### Upsert Movies into Prisma
 
-The final **optional** step is to upsert all of the movies into your Prisma database. (_takes ~30 seconds)_
+The final step is to upsert all of the movies into your Prisma database. (_takes ~30 seconds)_
 
 Make sure that you have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`). You can alternatively use `prisma db migrate` and `prisma generate` if you prefer that workflow.
 
 **NOTE**: this step defaults to emptying any existing movies from your database before inserting the new ones. This functionality can be tweaked to perform a less destructive per-movie `upsert` instead, though this approach is quite a bit slower. See the source file for details.
 
-Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into your database.
+Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into the database.
 
 ### Query Movies from Prisma
 
@@ -203,13 +203,13 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
     - (99% of these are made exclusively in India)
   - 1.3k movies made in China
     - (40% of these are made exclusively in China)
-  - IMDB stats
-    - 30k movies have at least 1k votes on IMDB
-    - 40k movies have an IMDB rating of at least 6
-    - 29k movies have an IMDB rating of at least 6.5
-    - 17k movies have an IMDB rating of at least 7
-    - 3k movies have an IMDB rating of at least 8
-    - 300 movies have an IMDB rating of at least 9
+- IMDB stats
+  - 30k movies have at least 1k votes on IMDB
+  - 40k movies have an IMDB rating of at least 6
+  - 29k movies have an IMDB rating of at least 6.5
+  - 17k movies have an IMDB rating of at least 7
+  - 3k movies have an IMDB rating of at least 8
+  - 300 movies have an IMDB rating of at least 9
 
 (_all stats are approximate_)
 
