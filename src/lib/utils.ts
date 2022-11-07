@@ -126,7 +126,7 @@ export function populateMovieWithIMDBInfo(
       }
 
       if (imdbMovie.ageCategoryTitle) {
-        movie.ageRating = imdbMovie.ageCategoryTitle
+        movie.mpaaRating = imdbMovie.ageCategoryTitle
       }
 
       if (imdbMovie.plot) {

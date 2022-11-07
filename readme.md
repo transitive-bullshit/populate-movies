@@ -17,6 +17,7 @@
 - [Prerequisites](#prerequisites)
 - [Steps](#steps)
   - [Populate TMDB Movies](#populate-tmdb-movies)
+  - [Populate Flick Metrix Movies](#populate-flick-metrix-movies)
   - [Process Movies](#process-movies)
   - [Populate IMDB Movies](#populate-imdb-movies)
   - [Upsert Movies into Prisma](#upsert-movies-into-prisma)
@@ -33,49 +34,80 @@ This includes data fetching, normalization, cleaning, and filtering. All steps a
 
 ## Movie Schema
 
-Movies are transformed into the following format, which largely follows the TMDB movie details format converted to snakeCase with some additional data from IMDB.
+Movies are transformed into the following format, which combines metadata from TMDB, IMDB, Rotten Tomatoes, and FlickMetrix.
 
 ```json
 {
-  "tmdbId": 118,
-  "imdbId": "tt0367594",
-  "title": "Charlie and the Chocolate Factory",
-  "originalTitle": "Charlie and the Chocolate Factory",
+  "tmdbId": 680,
+  "imdbId": "tt0110912",
+  "title": "Pulp Fiction",
+  "originalTitle": "Pulp Fiction",
   "language": "en",
-  "releaseYear": 2005,
-  "releaseDate": "2005-07-13",
-  "genres": ["adventure", "comedy", "family", "fantasy"],
-  "overview": "A young boy wins a tour through the most magnificent chocolate factory in the world, led by the world's most unusual candy maker.",
-  "runtime": 115,
+  "releaseYear": 1994,
+  "releaseDate": "1994-09-10",
+  "genres": ["thriller", "crime", "drama"],
+  "overview": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+  "runtime": 154,
   "adult": false,
-  "budget": 150000000,
-  "revenue": 474968763,
-  "homepage": "https://www.warnerbros.com/charlie-and-chocolate-factory",
+  "budget": 8000000,
+  "revenue": 213928762,
+  "homepage": "https://www.miramax.com/movie/pulp-fiction/",
+  "mpaaRating": "R",
+  "keywords": ["nonlinear timeline", "overdose", "drug use", "drug overdose"],
+  "countriesOfOrigin": ["United States"],
+  "languages": ["English", "Spanish", "French"],
+  "cast": ["John Travolta", "Samuel L. Jackson", "Uma Thurman", "Bruce Willis"],
+  "director": "Quentin Tarantino",
+  "production": "Miramax Films",
+  "awardsSummary": "Won 1 Oscar. Another 63 wins & 47 nominations.",
   "status": "released",
-  "ageRating": "PG",
-  "keywords": [
-    "psychotherapy",
-    "chocolate factory",
-    "chocolate",
-    "golden ticket"
-  ],
-  "countriesOfOrigin": ["United States", "United Kingdom"],
-  "languages": ["English"],
-  "posterUrl": "https://image.tmdb.org/t/p/w780/wfGfxtBkhBzQfOZw4S8IQZgrH0a.jpg",
-  "backdropUrl": "https://image.tmdb.org/t/p/w1280/atoIgfAk2Ig2HFJLD0VUnjiPWEz.jpg",
-  "trailerUrl": "https://youtube.com/watch?v=FZkIlAEbHi4",
-  "trailerYouTubeId": "FZkIlAEbHi4",
-  "imdbRating": 6.7,
-  "imdbVotes": 479685,
-  "tmdbPopularity": 190.224,
-  "tmdbRating": 7.034,
-  "tmdbVotes": 13036,
-  "metacriticRating": 72,
-  "metacriticVotes": 40,
-  "createdAt": "2022-11-03T21:15:23.423Z",
-  "updatedAt": "2022-11-03T21:15:23.423Z"
+  "posterUrl": "https://image.tmdb.org/t/p/w780/fIE3lAGcZDV1G6XM5KmuWnNsPp1.jpg",
+  "backdropUrl": "https://image.tmdb.org/t/p/w1280/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+  "trailerUrl": "https://youtube.com/watch?v=tGpTpVyI_OQ",
+  "trailerYouTubeId": "tGpTpVyI_OQ",
+  "imdbRating": 8.9,
+  "imdbVotes": 2033927,
+  "imdbType": "movie",
+  "tmdbPopularity": 74.051,
+  "tmdbRating": 8.491,
+  "tmdbVotes": 24004,
+  "metacriticRating": 94,
+  "metacriticVotes": 24,
+  "rtCriticRating": 93,
+  "rtCriticVotes": 103,
+  "rtAudienceRating": 93,
+  "rtAudienceVotes": 1120247,
+  "rtUrl": "https://www.rottentomatoes.com/m/pulp_fiction",
+  "letterboxdScore": 86,
+  "letterboxdVotes": 1102425,
+  "flickMetrixScore": 90,
+  "flickMetrixId": 110912,
+  "foreign": false,
+  "relevancyScore": 1883295.240641344,
+  "imdbCustomPopularity": 2033927,
+  "createdAt": "2022-11-07T03:51:42.276Z",
+  "updatedAt": "2022-11-07T03:51:42.276Z"
 }
 ```
+
+In addition to the basic metadata, note that most movies also include:
+
+- Ratings
+  - IMDB rating
+  - Rotten Tomatoes critic and audience ratings
+  - Metacritic rating
+  - Letterboxd rating
+  - FlickMetrix rating
+- Media
+  - YouTube trailer
+  - Poster image
+  - Backdrop image
+
+We also compute some useful custom fields like `foreign`, which is a flag for whether or not most Western audience members would recognize the movie. This includes most English movies as well as many popular foreign films.
+
+The aim is to have as compact of a format as possible — while still including the most important metadata across different movie providers — so for certain fields like the trailer, we choose the best possible YouTube video according to a set of heuristics and ignore any other related videos.
+
+This may result in less metadata in your database for fallbacks and such, but the project is explicitly designed to be re-run regularly to keep your data valid and up-to-date, relying on these third-parties to deal with data drift.
 
 ## Prerequisites
 
@@ -104,6 +136,12 @@ We'll start off by running `npx tsx src/populate-tmdb-movie-dump.ts` which popul
 
 The result is ~655k movies in 24 batches.
 
+### Populate Flick Metrix Movies
+
+The next **optional** step is to download movie metadata using [Flick Metrix's](https://flickmetrix.com/) private API. This is really only necessary if you want Rotten Tomatoes scores. _(takes ~3 minutes)_
+
+Run `npx tsx src/populate-flick-metrix-movies` which will fetch ~70k movies and store the results into `out/flick-metrix-movies.json`. This optional metadata will be used by `src/process-movies.ts` if it exists and will be ignored if it doesn't.
+
 ### Process Movies
 
 Next, we'll run `npx tsx src/process-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
@@ -119,6 +157,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 - filters tv series and episodes
 - filters live concerts
 - adds additional IMDB info from any previous `populate-tmdb-movies` cache (if `out/tmdb-movies.json` exists)
+- adds additional Rotten Tomatoes and Flick Metrix info from any previous `populate-flick-metrix` cache (if `out/flick-metrix-movies.json` exists)
 
 The result is ~72k movies.
 
@@ -176,7 +215,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 
 The resulting movie dataset is ~70MB and can fit in most free-tier Postgres instances.
 
-If you want to switch to a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. The easiest will be switching to any [database supported by Prisma](https://www.prisma.io/docs/concepts/database-connectors), including as MongoDB, MySQL, and SQLite.
+If you want to use a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. For the database portion itself, [Prisma supports several popular databases](https://www.prisma.io/docs/concepts/database-connectors), including as MongoDB, MySQL, and SQLite.
 
 ## License
 
@@ -189,5 +228,5 @@ Support my open source work by <a href="https://twitter.com/transitive_bs">follo
   &nbsp; &nbsp; &nbsp; &nbsp;
   <a href="https://www.imdb.com/interfaces/"><img alt="IMDB" src="/media/imdb.png" height="65"></a>
   &nbsp; &nbsp; &nbsp; &nbsp;
-  <a href=""><img alt="Rotten Tomatoes" src="/media/rt.png" height="65"></a>
+  <a href="https://www.rottentomatoes.com"><img alt="Rotten Tomatoes" src="/media/rt.png" height="65"></a>
 </p>

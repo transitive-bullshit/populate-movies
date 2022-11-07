@@ -27,7 +27,7 @@ model Movie {
   revenue           Int
   homepage          String?  @db.VarChar(511)
   status            String
-  ageRating         String?
+  mpaaRating        String?
   keywords          String[] @default([])
   countriesOfOrigin String[] @default([])
   languages         String[] @default([])

@@ -196,7 +196,8 @@ export function processMovie(
 
   if (flickMetrixMovie) {
     if (!movie.cast?.length) {
-      movie.cast = flickMetrixMovie.Cast?.split(',') ?? []
+      movie.cast =
+        flickMetrixMovie.Cast?.split(',').map((name) => name.trim()) ?? []
     }
 
     if (!movie.director) {

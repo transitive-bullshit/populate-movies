@@ -15,7 +15,7 @@ import { prisma } from './lib/db'
 async function main() {
   const dropMovies = !process.env.NO_DROP_MOVIES
   if (dropMovies) {
-    console.log('dropping movies from db')
+    console.warn('\nWARNING: dropping movies from db\n')
     await prisma.movie.deleteMany()
   }
 
@@ -29,7 +29,7 @@ async function main() {
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
 
-    console.log(
+    console.warn(
       `\nupserting ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
     )
 
@@ -51,7 +51,7 @@ async function main() {
           const end = start + insertBatchSize
           const movieBatch = movies.slice(start, end)
 
-          console.log(
+          console.warn(
             `${batchNum}:${index} inserting ${movieBatch.length} movies`
           )
 
@@ -75,7 +75,7 @@ async function main() {
           movies,
           async (movie, index) => {
             try {
-              console.log(
+              console.warn(
                 `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title}`
               )
 
@@ -106,20 +106,20 @@ async function main() {
     numMoviesTotal += movies.length
     numMoviesUpsertedTotal += numMoviesUpserted
 
-    console.log()
-    console.log(`batch ${batchNum} done`, {
+    console.warn()
+    console.warn(`batch ${batchNum} done`, {
       numMovies: movies.length,
       numMoviesUpserted,
       percenMoviesUpserted: `${
         ((numMoviesUpserted / movies.length) * 100) | 0
       }%`
     })
-    console.log()
+    console.warn()
 
     ++batchNum
   } while (batchNum < config.numBatches)
 
-  console.log('done', {
+  console.warn('done', {
     numMoviesTotal,
     numMoviesUpsertedTotal,
     percenMoviesUpsertedTotal: `${
