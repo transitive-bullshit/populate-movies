@@ -16,12 +16,12 @@
 - [Movie Schema](#movie-schema)
 - [Prerequisites](#prerequisites)
 - [Steps](#steps)
-  - [Populate TMDB Movies](#populate-tmdb-movies)
-  - [Populate Flick Metrix Movies](#populate-flick-metrix-movies)
-  - [Process Movies](#process-movies)
-  - [Populate IMDB Movies](#populate-imdb-movies)
-  - [Upsert Movies into Prisma](#upsert-movies-into-prisma)
-  - [Query Movies from Prisma](#query-movies-from-prisma)
+  - [1. Populate TMDB Movies](#1-populate-tmdb-movies)
+  - [2. Populate Flick Metrix Movies](#2-populate-flick-metrix-movies)
+  - [3. Process Movies](#3-process-movies)
+  - [4. Populate IMDB Movies](#4-populate-imdb-movies)
+  - [5. Upsert Movies into Prisma](#5-upsert-movies-into-prisma)
+  - [6. Query Movies from Prisma](#6-query-movies-from-prisma)
 - [Stats](#stats)
 - [Database Notes](#database-notes)
 - [License](#license)
@@ -130,19 +130,19 @@ Once we have the data dumps downloaded into `data/` and our environment variable
 
 Before getting started, make sure you've run `pnpm install` to initialize the Node.js project.
 
-### Populate TMDB Movies
+### 1. Populate TMDB Movies
 
 We'll start off by running `npx tsx src/populate-tmdb-movie-dump.ts` which populates each of the TMDB movie IDs with its corresponding TMDB movie details and stores the results into a series of batched JSON files `out/tmdb-0.json`, `out/tmdb-1.json`, etc. _(takes ~1 hour)_
 
 The result is ~655k movies in 24 batches.
 
-### Populate Flick Metrix Movies
+### 2. Populate Flick Metrix Movies
 
 The next **optional** step is to download movie metadata using [Flick Metrix's](https://flickmetrix.com/) private API. This is really only necessary if you want Rotten Tomatoes scores. _(takes ~3 minutes)_
 
 Run `npx tsx src/populate-flick-metrix-movies` which will fetch ~70k movies and store the results into `out/flick-metrix-movies.json`. This optional metadata will be used by `src/process-movies.ts` if it exists and will be ignored if it doesn't.
 
-### Process Movies
+### 3. Process Movies
 
 Next, we'll run `npx tsx src/process-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
 
@@ -163,7 +163,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 
 The result is ~72k movies.
 
-### Populate IMDB Movies
+### 4. Populate IMDB Movies
 
 The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the IMDB scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~12 hours)_
 
@@ -175,7 +175,7 @@ If you are running into rate-limit issues (likely `503` errors), then you'll nee
 
 Once this step finishes, you'll need to re-run `npx tsx src/process-movies.ts`, which will now take into account all of the extra IMDB metadata that was downloaded to our local cache.
 
-### Upsert Movies into Prisma
+### 5. Upsert Movies into Prisma
 
 The final step is to upsert all of the movies into your Prisma database. (_takes ~30 seconds)_
 
@@ -185,7 +185,7 @@ Make sure that you have `DATABASE_URL` set to a Postgres instance in your `.env`
 
 Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into the database.
 
-### Query Movies from Prisma
+### 6. Query Movies from Prisma
 
 You should now have a full Postgres database of movies, complete with the most important metadata from TMDB and IMDB. Huzzah!
 
