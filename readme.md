@@ -93,13 +93,13 @@ Movies are transformed into the following format, which combines metadata from T
 In addition to basic movie metadata, most movies also include:
 
 - Ratings
-  - IMDB rating
-  - Rotten Tomatoes critic and audience scores
+  - **IMDB rating**
+  - **Rotten Tomatoes critic and audience scores**
   - Metacritic rating
   - Letterboxd rating
   - FlickMetrix rating
 - Media
-  - YouTube trailer
+  - **YouTube trailer**
   - Poster image
   - Backdrop image
 
