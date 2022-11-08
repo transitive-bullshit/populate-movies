@@ -248,8 +248,8 @@ export function processMovie(
       movie.imdbVotes = flickMetrixMovie.imdbVotes
     }
 
-    if (!movie.overview && flickMetrixMovie.Plot) {
-      movie.overview = flickMetrixMovie.Plot
+    if (!movie.plot && flickMetrixMovie.Plot) {
+      movie.plot = flickMetrixMovie.Plot
     }
   }
 
@@ -295,7 +295,7 @@ function isMovieLikelyStandupSpecial(
     !keywords.has('stand-up') &&
     !keywords.has('stand up special') &&
     !keywords.has('stand-up special') &&
-    !isTextLikelyStandupSpecial(movie.overview)
+    !isTextLikelyStandupSpecial(movie.plot)
   ) {
     if (
       (keywords.has('stand up comedy') || keywords.has('stand-up comedy')) &&

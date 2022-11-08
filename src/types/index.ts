@@ -20,7 +20,7 @@ export interface Movie {
   releaseYear: number | null
   releaseDate: string | null
   genres: string[]
-  overview: string
+  plot: string
   runtime: number
   adult: boolean
   budget: number

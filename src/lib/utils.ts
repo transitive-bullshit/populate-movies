@@ -58,7 +58,7 @@ export function convertTMDBMovieDetailsToMovie(
     releaseDate,
     releaseYear,
     genres,
-    overview: movieDetails.overview,
+    plot: movieDetails.overview,
     runtime: movieDetails.runtime,
     adult: movieDetails.adult,
     budget: movieDetails.budget,
@@ -130,11 +130,11 @@ export function populateMovieWithIMDBInfo(
       }
 
       if (imdbMovie.plot) {
-        if (movie.overview && imdbMovie.plot?.trim().endsWith('Read all')) {
+        if (movie.plot && imdbMovie.plot?.trim().endsWith('Read all')) {
           // ignore truncated plots
         } else {
           // otherwise favor the IMDB plot over the TMDB plot
-          movie.overview = imdbMovie.plot.replace(/\.\.\. read all$/i, '...')
+          movie.plot = imdbMovie.plot.replace(/\.\.\. read all$/i, '...')
         }
       }
 

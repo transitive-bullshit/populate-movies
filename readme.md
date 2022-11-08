@@ -46,7 +46,7 @@ Movies are transformed into the following format, which combines metadata from T
   "releaseYear": 1994,
   "releaseDate": "1994-09-10",
   "genres": ["thriller", "crime", "drama"],
-  "overview": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+  "plot": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
   "runtime": 154,
   "adult": false,
   "budget": 8000000,
