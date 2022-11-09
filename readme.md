@@ -99,15 +99,15 @@ Movies are transformed into the following format, which combines metadata from T
 In addition to basic movie metadata, most movies also include:
 
 - Ratings
-  - **IMDB rating**
+  - **IMDB ratings**
   - **Rotten Tomatoes critic and audience scores**
-  - Metacritic rating
-  - Letterboxd rating
-  - FlickMetrix rating
+  - Metacritic ratings
+  - Letterboxd ratings
+  - FlickMetrix ratings
 - Media
-  - **YouTube trailer**
-  - Poster image
-  - Backdrop image
+  - **YouTube traileras**
+  - Poster images
+  - Backdrop images
 
 We also compute some useful custom fields like `foreign`, which is a flag for whether or not most Western audience members would recognize the movie. This includes most English movies as well as many of the most popular foreign films.
 
