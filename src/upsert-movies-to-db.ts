@@ -62,7 +62,7 @@ async function main() {
 
             numMoviesUpserted += res.count
           } catch (err) {
-            console.error(`${batchNum}:${index} insert error`, err)
+            console.error(`${batchNum}:${index} batch movie insert error`, err)
           }
         },
         {
@@ -86,7 +86,7 @@ async function main() {
               })
             } catch (err) {
               console.error(
-                'upsert error',
+                'movie upsert error',
                 movie.tmdbId,
                 movie.imdbId,
                 movie.title,

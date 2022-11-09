@@ -15,15 +15,36 @@ export function convertTMDBMovieDetailsToMovie(
   // example tmdb image URL
   // https://image.tmdb.org/t/p/w780/wfGfxtBkhBzQfOZw4S8IQZgrH0a.jpg
 
-  const posterSize = 'w780' // 'original'
-  const posterUrl = movieDetails.poster_path
-    ? `https://image.tmdb.org/t/p/${posterSize}${movieDetails.poster_path}`
-    : null
+  let posterUrl: string = null
+  let posterWidth: number = null
+  let posterHeight: number = null
+  if (movieDetails.poster_path) {
+    const posterImage = movieDetails.images?.posters.find(
+      (image) => image.file_path === movieDetails.poster_path
+    )
 
-  const backdropSize = 'w1280' // 'original'
-  const backdropUrl = movieDetails.backdrop_path
-    ? `https://image.tmdb.org/t/p/${backdropSize}${movieDetails.backdrop_path}`
-    : null
+    if (posterImage) {
+      const posterSize = 'w780' // 'original'
+      posterUrl = `https://image.tmdb.org/t/p/${posterSize}${movieDetails.poster_path}`
+      posterWidth = posterImage.width
+      posterHeight = posterImage.height
+    }
+  }
+
+  let backdropUrl: string = null
+  let backdropWidth: number = null
+  let backdropHeight: number = null
+  if (movieDetails.backdrop_path) {
+    const backdropImage = movieDetails.images?.backdrops.find(
+      (image) => image.file_path === movieDetails.backdrop_path
+    )
+    if (backdropImage) {
+      const backdropSize = 'w1280' // 'original'
+      backdropUrl = `https://image.tmdb.org/t/p/${backdropSize}${movieDetails.backdrop_path}`
+      backdropWidth = backdropImage.width
+      backdropHeight = backdropImage.height
+    }
+  }
 
   let trailerUrl: string = null
   let trailerYouTubeId: string = null
@@ -62,7 +83,7 @@ export function convertTMDBMovieDetailsToMovie(
     runtime: movieDetails.runtime,
     adult: movieDetails.adult,
     budget: movieDetails.budget,
-    revenue: movieDetails.revenue,
+    revenue: movieDetails.revenue ? `${movieDetails.revenue}` : null,
     homepage: movieDetails.homepage,
     status: movieDetails.status?.toLowerCase(),
     keywords: [],
@@ -71,9 +92,15 @@ export function convertTMDBMovieDetailsToMovie(
     cast: movieDetails.cast || [],
     director: movieDetails.director || null,
 
-    // media
+    // images
     posterUrl,
+    posterWidth,
+    posterHeight,
     backdropUrl,
+    backdropWidth,
+    backdropHeight,
+
+    // video
     trailerUrl,
     trailerYouTubeId,
 
@@ -144,7 +171,7 @@ export function populateMovieWithIMDBInfo(
         }
 
         if (imdbMovie.boxOffice.worldwide > 0) {
-          movie.revenue = imdbMovie.boxOffice.worldwide
+          movie.revenue = `${imdbMovie.boxOffice.worldwide}`
         }
       }
 

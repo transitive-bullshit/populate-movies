@@ -24,7 +24,7 @@ export interface Movie {
   runtime: number
   adult: boolean
   budget: number
-  revenue: number
+  revenue: string
   homepage: string
   status: string
   mpaaRating?: string
@@ -36,9 +36,15 @@ export interface Movie {
   production?: string
   awardsSummary?: string
 
-  // media
+  // images
   posterUrl?: string | null
+  posterWidth?: number
+  posterHeight?: number
   backdropUrl?: string | null
+  backdropWidth?: number
+  backdropHeight?: number
+
+  // video
   trailerUrl?: string | null
   trailerYouTubeId?: string | null
 
