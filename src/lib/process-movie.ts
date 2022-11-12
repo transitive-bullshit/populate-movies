@@ -276,7 +276,9 @@ export function processMovie(
         .map((s) => s.toLowerCase().trim())
         .flatMap((s) => [
           s,
-          s.replace(/[-:.]/g, ' ').replace(/ +/g, ' ').trim()
+          replaceSpecialChars(
+            s.replace(/[-:.]/g, ' ').replace(/ +/g, ' ')
+          ).trim()
         ])
     )
   )
@@ -285,6 +287,15 @@ export function processMovie(
     .substring(0, 1024)
 
   return movie
+}
+
+function replaceSpecialChars(str: string) {
+  return str
+    ?.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove accents
+    .replace(/([^\w]+|\s+)/g, '-') // replace space and other characters by hyphen
+    .replace(/\-\-+/g, '-') // replaces multiple hyphens by one hyphen
+    .replace(/(^-+|-+$)/g, '') // remove extra hyphens from beginning or end of the string
 }
 
 function isTextLikelyStandupSpecial(text: string): boolean {
