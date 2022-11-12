@@ -290,12 +290,14 @@ export function processMovie(
 }
 
 function replaceSpecialChars(str: string) {
-  return str
-    ?.normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // remove accents
-    .replace(/([^\w]+|\s+)/g, '-') // replace space and other characters by hyphen
-    .replace(/\-\-+/g, '-') // replaces multiple hyphens by one hyphen
-    .replace(/(^-+|-+$)/g, '') // remove extra hyphens from beginning or end of the string
+  return (
+    str
+      ?.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove accents
+      // .replace(/([^\w]+|\s+)/g, '-') // replace space and other characters by hyphen
+      .replace(/\-\-+/g, '-') // replaces multiple hyphens by one hyphen
+      .replace(/(^-+|-+$)/g, '')
+  ) // remove extra hyphens from beginning or end of the string
 }
 
 function isTextLikelyStandupSpecial(text: string): boolean {
