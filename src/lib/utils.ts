@@ -200,20 +200,6 @@ export function populateMovieWithIMDBInfo(
         // ignore IMDB-labeled short films
         return null
       }
-
-      if (
-        imdbMovie.mainType !== 'movie' &&
-        (imdbMovie.mainType as any) !== 'video'
-      ) {
-        // if ((imdbMovie.mainType as any) === 'tvSpecial') {
-        //   console.log('ignoring tv special', movie)
-        // } else if ((imdbMovie.mainType as any) === 'tvMovie') {
-        //   console.log('ignoring tv movie', movie)
-        // }
-
-        // ignore non-movie / non-video titles
-        return null
-      }
     }
 
     if (imdbRating) {
@@ -225,12 +211,6 @@ export function populateMovieWithIMDBInfo(
         movie.imdbVotes = imdbRating.numVotes
       }
     }
-
-    // if (!hasIMDBRating) {
-    //   console.warn(
-    //     `missing imdb rating ${movie.imdbId} (${movie.status}) ${movie.title}`
-    //   )
-    // }
   }
 
   return movie

@@ -16,10 +16,27 @@ export function processMovie(
   const isSingleCountryOfOrigin = countriesOfOrigin.size === 1
   // const languages = new Set(movie.languages)
   const title = movie.title.toLowerCase()
+  const isStandup = isMovieLikelyStandupSpecial(movie, {
+    genres,
+    keywords
+  })
 
-  if (movie.imdbType !== 'movie' && (movie.imdbType as any) !== 'video') {
-    // ignore non-movie / non-video titles
-    return null
+  if (isStandup) {
+    movie.genres.push('stand up')
+  }
+
+  if (
+    movie.imdbType &&
+    movie.imdbType !== 'movie' &&
+    (movie.imdbType as any) !== 'video'
+  ) {
+    if ((movie.imdbType as any) === 'tvSpecial' && isStandup) {
+      // keep stand up specials
+    } else {
+      // ignore non-movie / non-video titles
+      // console.log('filterType', movie.imdbType, movie.title)
+      return null
+    }
   }
 
   const hasMusicGenre = genres.has('music')
@@ -29,12 +46,14 @@ export function processMovie(
     if (numGenres === 1) {
       // tends to be music videos
       // TODO: this may lead to false negatives
+      // console.log('filter0', movie.title)
       return null
     }
 
     if (numGenres === 2 && hasDocumentaryGenre) {
       // tends to be documentaries about bands / touring
       // TODO: this may lead to false negatives
+      // console.log('filter1', movie.title)
       return null
     }
   }
@@ -44,20 +63,12 @@ export function processMovie(
     keywords.has('compilation movie') ||
     keywords.has('live performance')
   ) {
-    return null
+    console.log('filter2', movie.title)
+    // TODO: this may lead to false negatives
   }
 
   if (title.startsWith('national theatre live')) {
     return null
-  }
-
-  if (
-    isMovieLikelyStandupSpecial(movie, {
-      genres,
-      keywords
-    })
-  ) {
-    movie.genres.push('stand up')
   }
 
   // calculate an adjusted imdbVotes so newer movies get a boost (since there
