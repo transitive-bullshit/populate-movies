@@ -253,9 +253,14 @@ export function processMovie(
     }
   }
 
+  // construct a very basic string of keywords for a naive search index
   movie.searchL = Array.from(
     new Set(
-      [movie.title, movie.originalTitle, movie.director]
+      [
+        movie.title,
+        movie.originalTitle,
+        ...(movie.director?.split(',').slice(0, 3) || [])
+      ]
         .filter(Boolean)
         .map((s) => s.toLowerCase().trim())
         .flatMap((s) => [
@@ -266,6 +271,7 @@ export function processMovie(
   )
     .join('. ')
     .trim()
+    .substring(0, 1024)
 
   return movie
 }
