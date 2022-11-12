@@ -253,6 +253,20 @@ export function processMovie(
     }
   }
 
+  movie.searchL = Array.from(
+    new Set(
+      [movie.title, movie.originalTitle, movie.director]
+        .filter(Boolean)
+        .map((s) => s.toLowerCase().trim())
+        .flatMap((s) => [
+          s,
+          s.replace(/[-:.]/g, ' ').replace(/ +/g, ' ').trim()
+        ])
+    )
+  )
+    .join('. ')
+    .trim()
+
   return movie
 }
 

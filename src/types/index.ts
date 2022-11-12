@@ -81,6 +81,7 @@ export interface Movie {
   foreign?: boolean
   relevancyScore?: number
   imdbCustomPopularity?: number
+  searchL?: string
 }
 
 export type IMDBType =
