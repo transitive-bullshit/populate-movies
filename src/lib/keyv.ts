@@ -1,14 +1,15 @@
-import Keyv from '@keyvhq/core'
-import KeyvRedis from '@keyvhq/redis'
+import KeyvRedis from '@keyv/redis'
+import Keyv from 'keyv'
 
-import { isRedisEnabled, redisNamespace, redisUrl } from './config'
+import * as config from './config'
 
 let keyv: Keyv
-if (isRedisEnabled) {
-  const keyvRedis = new KeyvRedis(redisUrl)
-  keyv = new Keyv({ store: keyvRedis, namespace: redisNamespace || undefined })
+if (config.enablePreviewImages) {
+  const redis = new KeyvRedis(config.redisUrl)
+
+  keyv = new Keyv({ store: redis, namespace: config.redisNamespace })
 } else {
-  keyv = new Keyv()
+  keyv = new Keyv({ namespace: config.redisNamespace })
 }
 
 export { keyv }

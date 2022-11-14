@@ -19,7 +19,7 @@ export const flickMetrixMoviesPath = `${outDir}/flick-metrix-movies.json`
 // ----------------------------------------------------------------------------
 
 // Optional redis instance for persisting preview images
-export const isRedisEnabled = true
+export const enablePreviewImages = true
 export const redisHost = process.env.REDIS_HOST
 export const redisPassword = process.env.REDIS_PASSWORD
 export const redisUser = process.env.REDIS_USER || 'default'

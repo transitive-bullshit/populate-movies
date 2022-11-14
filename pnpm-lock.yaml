@@ -1,8 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@keyvhq/core': ^1.6.14
-  '@keyvhq/redis': ^1.6.21
+  '@keyv/redis': ^2.5.3
   '@prisma/client': ^4.6.0
   '@trivago/prettier-plugin-sort-imports': ^3.4.0
   '@types/node': ^18.11.9
@@ -12,6 +11,7 @@ specifiers:
   dotenv-safe: ^8.2.0
   got: ^12.5.2
   husky: ^8.0.2
+  keyv: ^4.5.2
   lint-staged: ^13.0.3
   lqip-modern: ^2.0.0
   make-dir: ^3.1.0
@@ -26,13 +26,13 @@ specifiers:
   typescript: ^4.8.4
 
 dependencies:
-  '@keyvhq/core': 1.6.14
-  '@keyvhq/redis': 1.6.21
+  '@keyv/redis': 2.5.3
   '@prisma/client': 4.6.0_prisma@4.6.0
   csv-parse: 5.3.2
   delay: 5.0.0
   dotenv-safe: 8.2.0
   got: 12.5.2
+  keyv: 4.5.2
   lqip-modern: 2.0.0
   make-dir: 3.1.0
   movier: 2.1.7
@@ -379,19 +379,11 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@keyvhq/core/1.6.14:
-    resolution: {integrity: sha512-NQtjFKsZXLYs3SWbeYATdwwJ1fZtzwrV+9YM4Y9JPGGQqLI0q6gyY2sEWI4RvrKBGJ1AXCJPQNXOPr8oAWdEDw==}
-    engines: {node: '>= 12'}
-    dependencies:
-      json-buffer: 3.0.1
-    dev: false
-
-  /@keyvhq/redis/1.6.21:
-    resolution: {integrity: sha512-kQU6lesyXv1Wwp9ZVJSqC0zxAzwETI+nsjf51EjazfEsdjJeJUJ3JAzZWrGwLbI32T3b/yC7TSb+mFoH4qdPqg==}
+  /@keyv/redis/2.5.3:
+    resolution: {integrity: sha512-IY5CaiAjGypK4Bky1xepYoKg2af5oIyX03qO6ww8QmZlYhcS8iaKs/SfIHV/bCHh5fA3MVuV/m/VebMXgrBo5w==}
     engines: {node: '>= 12'}
     dependencies:
       ioredis: 5.2.4
-      p-event: 4.2.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2289,18 +2281,6 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /p-event/4.2.0:
-    resolution: {integrity: sha512-KXatOjCRXXkSePPb1Nbi0p0m+gQAwdlbhi4wQKJPI1HsMQS9g+Sqp2o+QHziPr7eYJyOZet836KoHEVM1mwOrQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      p-timeout: 3.2.0
-    dev: false
-
-  /p-finally/1.0.0:
-    resolution: {integrity: sha512-LICb2p9CB7FS+0eR1oqWnHhp0FljGLZCWBE9aix0Uye9W8LTQPwMTYVGWQWIw9RdQiDg4+epXQODwIYJtSJaow==}
-    engines: {node: '>=4'}
-    dev: false
-
   /p-limit/3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
@@ -2338,13 +2318,6 @@ packages:
   /p-throttle/5.0.0:
     resolution: {integrity: sha512-iXBFjW4kP/5Ivw7uC9EDnj+/xo3pNn4Rws3zgMGPwXnWTv1M3P0LVdZxLrqRUI5JK0Fp3Du0bt6lCaVrI3WF7g==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dev: false
-
-  /p-timeout/3.2.0:
-    resolution: {integrity: sha512-rhIwUycgwwKcP9yTOOFK/AKsAopjjCakVqLHePO3CC6Mir1Z99xT+R63jZxAT5lFZLa2inS5h+ZS2GvR99/FBg==}
-    engines: {node: '>=8'}
-    dependencies:
-      p-finally: 1.0.0
     dev: false
 
   /param-case/3.0.4:

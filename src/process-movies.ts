@@ -10,6 +10,7 @@ import {
   loadIMDBMoviesFromCache,
   loadIMDBRatingsFromDataDump
 } from './lib/imdb'
+import { keyv } from './lib/keyv'
 import { enrichMovieWithPreviewImages } from './lib/preview-images'
 import { processMovie } from './lib/process-movie'
 import {
@@ -100,7 +101,7 @@ async function main() {
             return null
           }
 
-          if (config.isRedisEnabled) {
+          if (config.enablePreviewImages) {
             await enrichMovieWithPreviewImages(movie)
           }
 
@@ -140,4 +141,6 @@ async function main() {
   })
 }
 
-main()
+main().finally(() => {
+  keyv.disconnect()
+})

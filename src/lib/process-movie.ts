@@ -63,7 +63,7 @@ export function processMovie(
     keywords.has('compilation movie') ||
     keywords.has('live performance')
   ) {
-    console.log('filter2', movie.title)
+    // console.log('filter2', movie.title)
     // TODO: this may lead to false negatives
   }
 

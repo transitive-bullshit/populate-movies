@@ -21,13 +21,13 @@
     "test:prettier": "prettier '**/*.{js,jsx,ts,tsx}' --check"
   },
   "dependencies": {
-    "@keyvhq/core": "^1.6.14",
-    "@keyvhq/redis": "^1.6.21",
+    "@keyv/redis": "^2.5.3",
     "@prisma/client": "^4.6.0",
     "csv-parse": "^5.3.2",
     "delay": "^5.0.0",
     "dotenv-safe": "^8.2.0",
     "got": "^12.5.2",
+    "keyv": "^4.5.2",
     "lqip-modern": "^2.0.0",
     "make-dir": "^3.1.0",
     "movier": "^2.1.7",
