@@ -38,9 +38,11 @@ export interface Movie {
 
   // images
   posterUrl?: string | null
+  posterPlaceholderUrl?: string | null
   posterWidth?: number
   posterHeight?: number
   backdropUrl?: string | null
+  backdropPlaceholderUrl?: string | null
   backdropWidth?: number
   backdropHeight?: number
 

@@ -10,6 +10,7 @@ import {
   loadIMDBMoviesFromCache,
   loadIMDBRatingsFromDataDump
 } from './lib/imdb'
+import { enrichMovieWithPreviewImages } from './lib/preview-images'
 import { processMovie } from './lib/process-movie'
 import {
   convertTMDBMovieDetailsToMovie,
@@ -86,6 +87,11 @@ async function main() {
             return null
           }
 
+          if (!movie.trailerUrl) {
+            // console.log('warn missing trailer', movie.tmdbId, movie.title)
+            return null
+          }
+
           if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })) {
             return null
           }
@@ -94,15 +100,14 @@ async function main() {
             return null
           }
 
-          if (!movie.trailerUrl) {
-            // console.log('warn missing trailer', movie.tmdbId, movie.title)
-            return null
+          if (config.isRedisEnabled) {
+            await enrichMovieWithPreviewImages(movie)
           }
 
           return movie
         },
         {
-          concurrency: 4
+          concurrency: 16
         }
       )
     ).filter(Boolean)
