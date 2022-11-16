@@ -32,10 +32,6 @@ import {
 async function main() {
   await makeDir(config.outDir)
 
-  // const imdbRatings = await loadIMDBRatingsFromDataDump()
-  // const imdbMovies = await loadIMDBMoviesFromCache()
-  // const flickMetrixMovies = await loadFlickMetrixMoviesFromCache()
-
   const [imdbRatings, imdbMovies, flickMetrixMovies] = await Promise.all([
     loadIMDBRatingsFromDataDump(),
     loadIMDBMoviesFromCache(),
