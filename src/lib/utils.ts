@@ -59,7 +59,8 @@ export function convertTMDBMovieDetailsToMovie(
   }
 
   const genreMappings = {
-    'science fiction': 'scifi'
+    'science fiction': 'scifi',
+    'tv movie': 'tv-movie'
   }
   const genres =
     movieDetails.genres

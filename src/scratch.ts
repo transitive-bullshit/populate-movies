@@ -28,7 +28,7 @@ async function main() {
       foreign: false,
       NOT: {
         genres: {
-          hasSome: ['stand up', 'documentary', 'short']
+          hasSome: ['stand-up', 'documentary', 'short']
         }
       }
     },

@@ -22,7 +22,12 @@ export function processMovie(
   })
 
   if (isStandup) {
-    movie.genres.push('stand up')
+    movie.genres.push('stand-up')
+  }
+
+  if (genres.has('tv movie')) {
+    genres.delete('tv movie')
+    genres.add('tv-movie')
   }
 
   if (
