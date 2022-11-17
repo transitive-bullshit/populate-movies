@@ -11,7 +11,7 @@ export type { flickMetrix }
 export interface Movie {
   // ids
   tmdbId: number
-  imdbId: string
+  imdbId?: string
 
   // general metadata
   title: string
@@ -53,7 +53,7 @@ export interface Movie {
   // imdb
   imdbRating?: number
   imdbVotes?: number
-  imdbType?: IMDBType
+  imdbType?: IMDBType | string
 
   // tmdb
   tmdbPopularity?: number // https://developers.themoviedb.org/3/getting-started/popularity
@@ -80,6 +80,7 @@ export interface Movie {
   flickMetrixScore?: number
 
   // custom / application-specific
+  id?: number
   foreign?: boolean
   relevancyScore?: number
   imdbCustomPopularity?: number

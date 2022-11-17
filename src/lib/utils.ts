@@ -70,6 +70,7 @@ export function convertTMDBMovieDetailsToMovie(
 
   return {
     // ids
+    id: movieDetails.id,
     tmdbId: movieDetails.id,
     imdbId: movieDetails.imdb_id,
 

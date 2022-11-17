@@ -76,6 +76,70 @@ export function processMovie(
     return null
   }
 
+  // optionally fill in additional metadata from flickmetrix.com
+  const flickMetrixMovie = flickMetrixMovies
+    ? flickMetrixMovies[movie.imdbId]
+    : null
+
+  if (flickMetrixMovie) {
+    if (!movie.cast?.length) {
+      movie.cast =
+        flickMetrixMovie.Cast?.split(',').map((name) => name.trim()) ?? []
+    }
+
+    if (!movie.director) {
+      movie.director = flickMetrixMovie.Director || null
+    }
+
+    movie.production = flickMetrixMovie.Production || null
+    movie.awardsSummary = flickMetrixMovie.Awards || null
+
+    // rotten tomatoes
+    movie.rtCriticRating = flickMetrixMovie.CriticRating ?? null
+    movie.rtCriticVotes = flickMetrixMovie.CriticReviews ?? null
+    movie.rtAudienceRating = flickMetrixMovie.AudienceRating ?? null
+    movie.rtAudienceVotes = flickMetrixMovie.AudienceReviews ?? null
+    movie.rtUrl = flickMetrixMovie.RTUrl || null
+
+    if (movie.rtUrl) {
+      movie.rtUrl = movie.rtUrl.replace(/\/$/g, '').trim()
+    }
+
+    // letterboxd
+    movie.letterboxdScore = flickMetrixMovie.LetterboxdScore ?? null
+    movie.letterboxdVotes = flickMetrixMovie.letterboxdVotes ?? null
+
+    // flickmetrix
+    movie.flickMetrixId = flickMetrixMovie.ID || null
+    movie.flickMetrixScore = flickMetrixMovie.ComboScore ?? null
+
+    // Empirically, a lot of the youtube trailers that exist on flickmetrix that
+    // don't exist on tmdb are videos that have been removed from youtube.
+    // if (flickMetrixMovie.Trailer && !movie.trailerYouTubeId) {
+    //   movie.trailerYouTubeId = flickMetrixMovie.Trailer
+    //   movie.trailerUrl = `https://youtube.com/watch?v=${movie.trailerYouTubeId}`
+    //   console.log('flickmetrix new trailer', movie.trailerUrl)
+    // }
+
+    const movieHasIMDBRating = movie.imdbRating && movie.imdbVotes
+    const flickMetrixMovieHasIMDBRating =
+      flickMetrixMovie.imdbRating && flickMetrixMovie.imdbVotes
+
+    // if we have IMDB ratings from two sources, take the one with more votes,
+    // which is likely to be more recent
+    if (
+      flickMetrixMovieHasIMDBRating &&
+      (!movieHasIMDBRating || flickMetrixMovie.imdbVotes > movie.imdbVotes)
+    ) {
+      movie.imdbRating = flickMetrixMovie.imdbRating
+      movie.imdbVotes = flickMetrixMovie.imdbVotes
+    }
+
+    if (!movie.plot && flickMetrixMovie.Plot) {
+      movie.plot = flickMetrixMovie.Plot
+    }
+  }
+
   // calculate an adjusted imdbVotes so newer movies get a boost (since there
   // hasn't been enough time yet for their vote counts to stabilize)
   const daysOld = Math.max(
@@ -91,11 +155,23 @@ export function processMovie(
     ? movie.imdbVotes * recencyFactor
     : 0
 
-  // compute a custom relevancy score using an s-curve of imdb ratings of 6-10
-  const imdbRatingFactor = movie.imdbRating
-    ? Math.pow(1.0 / (1.0 + Math.exp(-1.5 * (movie.imdbRating - 6.0))), 6.0)
+  // compute a custom relevancy score using an s-curve of imdb ratings from 6-10
+  const rating =
+    movie.imdbRating ||
+    (movie.rtAudienceRating ? movie.rtAudienceRating / 100 : 0) ||
+    (movie.rtCriticRating ? movie.rtCriticRating / 100 : 0)
+  const imdbRatingFactor = rating
+    ? Math.pow(1.0 / (1.0 + Math.exp(-1.5 * (rating - 6.0))), 6.0)
     : 0
-  movie.relevancyScore = imdbRatingFactor * movie.imdbCustomPopularity
+
+  // movie.relevancyScore = imdbRatingFactor * movie.imdbCustomPopularity
+
+  const imdbRatingFactor2 = Math.max(
+    0.5,
+    Math.pow(3.8, imdbRatingFactor + 0.5) - 1.85
+  )
+  movie.relevancyScore = movie.imdbCustomPopularity * imdbRatingFactor2
+  // console.log({ recencyFactor, imdbRatingFactor })
 
   // figure out whether or not we should classify this movie as a primarily
   // foreign film
@@ -202,70 +278,6 @@ export function processMovie(
             movie.foreign = true
           }
       }
-    }
-  }
-
-  // optionally fill in additional metadata from flickmetrix.com
-  const flickMetrixMovie = flickMetrixMovies
-    ? flickMetrixMovies[movie.imdbId]
-    : null
-
-  if (flickMetrixMovie) {
-    if (!movie.cast?.length) {
-      movie.cast =
-        flickMetrixMovie.Cast?.split(',').map((name) => name.trim()) ?? []
-    }
-
-    if (!movie.director) {
-      movie.director = flickMetrixMovie.Director || null
-    }
-
-    movie.production = flickMetrixMovie.Production || null
-    movie.awardsSummary = flickMetrixMovie.Awards || null
-
-    // rotten tomatoes
-    movie.rtCriticRating = flickMetrixMovie.CriticRating ?? null
-    movie.rtCriticVotes = flickMetrixMovie.CriticReviews ?? null
-    movie.rtAudienceRating = flickMetrixMovie.AudienceRating ?? null
-    movie.rtAudienceVotes = flickMetrixMovie.AudienceReviews ?? null
-    movie.rtUrl = flickMetrixMovie.RTUrl || null
-
-    if (movie.rtUrl) {
-      movie.rtUrl = movie.rtUrl.replace(/\/$/g, '').trim()
-    }
-
-    // letterboxd
-    movie.letterboxdScore = flickMetrixMovie.LetterboxdScore ?? null
-    movie.letterboxdVotes = flickMetrixMovie.letterboxdVotes ?? null
-
-    // flickmetrix
-    movie.flickMetrixId = flickMetrixMovie.ID || null
-    movie.flickMetrixScore = flickMetrixMovie.ComboScore ?? null
-
-    // Empirically, a lot of the youtube trailers that exist on flickmetrix that
-    // don't exist on tmdb are videos that have been removed from youtube.
-    // if (flickMetrixMovie.Trailer && !movie.trailerYouTubeId) {
-    //   movie.trailerYouTubeId = flickMetrixMovie.Trailer
-    //   movie.trailerUrl = `https://youtube.com/watch?v=${movie.trailerYouTubeId}`
-    //   console.log('flickmetrix new trailer', movie.trailerUrl)
-    // }
-
-    const movieHasIMDBRating = movie.imdbRating && movie.imdbVotes
-    const flickMetrixMovieHasIMDBRating =
-      flickMetrixMovie.imdbRating && flickMetrixMovie.imdbVotes
-
-    // if we have IMDB ratings from two sources, take the one with more votes,
-    // which is likely to be more recent
-    if (
-      flickMetrixMovieHasIMDBRating &&
-      (!movieHasIMDBRating || flickMetrixMovie.imdbVotes > movie.imdbVotes)
-    ) {
-      movie.imdbRating = flickMetrixMovie.imdbRating
-      movie.imdbVotes = flickMetrixMovie.imdbVotes
-    }
-
-    if (!movie.plot && flickMetrixMovie.Plot) {
-      movie.plot = flickMetrixMovie.Plot
     }
   }
 
