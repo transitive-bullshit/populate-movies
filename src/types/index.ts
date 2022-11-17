@@ -11,7 +11,7 @@ export type { flickMetrix }
 export interface Movie {
   // ids
   tmdbId: number
-  imdbId?: string
+  imdbId: string
 
   // general metadata
   title: string
