@@ -9,13 +9,18 @@ import * as types from './types'
 import { getTitleDetailsByIMDBId, loadIMDBMoviesFromCache } from './lib/imdb'
 
 /**
- * Fetches info on all previously downloaded movies on IMDB using a cheerio-based
+ * Fetches info on all previously downloaded movies from IMDB using a cheerio-based
  * scraper called `movier`.
  *
  * Note that we strictly rate limit IMDB access in order to prevent IMDB 503s and
  * IP blacklisting. This results in this script taking hours / days to run fully.
  * In the future, a more sophisticated distributed scraping method would be
  * preferred.
+ *
+ * @example
+ * ```
+ * OVERRIDE_IMDB_MOVIES=true time npx tsx src/populate-imdb-movies.ts
+ * ```
  */
 async function main() {
   const overrideExistingIMDBMovies = !!process.env.OVERRIDE_IMDB_MOVIES

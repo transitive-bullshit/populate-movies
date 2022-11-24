@@ -31,7 +31,7 @@
     "lqip-modern": "^2.0.0",
     "make-dir": "^3.1.0",
     "minizlib": "^2.1.2",
-    "movier": "^2.1.8",
+    "movier": "npm:@fisch0920/movier@^2.2.8",
     "p-map": "^5.5.0",
     "p-memoize": "^7.1.1",
     "p-throttle": "^5.0.0"

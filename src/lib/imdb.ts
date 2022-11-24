@@ -21,7 +21,30 @@ const throttle = pThrottle({
   interval: 1000
 })
 
-export const getTitleDetailsByIMDBId = throttle(movier.getTitleDetailsByIMDBId)
+export const getTitleDetailsByIMDBId = throttle((titleId: string) =>
+  movier.getTitleDetailsByIMDBId(titleId, {
+    select: {
+      detailsLang: true,
+      mainSource: true,
+      name: true,
+      worldWideName: true,
+      otherNames: true,
+      titleYear: true,
+      genres: true,
+      directors: true,
+      mainType: true,
+      plot: true,
+      keywords: true,
+      countriesOfOrigin: true,
+      languages: true,
+      ageCategoryTitle: true,
+      boxOffice: true,
+      mainRate: true,
+      allRates: true,
+      runtime: true
+    }
+  })
+)
 
 export async function loadIMDBMoviesFromCache(): Promise<types.IMDBMovies> {
   let imdbMovies: types.IMDBMovies = {}
