@@ -1,14 +1,17 @@
 import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 import stream from 'node:stream'
 import { promisify } from 'node:util'
+import zlib from 'node:zlib'
 
 import got from 'got'
 import makeDir from 'make-dir'
-import zlib from 'minizlib'
+import minizlib from 'minizlib'
 
 import * as config from './lib/config'
 
 const pipeline = promisify(stream.pipeline)
+const gunzip = promisify(zlib.gunzip)
 
 async function downloadTMDBMovieDump() {
   const date = new Date()
@@ -22,11 +25,16 @@ async function downloadTMDBMovieDump() {
   )}_${day.padStart(2, '0')}_${year}.json.gz`
 
   console.log('downloading TMDB movie ID data dump', url)
-  return pipeline(
-    got.stream(url),
-    new zlib.Gunzip(),
-    fs.createWriteStream(config.tmdbMovieIdsDumpPath)
-  )
+
+  const buffer = await got(url).buffer()
+  const unzippedBuffer = await gunzip(buffer)
+  const rawDump = unzippedBuffer.toString('utf-8')
+  const jsonStringifiedDump =
+    '[\n' + rawDump.split('\n').filter(Boolean).join(',\n') + '\n]'
+
+  return fsp.writeFile(config.tmdbMovieIdsDumpPath, jsonStringifiedDump, {
+    encoding: 'utf-8'
+  })
 }
 
 async function downloadIMDBTitleRatingsDump() {
@@ -35,7 +43,7 @@ async function downloadIMDBTitleRatingsDump() {
   console.log('downloading IMDB title ratings data dump', url)
   return pipeline(
     got.stream(url),
-    new zlib.Gunzip(),
+    new minizlib.Gunzip(),
     fs.createWriteStream(config.imdbRatingsPath)
   )
 }
@@ -46,8 +54,7 @@ async function downloadIMDBTitleRatingsDump() {
 async function main() {
   await makeDir(config.outDir)
 
-  await downloadTMDBMovieDump()
-  await downloadIMDBTitleRatingsDump()
+  await Promise.all([downloadTMDBMovieDump(), downloadIMDBTitleRatingsDump()])
 
   console.warn('\ndone')
 }
