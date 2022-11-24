@@ -25,13 +25,8 @@ export const getTitleDetailsByIMDBId = throttle((titleId: string) =>
   movier.getTitleDetailsByIMDBId(titleId, {
     select: {
       detailsLang: true,
-      mainSource: true,
       name: true,
-      worldWideName: true,
-      otherNames: true,
-      titleYear: true,
       genres: true,
-      directors: true,
       mainType: true,
       plot: true,
       keywords: true,
