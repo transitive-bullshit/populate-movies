@@ -30,6 +30,7 @@
     "keyv": "^4.5.2",
     "lqip-modern": "^2.0.0",
     "make-dir": "^3.1.0",
+    "minizlib": "^2.1.2",
     "movier": "^2.1.7",
     "p-map": "^5.5.0",
     "p-memoize": "^7.1.1",

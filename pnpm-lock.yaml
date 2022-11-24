@@ -15,6 +15,7 @@ specifiers:
   lint-staged: ^13.0.3
   lqip-modern: ^2.0.0
   make-dir: ^3.1.0
+  minizlib: ^2.1.2
   movier: ^2.1.7
   npm-run-all: ^4.1.5
   p-map: ^5.5.0
@@ -35,6 +36,7 @@ dependencies:
   keyv: 4.5.2
   lqip-modern: 2.0.0
   make-dir: 3.1.0
+  minizlib: 2.1.2
   movier: 2.1.7
   p-map: 5.5.0
   p-memoize: 7.1.1
@@ -2122,6 +2124,21 @@ packages:
 
   /minimist/1.2.7:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
+    dev: false
+
+  /minipass/3.3.4:
+    resolution: {integrity: sha512-I9WPbWHCGu8W+6k1ZiGpPu0GkoKBeorkfKNuAFBNS1HNFJvke82sxvI5bzcCNpWPorkOO5QQ+zomzzwRxejXiw==}
+    engines: {node: '>=8'}
+    dependencies:
+      yallist: 4.0.0
+    dev: false
+
+  /minizlib/2.1.2:
+    resolution: {integrity: sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==}
+    engines: {node: '>= 8'}
+    dependencies:
+      minipass: 3.3.4
+      yallist: 4.0.0
     dev: false
 
   /mkdirp-classic/0.5.3:

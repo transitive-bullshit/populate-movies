@@ -162,7 +162,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 - filters music videos
 - filters tv series and episodes
 - filters live concerts
-- adds additional IMDB info from any previous `populate-tmdb-movies` cache (if `out/tmdb-movies.json` exists)
+- adds additional IMDB info from any previous `populate-imdb-movies` cache (if `out/imdb-movies.json` exists)
 - adds additional Rotten Tomatoes and Flick Metrix info from any previous `populate-flick-metrix` cache (if `out/flick-metrix-movies.json` exists)
 
 **NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, since it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in the other steps into a normalized format and performing some filtering.
