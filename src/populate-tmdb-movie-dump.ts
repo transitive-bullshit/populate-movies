@@ -125,8 +125,7 @@ async function main() {
       throw new Error(message)
     }
 
-    console.log(JSON.stringify(populatedMovies, null, 2))
-    break
+    // console.log(JSON.stringify(populatedMovies, null, 2))
 
     await fs.writeFile(
       `${config.outDir}/tmdb-${batchNum}.json`,
