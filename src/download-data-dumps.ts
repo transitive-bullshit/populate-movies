@@ -29,6 +29,7 @@ async function downloadTMDBMovieDump() {
   const buffer = await got(url).buffer()
   const unzippedBuffer = await gunzip(buffer)
   const rawDump = unzippedBuffer.toString('utf-8')
+  // TMDB's data dump isn't valid JSON, so coerce it
   const jsonStringifiedDump =
     '[\n' + rawDump.split('\n').filter(Boolean).join(',\n') + '\n]'
 

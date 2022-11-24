@@ -5,6 +5,7 @@ dotenv.config()
 export const dataDir = 'data'
 export const outDir = 'out'
 
+// TODO: numBatches should not be hard-coded
 export const numBatches = 24
 export const batchSize = 32000
 
