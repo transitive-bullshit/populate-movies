@@ -18,7 +18,7 @@ import * as config from './config'
  */
 const throttle = pThrottle({
   limit: 4,
-  interval: 1000
+  interval: 2000
 })
 
 export const getTitleDetailsByIMDBId = throttle((titleId: string) =>

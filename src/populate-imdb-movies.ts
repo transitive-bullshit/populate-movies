@@ -85,12 +85,17 @@ async function main() {
 
               return imdbMovies[movie.imdbId]
             } catch (err) {
-              console.error('imdb error', movie.imdbId, movie.title, err)
+              console.error(
+                'imdb error',
+                movie.imdbId,
+                movie.title,
+                err.toString()
+              )
 
               if (++numErrors >= 3) {
                 return null
               } else {
-                await delay(1000 * numErrors * numErrors)
+                await delay(10000 + 1000 * numErrors * numErrors)
               }
             }
           }
