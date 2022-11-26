@@ -134,7 +134,7 @@ export function populateMovieWithIMDBInfo(
     let hasIMDBRating = false
 
     if (imdbMovie) {
-      if (imdbMovie.genres) {
+      if (imdbMovie.genres?.length) {
         const genres = imdbMovie.genres.map((genre) => genre.toLowerCase())
         movie.genres = movie.genres.concat(genres)
 
@@ -142,15 +142,15 @@ export function populateMovieWithIMDBInfo(
         movie.genres = Array.from(new Set(movie.genres))
       }
 
-      if (imdbMovie.keywords) {
+      if (imdbMovie.keywords?.length) {
         movie.keywords = imdbMovie.keywords
       }
 
-      if (imdbMovie.countriesOfOrigin) {
+      if (imdbMovie.countriesOfOrigin?.length) {
         movie.countriesOfOrigin = imdbMovie.countriesOfOrigin
       }
 
-      if (imdbMovie.languages) {
+      if (imdbMovie.languages?.length) {
         movie.languages = imdbMovie.languages
       }
 

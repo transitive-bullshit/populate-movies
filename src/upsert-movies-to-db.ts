@@ -1,19 +1,28 @@
 import fs from 'node:fs/promises'
 
+import { diffString as jsonDiff } from 'json-diff'
+import _omit from 'lodash.omit'
 import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
 import { prisma } from './lib/db'
+import { dequal } from './lib/dequal'
 
 /**
  * Upserts all movies downloaded on disk into our Prisma database.
  *
- * @note The batch create version is ~14x faster than the upsert version, so it's
- * the default. (~30s vs ~7 minutes)
+ * @note The batch create version is ~14x faster than the upsert version, but it's
+ * potentially destructive, so it's not the default. (~30s vs ~7 minutes)
  */
 async function main() {
-  const dropMovies = !process.env.NO_DROP_MOVIES
+  const dryRun = !!process.env.DRY_RUN
+  const dropMovies = !!process.env.DROP_MOVIES
+  if (dropMovies && dryRun) {
+    console.error('invalid DROP_MOVIES and DRY_RUN')
+    return
+  }
+
   if (dropMovies) {
     console.warn('\nWARNING: dropping movies from db\n')
     await prisma.movie.deleteMany()
@@ -56,11 +65,13 @@ async function main() {
           )
 
           try {
-            const res = await prisma.movie.createMany({
-              data: movieBatch
-            })
+            if (!dryRun) {
+              const res = await prisma.movie.createMany({
+                data: movieBatch
+              })
 
-            numMoviesUpserted += res.count
+              numMoviesUpserted += res.count
+            }
           } catch (err) {
             console.error(`${batchNum}:${index} batch movie insert error`, err)
           }
@@ -79,11 +90,39 @@ async function main() {
                 `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title}`
               )
 
-              return await prisma.movie.upsert({
-                where: { tmdbId: movie.tmdbId },
-                create: movie,
-                update: movie
-              })
+              if (dryRun) {
+                const dbMovie = await prisma.movie.findUnique({
+                  where: { id: movie.tmdbId }
+                })
+
+                const ignore = [
+                  'createdAt',
+                  'updatedAt',
+                  'searchL',
+                  'relevancyScore',
+                  'imdbCustomPopularity',
+                  'posterPlaceholderUrl',
+                  'backdropPlaceholderUrl'
+                ]
+
+                if (
+                  !dequal(dbMovie, movie, {
+                    omit: ignore
+                  })
+                ) {
+                  console.log(
+                    jsonDiff(_omit(dbMovie, ignore), _omit(movie, ignore))
+                  )
+                }
+
+                return true
+              } else {
+                return await prisma.movie.upsert({
+                  where: { id: movie.tmdbId },
+                  create: movie,
+                  update: movie
+                })
+              }
             } catch (err) {
               console.error(
                 'movie upsert error',
@@ -95,7 +134,7 @@ async function main() {
             }
           },
           {
-            concurrency: 16
+            concurrency: 1
           }
         )
       ).filter(Boolean)

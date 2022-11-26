@@ -10,7 +10,8 @@ async function main() {
   // const imdbId = 'tt0111161' // movie (shawshank redemption)
   // const imdbId = 'tt0151804' // office space
   // const imdbId = 'tt1160419' // dune
-  const imdbId = 'tt0110912' // pulp fiction
+  // const imdbId = 'tt0110912' // pulp fiction
+  const imdbId = 'tt6443346'
 
   const result = await prisma.movie.findUnique({
     where: {
