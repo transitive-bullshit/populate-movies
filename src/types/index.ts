@@ -23,7 +23,7 @@ export interface Movie {
   plot: string
   runtime: number
   adult: boolean
-  budget: number
+  budget: string
   revenue: string
   homepage: string
   status: string

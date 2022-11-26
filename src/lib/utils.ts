@@ -84,7 +84,7 @@ export function convertTMDBMovieDetailsToMovie(
     plot: movieDetails.overview,
     runtime: movieDetails.runtime,
     adult: movieDetails.adult,
-    budget: movieDetails.budget,
+    budget: movieDetails.budget ? `${movieDetails.budget}` : null,
     revenue: movieDetails.revenue ? `${movieDetails.revenue}` : null,
     homepage: movieDetails.homepage,
     status: movieDetails.status?.toLowerCase(),
@@ -169,7 +169,7 @@ export function populateMovieWithIMDBInfo(
 
       if (imdbMovie.boxOffice) {
         if (imdbMovie.boxOffice.budget > 0) {
-          movie.budget = imdbMovie.boxOffice.budget
+          movie.budget = `${imdbMovie.boxOffice.budget}`
         }
 
         if (imdbMovie.boxOffice.worldwide > 0) {

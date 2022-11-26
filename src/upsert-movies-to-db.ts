@@ -23,7 +23,7 @@ async function main() {
     return
   }
 
-  if (dropMovies) {
+  if (dropMovies && !dryRun) {
     console.warn('\nWARNING: dropping movies from db\n')
     await prisma.movie.deleteMany()
   }
@@ -92,7 +92,7 @@ async function main() {
 
               if (dryRun) {
                 const dbMovie = await prisma.movie.findUnique({
-                  where: { id: movie.tmdbId }
+                  where: { id: movie.id }
                 })
 
                 const ignore = [
@@ -105,12 +105,21 @@ async function main() {
                   'backdropPlaceholderUrl'
                 ]
 
-                if (
-                  !dequal(dbMovie, movie, {
+                if (!dbMovie) {
+                  console.log(
+                    `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title} - NEW MOVIE`
+                  )
+                } else if (
+                  dequal(dbMovie, movie, {
                     omit: ignore
                   })
                 ) {
                   console.log(
+                    `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title} - NO CHANGE`
+                  )
+                } else {
+                  console.log(
+                    `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title}\n`,
                     jsonDiff(_omit(dbMovie, ignore), _omit(movie, ignore))
                   )
                 }
@@ -118,7 +127,7 @@ async function main() {
                 return true
               } else {
                 return await prisma.movie.upsert({
-                  where: { id: movie.tmdbId },
+                  where: { id: movie.id },
                   create: movie,
                   update: movie
                 })
@@ -134,7 +143,7 @@ async function main() {
             }
           },
           {
-            concurrency: 1
+            concurrency: 16
           }
         )
       ).filter(Boolean)
