@@ -69,7 +69,10 @@ export interface Movie {
   rtCriticVotes?: number
   rtAudienceRating?: number
   rtAudienceVotes?: number
+  rtCriticsConsensus?: string
   rtUrl?: string
+  rtId?: string
+  emsId?: string
 
   // letterboxd
   letterboxdScore?: number
@@ -115,4 +118,9 @@ export interface IMDBMovies {
 // from local cache
 export interface FlickMetrixMovies {
   [tmdbId: string]: flickMetrix.Movie
+}
+
+// from local cache
+export interface RTMovies {
+  [tmdbId: string]: Partial<Movie>
 }

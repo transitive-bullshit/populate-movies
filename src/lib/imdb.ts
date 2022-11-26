@@ -9,8 +9,8 @@ import * as types from '../types'
 import * as config from './config'
 
 /**
- * Rate-limit HTTP requests to IMDB (max 3 per 1200ms). Note that each call to
- * `movier.getTitleDetailsByIMDBId` includes multiple HTTP GET requests to IMDB.
+ * Rate-limit HTTP requests to IMDB. Note that each call to
+ * `movier.getTitleDetailsByIMDBId` includes multiple HTTP GET requests.
  *
  * We're using a modified version of `movier` which removes many of these
  * additional requests which fetch data we're not interested in. Otherwise, we
@@ -61,7 +61,7 @@ export async function loadIMDBMoviesFromCache(): Promise<types.IMDBMovies> {
       `warn: unable to load IMDB movie cache (${config.imdbMoviesPath})`
     )
     console.warn(
-      "You can safely ignore this warning if you haven't run `process-imdb-movies.ts`."
+      "You can safely ignore this warning if you haven't run `populate-imdb-movies.ts`."
     )
     console.warn(err)
   }

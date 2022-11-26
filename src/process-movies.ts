@@ -66,12 +66,18 @@ async function main() {
             return null
           }
 
+          // TODO:
+          // rumored
+          // planned
+          // in production
+          // post production
+          // released
           if (movie.status !== 'released') {
-            // console.log(
-            //   `warn status (${movie.status})`,
-            //   movie.tmdbId,
-            //   movie.title
-            // )
+            console.log(
+              `warn status (${movie.status})`,
+              movie.tmdbId,
+              movie.title
+            )
             return null
           }
 

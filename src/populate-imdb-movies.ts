@@ -19,11 +19,11 @@ import { getTitleDetailsByIMDBId, loadIMDBMoviesFromCache } from './lib/imdb'
  *
  * @example
  * ```
- * OVERRIDE_IMDB_MOVIES=true time npx tsx src/populate-imdb-movies.ts
+ * IGNORE_EXISTING_IMDB_MOVIES=true time npx tsx src/populate-imdb-movies.ts
  * ```
  */
 async function main() {
-  const overrideExistingIMDBMovies = !!process.env.OVERRIDE_IMDB_MOVIES
+  const ignoreExistingIMDBMovies = !!process.env.IGNORE_EXISTING_IMDB_MOVIES
   await makeDir(config.outDir)
 
   const imdbMovies = await loadIMDBMoviesFromCache()
@@ -42,6 +42,7 @@ async function main() {
       `\npopulating ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
     )
 
+    let firstMovieInBatch = true
     const imdbOutputMovies = (
       await pMap(
         movies,
@@ -56,7 +57,7 @@ async function main() {
             return null
           }
 
-          if (!overrideExistingIMDBMovies && imdbMovies[movie.imdbId]) {
+          if (ignoreExistingIMDBMovies && imdbMovies[movie.imdbId]) {
             return null
           }
 
@@ -65,7 +66,7 @@ async function main() {
           while (true) {
             try {
               console.log(
-                `${batchNum}:${index} imdb ${movie.imdbId} (${movie.status}) ${movie.title}`
+                `${batchNum}:${index} imdb ${movie.imdbId} (${movie.releaseYear}) ${movie.title}`
               )
 
               const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
@@ -74,7 +75,8 @@ async function main() {
                 ...imdbMovie
               }
 
-              if (index === 0) {
+              if (firstMovieInBatch) {
+                firstMovieInBatch = false
                 console.log()
                 console.log(JSON.stringify(imdbMovies[movie.imdbId], null, 2))
                 console.log()
