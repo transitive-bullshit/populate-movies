@@ -13,6 +13,7 @@ import {
 import { keyv } from './lib/keyv'
 import { enrichMovieWithPreviewImages } from './lib/preview-images'
 import { processMovie } from './lib/process-movie'
+import { loadRTMoviesFromCache, populateMovieWithRTInfo } from './lib/rt'
 import {
   convertTMDBMovieDetailsToMovie,
   populateMovieWithIMDBInfo
@@ -28,16 +29,21 @@ import {
  *  - filters movies which do not have a valid YouTube trailer
  *  - adds IMDB ratings from an official IMDB data dump
  *  - adds additional IMDB metadata from previous `populate-imdb-movies` cache
+ *  - adds additional Rotten Tomatoes metadata from previous `populate-rt-movies` cache
+ *  - adds additional Flick Metrix metadata from previous `populate-flick-metrix-movies` cache
  */
 async function main() {
   await makeDir(config.outDir)
 
-  const [imdbRatings, imdbMovies, flickMetrixMovies] = await Promise.all([
-    loadIMDBRatingsFromDataDump(),
-    loadIMDBMoviesFromCache(),
-    loadFlickMetrixMoviesFromCache()
-  ])
+  const [imdbRatings, imdbMovies, rtMovies, flickMetrixMovies] =
+    await Promise.all([
+      loadIMDBRatingsFromDataDump(),
+      loadIMDBMoviesFromCache(),
+      loadRTMoviesFromCache(),
+      loadFlickMetrixMoviesFromCache()
+    ])
 
+  const statusToIgnore = new Set(['rumored', 'planned'])
   let batchNum = 0
   let numTMDBMoviesTotal = 0
   let numMoviesTotal = 0
@@ -66,18 +72,12 @@ async function main() {
             return null
           }
 
-          // TODO:
-          // rumored
-          // planned
-          // in production
-          // post production
-          // released
-          if (movie.status !== 'released') {
-            console.log(
-              `warn status (${movie.status})`,
-              movie.tmdbId,
-              movie.title
-            )
+          if (statusToIgnore.has(movie.status)) {
+            // console.log(
+            //   `warn status (${movie.status})`,
+            //   movie.tmdbId,
+            //   movie.title
+            // )
             return null
           }
 
@@ -96,6 +96,10 @@ async function main() {
           }
 
           if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })) {
+            return null
+          }
+
+          if (!populateMovieWithRTInfo(movie, { rtMovies })) {
             return null
           }
 

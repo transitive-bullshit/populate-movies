@@ -166,3 +166,63 @@ export async function loadRTMoviesFromCache(): Promise<types.RTMovies> {
 
   return rtMovies
 }
+
+type ExtractPropertyNames<T> = {
+  [K in keyof T]: K
+}[keyof T]
+
+export function populateMovieWithRTInfo(
+  movie: types.Movie,
+  { rtMovies }: { rtMovies: types.RTMovies }
+): types.Movie | null {
+  const rtMovie = rtMovies[movie.tmdbId]
+
+  if (!rtMovie) {
+    return movie
+  }
+
+  // for these fields, we want to prioritize the rotten tomatoes values
+  const fieldOverrides: Array<ExtractPropertyNames<types.Movie>> = [
+    'rtAudienceRating',
+    'rtAudienceVotes',
+    'rtCriticRating',
+    'rtCriticVotes',
+    'rtCriticsConsensus',
+    'rtUrl',
+    'rtId',
+    'emsId'
+  ]
+
+  for (const field of fieldOverrides) {
+    const value = rtMovie[field]
+    if (value || value === 0) {
+      ;(movie as any)[field] = value
+    }
+  }
+
+  // for these fields, we want to prioritize values from other sources
+  const fieldOptionals: Array<ExtractPropertyNames<types.Movie>> = [
+    'title',
+    'mpaaRating',
+    'plot'
+  ]
+
+  for (const field of fieldOptionals) {
+    const value = rtMovie[field]
+    if (value && !movie[field]) {
+      ;(movie as any)[field] = value
+    }
+  }
+
+  // TODO: check overlap of RT genres vs TMDB and IMDB
+  // if (rtMovie.genres?.length) {
+  //   // TODO: convert genres to common format + remove spaces?
+  //   const genres = rtMovie.genres.map((genre) => genre.toLowerCase())
+  //   movie.genres = movie.genres.concat(genres)
+
+  //   // ensure genres are unique
+  //   movie.genres = Array.from(new Set(movie.genres))
+  // }
+
+  return movie
+}
