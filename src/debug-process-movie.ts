@@ -3,7 +3,7 @@ import { prisma } from './lib/db'
 import { processMovie } from './lib/process-movie'
 
 /**
- * Retrieves a single movie from the database and process it for debugging
+ * Retrieves a single movie from the database and processes it for debugging
  * purposes.
  */
 async function main() {

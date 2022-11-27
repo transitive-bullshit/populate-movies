@@ -23,17 +23,18 @@ import {
 } from './lib/utils'
 
 /**
- * Processes downloaded TMDB movies with the following transforms:
+ * Process downloaded TMDB movies with the following transforms:
  *
  *  - transforms TMDB movies to a common schema
  *  - filters adult movies
- *  - filters movies which are not released yet
+ *  - filters movies which are not far enough along in production
  *  - filters movies which do not have a valid IMDB id
  *  - filters movies which do not have a valid YouTube trailer
- *  - adds IMDB ratings from an official IMDB data dump
- *  - adds additional IMDB metadata from previous `populate-imdb-movies` cache
- *  - adds additional Rotten Tomatoes metadata from previous `populate-rt-movies` cache
- *  - adds additional Flick Metrix metadata from previous `populate-flick-metrix-movies` cache
+ *  - (optional) computes LQIP preview images for posters and backdrops
+ *  - (optional) adds IMDB ratings from an official IMDB data dump
+ *  - (optional) adds additional IMDB metadata from previous `populate-imdb-movies` cache
+ *  - (optional) adds additional Rotten Tomatoes metadata from previous `populate-rt-movies` cache
+ *  - (optional) adds additional Flick Metrix metadata from previous `populate-flick-metrix-movies` cache
  */
 async function main() {
   await makeDir(config.outDir)
