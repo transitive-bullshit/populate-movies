@@ -167,22 +167,21 @@ export async function loadRTMoviesFromCache(): Promise<types.RTMovies> {
   return rtMovies
 }
 
-type ExtractPropertyNames<T> = {
-  [K in keyof T]: K
-}[keyof T]
-
 export function populateMovieWithRTInfo(
   movie: types.Movie,
-  { rtMovies }: { rtMovies: types.RTMovies }
+  { rtMovies }: { rtMovies?: types.RTMovies }
 ): types.Movie | null {
-  const rtMovie = rtMovies[movie.tmdbId]
+  if (!rtMovies) {
+    return movie
+  }
 
+  const rtMovie = rtMovies[movie.tmdbId]
   if (!rtMovie) {
     return movie
   }
 
   // for these fields, we want to prioritize the rotten tomatoes values
-  const fieldOverrides: Array<ExtractPropertyNames<types.Movie>> = [
+  const fieldOverrides: types.MovieField[] = [
     'rtAudienceRating',
     'rtAudienceVotes',
     'rtCriticRating',
@@ -195,21 +194,19 @@ export function populateMovieWithRTInfo(
 
   for (const field of fieldOverrides) {
     const value = rtMovie[field]
+
     if (value || value === 0) {
       ;(movie as any)[field] = value
     }
   }
 
   // for these fields, we want to prioritize values from other sources
-  const fieldOptionals: Array<ExtractPropertyNames<types.Movie>> = [
-    'title',
-    'mpaaRating',
-    'plot'
-  ]
+  const fieldOptionals: types.MovieField[] = ['title', 'mpaaRating', 'plot']
 
   for (const field of fieldOptionals) {
     const value = rtMovie[field]
-    if (value && !movie[field]) {
+
+    if (!movie[field] && (value || value === 0)) {
       ;(movie as any)[field] = value
     }
   }

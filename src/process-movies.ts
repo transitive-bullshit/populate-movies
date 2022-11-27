@@ -5,7 +5,10 @@ import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
-import { loadFlickMetrixMoviesFromCache } from './lib/flick-metrix'
+import {
+  loadFlickMetrixMoviesFromCache,
+  populateMovieWithFlickMetrixInfo
+} from './lib/flick-metrix'
 import {
   loadIMDBMoviesFromCache,
   loadIMDBRatingsFromDataDump
@@ -103,7 +106,11 @@ async function main() {
             return null
           }
 
-          if (!processMovie(movie, { flickMetrixMovies })) {
+          if (!populateMovieWithFlickMetrixInfo(movie, { flickMetrixMovies })) {
+            return null
+          }
+
+          if (!processMovie(movie)) {
             return null
           }
 

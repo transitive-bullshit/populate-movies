@@ -124,3 +124,9 @@ export interface FlickMetrixMovies {
 export interface RTMovies {
   [tmdbId: string]: Partial<Movie>
 }
+
+export type ExtractPropertyNames<T> = {
+  [K in keyof T]: K
+}[keyof T]
+
+export type MovieField = ExtractPropertyNames<Movie>

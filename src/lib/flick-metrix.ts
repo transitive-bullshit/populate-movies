@@ -132,3 +132,70 @@ export async function fetchFlickMetrixMovies({
 
   return JSON.parse(res)
 }
+
+export function populateMovieWithFlickMetrixInfo(
+  movie: types.Movie,
+  { flickMetrixMovies }: { flickMetrixMovies?: types.FlickMetrixMovies } = {}
+): types.Movie | null {
+  // optionally fill in additional metadata from flickmetrix.com
+  const flickMetrixMovie = flickMetrixMovies
+    ? flickMetrixMovies[movie.imdbId]
+    : null
+
+  if (!flickMetrixMovie) {
+    return movie
+  }
+
+  // for these fields, we want to prioritize the flick metrix values
+  const fieldOverrides: Partial<Record<types.MovieField, () => any>> = {
+    director: () => flickMetrixMovie.Director || null,
+    production: () => flickMetrixMovie.Production || null,
+    awardsSummary: () => flickMetrixMovie.Awards || null,
+    letterboxdScore: () => flickMetrixMovie.LetterboxdScore ?? null,
+    letterboxdVotes: () => flickMetrixMovie.letterboxdVotes ?? null,
+    flickMetrixId: () => flickMetrixMovie.ID || null,
+    flickMetrixScore: () => flickMetrixMovie.ComboScore ?? null,
+    cast: () =>
+      flickMetrixMovie.Cast?.split(',')
+        .map((name) => name.trim())
+        .filter(Boolean) ?? []
+  }
+
+  for (const [field, valueFn] of Object.entries(fieldOverrides)) {
+    const value = valueFn()
+
+    if (value || value === 0) {
+      ;(movie as any)[field] = value
+    }
+  }
+
+  // for these fields, we want to prioritize values from other sources
+  const fieldOptionals: Partial<Record<types.MovieField, () => any>> = {
+    rtCriticRating: () => flickMetrixMovie.CriticRating ?? null,
+    rtCriticVotes: () => flickMetrixMovie.CriticReviews ?? null,
+    rtAudienceRating: () => flickMetrixMovie.AudienceRating ?? null,
+    rtAudienceVotes: () => flickMetrixMovie.AudienceReviews ?? null,
+    rtUrl: () => flickMetrixMovie.RTUrl.replace(/\/$/g, '').trim() || null,
+    plot: () => flickMetrixMovie.Plot ?? null,
+    imdbRating: () => flickMetrixMovie.imdbRating ?? null,
+    imdbVotes: () => flickMetrixMovie.imdbVotes ?? null
+  }
+
+  for (const [field, valueFn] of Object.entries(fieldOverrides)) {
+    const value = valueFn()
+
+    if (!movie[field] && (value || value === 0)) {
+      ;(movie as any)[field] = value
+    }
+  }
+
+  // Empirically, a lot of the youtube trailers that exist on flickmetrix that
+  // don't exist on tmdb are videos that have been removed from youtube.
+  // if (flickMetrixMovie.Trailer && !movie.trailerYouTubeId) {
+  //   movie.trailerYouTubeId = flickMetrixMovie.Trailer
+  //   movie.trailerUrl = `https://youtube.com/watch?v=${movie.trailerYouTubeId}`
+  //   console.log('flickmetrix new trailer', movie.trailerUrl)
+  // }
+
+  return movie
+}
