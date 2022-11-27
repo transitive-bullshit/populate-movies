@@ -1,6 +1,5 @@
 import './lib/config'
 import { prisma } from './lib/db'
-import { loadFlickMetrixMoviesFromCache } from './lib/flick-metrix'
 import { processMovie } from './lib/process-movie'
 
 /**
@@ -10,17 +9,15 @@ import { processMovie } from './lib/process-movie'
 async function main() {
   const id = 7183
 
-  const [movie, flickMetrixMovies] = await Promise.all([
+  const [movie] = await Promise.all([
     prisma.movie.findUnique({
       where: {
         id
       }
-    }),
-
-    loadFlickMetrixMoviesFromCache()
+    })
   ])
 
-  if (!processMovie(movie, { flickMetrixMovies })) {
+  if (!processMovie(movie)) {
     return null
   }
 
