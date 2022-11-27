@@ -38,6 +38,7 @@ import {
 async function main() {
   await makeDir(config.outDir)
 
+  // load all of our (possibly empty) cached data from disk
   const [imdbRatings, imdbMovies, rtMovies, flickMetrixMovies] =
     await Promise.all([
       loadIMDBRatingsFromDataDump(),

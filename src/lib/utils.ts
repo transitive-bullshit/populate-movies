@@ -128,90 +128,92 @@ export function populateMovieWithIMDBInfo(
     imdbMovies
   }: { imdbRatings?: types.IMDBRatings; imdbMovies?: types.IMDBMovies }
 ): types.Movie | null {
-  if (movie.imdbId) {
-    const imdbRating = imdbRatings[movie.imdbId]
-    const imdbMovie = imdbMovies[movie.imdbId]
-    let hasIMDBRating = false
+  if (!movie.imdbId) {
+    return movie
+  }
 
-    if (imdbMovie) {
-      if (imdbMovie.genres?.length) {
-        const genres = imdbMovie.genres.map((genre) => genre.toLowerCase())
-        movie.genres = movie.genres.concat(genres)
+  const imdbRating = imdbRatings ? imdbRatings[movie.imdbId] : null
+  const imdbMovie = imdbMovies ? imdbMovies[movie.imdbId] : null
+  let hasIMDBRating = false
 
-        // ensure genres are unique
-        movie.genres = Array.from(new Set(movie.genres))
-      }
+  if (imdbMovie) {
+    if (imdbMovie.genres?.length) {
+      const genres = imdbMovie.genres.map((genre) => genre.toLowerCase())
+      movie.genres = movie.genres.concat(genres)
 
-      if (imdbMovie.keywords?.length) {
-        movie.keywords = imdbMovie.keywords
-      }
+      // ensure genres are unique
+      movie.genres = Array.from(new Set(movie.genres))
+    }
 
-      if (imdbMovie.countriesOfOrigin?.length) {
-        movie.countriesOfOrigin = imdbMovie.countriesOfOrigin
-      }
+    if (imdbMovie.keywords?.length) {
+      movie.keywords = imdbMovie.keywords
+    }
 
-      if (imdbMovie.languages?.length) {
-        movie.languages = imdbMovie.languages
-      }
+    if (imdbMovie.countriesOfOrigin?.length) {
+      movie.countriesOfOrigin = imdbMovie.countriesOfOrigin
+    }
 
-      if (imdbMovie.ageCategoryTitle) {
-        movie.mpaaRating = imdbMovie.ageCategoryTitle
-      }
+    if (imdbMovie.languages?.length) {
+      movie.languages = imdbMovie.languages
+    }
 
-      if (imdbMovie.plot) {
-        if (movie.plot && imdbMovie.plot?.trim().endsWith('Read all')) {
-          // ignore truncated plots
-        } else {
-          // otherwise favor the IMDB plot over the TMDB plot
-          movie.plot = imdbMovie.plot.replace(/\.\.\. read all$/i, '...')
-        }
-      }
+    if (imdbMovie.ageCategoryTitle) {
+      movie.mpaaRating = imdbMovie.ageCategoryTitle
+    }
 
-      if (imdbMovie.boxOffice) {
-        if (imdbMovie.boxOffice.budget > 0) {
-          movie.budget = `${imdbMovie.boxOffice.budget}`
-        }
-
-        if (imdbMovie.boxOffice.worldwide > 0) {
-          movie.revenue = `${imdbMovie.boxOffice.worldwide}`
-        }
-      }
-
-      if (imdbMovie.mainRate?.rateSource?.toLowerCase() === 'imdb') {
-        hasIMDBRating = true
-        movie.imdbRating = imdbMovie.mainRate.rate
-        movie.imdbVotes = imdbMovie.mainRate.votesCount
-      }
-
-      const metacriticRate = imdbMovie.allRates?.find(
-        (rate) => rate.rateSource?.toLowerCase() === 'metacritics'
-      )
-      if (metacriticRate) {
-        movie.metacriticRating = metacriticRate.rate
-        movie.metacriticVotes = metacriticRate.votesCount
-      }
-
-      movie.imdbType = imdbMovie.mainType
-
-      const genres = new Set(movie.genres)
-      if (genres.has('short')) {
-        if (imdbMovie.mainType === 'movie') {
-          movie.imdbType = 'short'
-        }
-
-        // ignore IMDB-labeled short films
-        return null
+    if (imdbMovie.plot) {
+      if (movie.plot && imdbMovie.plot?.trim().endsWith('Read all')) {
+        // ignore truncated plots
+      } else {
+        // otherwise favor the IMDB plot over the TMDB plot
+        movie.plot = imdbMovie.plot.replace(/\.\.\. read all$/i, '...')
       }
     }
 
-    if (imdbRating) {
-      // if we have IMDB ratings from two sources, take the one with more votes,
-      // which is likely to be more recent
-      if (!hasIMDBRating || imdbRating.numVotes > movie.imdbVotes) {
-        hasIMDBRating = true
-        movie.imdbRating = imdbRating.rating
-        movie.imdbVotes = imdbRating.numVotes
+    if (imdbMovie.boxOffice) {
+      if (imdbMovie.boxOffice.budget > 0) {
+        movie.budget = `${imdbMovie.boxOffice.budget}`
       }
+
+      if (imdbMovie.boxOffice.worldwide > 0) {
+        movie.revenue = `${imdbMovie.boxOffice.worldwide}`
+      }
+    }
+
+    if (imdbMovie.mainRate?.rateSource?.toLowerCase() === 'imdb') {
+      hasIMDBRating = true
+      movie.imdbRating = imdbMovie.mainRate.rate
+      movie.imdbVotes = imdbMovie.mainRate.votesCount
+    }
+
+    const metacriticRate = imdbMovie.allRates?.find(
+      (rate) => rate.rateSource?.toLowerCase() === 'metacritics'
+    )
+    if (metacriticRate) {
+      movie.metacriticRating = metacriticRate.rate
+      movie.metacriticVotes = metacriticRate.votesCount
+    }
+
+    movie.imdbType = imdbMovie.mainType
+
+    const genres = new Set(movie.genres)
+    if (genres.has('short')) {
+      if (imdbMovie.mainType === 'movie') {
+        movie.imdbType = 'short'
+      }
+
+      // ignore IMDB-labeled short films
+      return null
+    }
+  }
+
+  if (imdbRating) {
+    // if we have IMDB ratings from two sources, take the one with more votes,
+    // which is likely to be more recent
+    if (!hasIMDBRating || imdbRating.numVotes > movie.imdbVotes) {
+      hasIMDBRating = true
+      movie.imdbRating = imdbRating.rating
+      movie.imdbVotes = imdbRating.numVotes
     }
   }
 
