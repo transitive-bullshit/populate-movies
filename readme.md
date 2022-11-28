@@ -141,7 +141,9 @@ We'll start off by running `npx tsx src/download-data-dumps.tsx`, which download
 - The most recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz)
   - This gives us a full list of TMDB movie IDs to kick things off.
 - An official [IMDB title ratings data dump](https://www.imdb.com/interfaces/)
-  - This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that reduces the amount of scraping we need to do.
+  - This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes.
+
+The output will be stored in the `data/` directory and is ignored by `git`.
 
 ### 2. Populate TMDB Movies
 
