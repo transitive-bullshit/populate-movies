@@ -180,7 +180,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 - adds additional Rotten Tomatoes info from any previous `populate-rt-movies` cache (if `out/rt-movies.json` exists)
 - adds additional Flick Metrix info from any previous `populate-flick-metrix-movies` cache (if `out/flick-metrix-movies.json` exists)
 
-**NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, since it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in the other steps into a normalized format and performing some filtering.
+**NOTE**: this is the **most important step**, and you will likely find yourself running it multiple times. It is pretty quick, though, since it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in the other steps into a normalized format and performing some filtering.
 
 The result is ~73k movies.
 
@@ -193,6 +193,8 @@ Currently, this only way this script will work is if you've previously downloade
 This step is important if you want up-to-date Rotten Tomatoes critic and audience scores, along with a `criticsConsensus` description.
 
 If you want to proceed with this step, you can run `npx tsx src/populate-rt-movies.tsx` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each RT movie and store the results to `out/rt-movies.json`.
+
+Once this step finishes, you'll need to re-run `npx tsx src/process-movies.ts`, which will now take into account all of the extra RT metadata that was downloaded to our local cache.
 
 ### 6. Populate IMDB Movies (Optional)
 
