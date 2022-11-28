@@ -18,10 +18,10 @@
 - [Steps](#steps)
   - [1. Download Data Dumps](#1-download-data-dumps)
   - [2. Populate TMDB Movies](#2-populate-tmdb-movies)
-  - [3. (Optional) Populate Flick Metrix Movies](#3-optional-populate-flick-metrix-movies)
+  - [3. Populate Flick Metrix Movies (Optional)](#3-populate-flick-metrix-movies-optional)
   - [4. Process Movies](#4-process-movies)
-  - [5. (Optional) Populate Rotten Tomatoes Movies](#5-optional-populate-rotten-tomatoes-movies)
-  - [6. (Optional) Populate IMDB Movies](#6-optional-populate-imdb-movies)
+  - [5. Populate Rotten Tomatoes Movies (Optional)](#5-populate-rotten-tomatoes-movies-optional)
+  - [6. Populate IMDB Movies (Optional)](#6-populate-imdb-movies-optional)
   - [7. Upsert Movies into Prisma](#7-upsert-movies-into-prisma)
   - [8. Query Movies from Prisma](#8-query-movies-from-prisma)
 - [Stats](#stats)
@@ -149,7 +149,7 @@ Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each o
 
 The result is ~655k movies in 24 batches.
 
-### 3. (Optional) Populate Flick Metrix Movies
+### 3. Populate Flick Metrix Movies (Optional)
 
 The next **optional** step is to download movie metadata using [Flick Metrix's](https://flickmetrix.com/) private API. This is really only necessary if you want Rotten Tomatoes scores. _(takes ~3 minutes)_
 
@@ -182,7 +182,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 
 The result is ~73k movies.
 
-### 5. (Optional) Populate Rotten Tomatoes Movies
+### 5. Populate Rotten Tomatoes Movies (Optional)
 
 The next **optional** step is to download additional RT info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper. We self-impose a strict rate-limit on the scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~4 hours)_
 
@@ -192,7 +192,7 @@ This step is important if you want up-to-date Rotten Tomatoes critic and audienc
 
 If you want to proceed with this step, you can run `npx tsx src/populate-rt-movies.tsx` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each RT movie and store the results to `out/rt-movies.json`.
 
-### 6. (Optional) Populate IMDB Movies
+### 6. Populate IMDB Movies (Optional)
 
 The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~12 hours)_
 
