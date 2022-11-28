@@ -39,7 +39,8 @@
     "movier": "npm:@fisch0920/movier@^2.2.8",
     "p-map": "^5.5.0",
     "p-memoize": "^7.1.1",
-    "p-throttle": "^5.0.0"
+    "p-throttle": "^5.0.0",
+    "random": "^4.0.3"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",

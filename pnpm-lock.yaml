@@ -29,6 +29,7 @@ specifiers:
   p-throttle: ^5.0.0
   prettier: ^2.8.0
   prisma: ^4.6.1
+  random: ^4.0.3
   tsx: ^3.12.1
   typescript: ^4.9.3
 
@@ -52,6 +53,7 @@ dependencies:
   p-map: 5.5.0
   p-memoize: 7.1.1
   p-throttle: 5.0.0
+  random: 4.0.3
 
 devDependencies:
   '@trivago/prettier-plugin-sort-imports': 4.0.0_prettier@2.8.0
@@ -2594,6 +2596,13 @@ packages:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
 
+  /random/4.0.3:
+    resolution: {integrity: sha512-2IKyv2BPuvJ8Y19yEYLMPKgEZ1vWuScayHmI/QC+D9eU5mEqkOJOsCb8KzSwdy/XHb26yYDYjBqR3okBeE97Mg==}
+    engines: {node: '>=14'}
+    dependencies:
+      seedrandom: 3.0.5
+    dev: false
+
   /rc/1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
@@ -2737,6 +2746,10 @@ packages:
       get-intrinsic: 1.1.3
       is-regex: 1.1.4
     dev: true
+
+  /seedrandom/3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+    dev: false
 
   /semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}

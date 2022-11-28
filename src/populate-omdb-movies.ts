@@ -3,6 +3,7 @@ import fs from 'node:fs/promises'
 import delay from 'delay'
 import makeDir from 'make-dir'
 import pMap from 'p-map'
+import random from 'random'
 
 import * as config from './lib/config'
 import * as types from './types'
@@ -23,7 +24,12 @@ async function main() {
 
   const omdbMovies = await loadOMDBMoviesFromCache()
 
-  let isRateLimited = false
+  const omdbApiKeySingle = process.env.OMDB_API_KEY
+  const omdbApiKeys = new Set(
+    process.env.OMDB_API_KEYS?.split(',').map((part) => part.trim())
+  )
+
+  let hasUnrecoverableError = false
   let batchNum = 0
   let numMoviesTotal = 0
   let numOMDBMoviesDownloadedTotal = 0
@@ -43,27 +49,41 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<Partial<types.omdb.Movie> | null> => {
-          if (!movie.imdbId || isRateLimited) {
+          if (!movie.imdbId || hasUnrecoverableError) {
             return null
           }
 
-          if (!ignoreExistingOMDBMovies && omdbMovies[movie.tmdbId]) {
+          if (!ignoreExistingOMDBMovies && omdbMovies[movie.imdbId]) {
             return null
           }
 
           let numErrors = 0
 
           while (true) {
+            let apiKey = omdbApiKeySingle
+
+            if (!apiKey) {
+              apiKey =
+                Array.from(omdbApiKeys)[random.int(0, omdbApiKeys.size - 1)]
+
+              if (!apiKey) {
+                // ran out of API keys
+                hasUnrecoverableError = true
+                return null
+              }
+            }
+
             try {
               console.warn(
-                `${batchNum}:${index} omdb ${movie.id} ${movie.imdbId} (${movie.releaseYear}) ${movie.title}`
+                `${batchNum}:${index} omdb ${movie.tmdbId} ${movie.imdbId} (${movie.releaseYear}) ${movie.title}`
               )
 
               const omdbMovie = await getOMDBMovieByIMDBID(movie.imdbId, {
+                apiKey,
                 rt: true
               })
-              const result = (omdbMovies[movie.tmdbId] = {
-                ...omdbMovies[movie.tmdbId],
+              const result = (omdbMovies[movie.imdbId] = {
+                ...omdbMovies[movie.imdbId],
                 ...omdbMovie
               })
 
@@ -79,7 +99,7 @@ async function main() {
             } catch (err) {
               console.error(
                 'omdb error',
-                movie.id,
+                movie.tmdbId,
                 movie.imdbId,
                 movie.title,
                 err.toString()
@@ -90,8 +110,14 @@ async function main() {
                 err.response?.statusCode < 500
               ) {
                 if (err.response?.statusCode === 401) {
-                  isRateLimited = true
-                  return null
+                  if (!omdbApiKeySingle && omdbApiKeys.size) {
+                    omdbApiKeys.delete(apiKey)
+                    console.warn('cycling omdb api key', apiKey)
+                    continue
+                  } else {
+                    hasUnrecoverableError = true
+                    return null
+                  }
                 }
 
                 // unrecoverable error
@@ -132,14 +158,23 @@ async function main() {
     )
 
     ++batchNum
-  } while (batchNum < config.numBatches && !isRateLimited)
+  } while (batchNum < config.numBatches && !hasUnrecoverableError)
 
   console.warn()
-  console.warn(isRateLimited ? 'ERROR: encountered rate limits' : 'done', {
+  console.warn(hasUnrecoverableError ? 'ERROR' : 'done', {
     numMoviesTotal,
     numOMDBMoviesDownloadedTotal,
     numOMDBMoviesTotal: Object.keys(omdbMovies).length
   })
+
+  if (hasUnrecoverableError) {
+    console.warn()
+    if (omdbApiKeySingle) {
+      console.error('OMDB API Key hit rate limit. Try using multiple keys.')
+    } else {
+      console.error('Ran out of OMDB API Keys via rate limits.')
+    }
+  }
 }
 
 main()
