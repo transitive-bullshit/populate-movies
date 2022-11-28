@@ -250,7 +250,9 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 
 ## Database Notes
 
-The resulting movie dataset is ~122MB (about half of which is Postgres indices) and should fit in most free-tier Postgres instances.
+The resulting movie dataset is ~130MB (about half of which is Postgres indices) and should fit in most free-tier Postgres instances.
+
+Some fields like `budget` and `revenue` use strings instead of numbers, because they can overflow Postgres integers.
 
 If you want to use a different type of database, it should be pretty easy since the majority of the processing happens with local JSON files. Note that [Prisma supports several popular databases](https://www.prisma.io/docs/concepts/database-connectors), including MongoDB, MySQL, and SQLite.
 
