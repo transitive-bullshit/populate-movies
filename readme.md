@@ -214,11 +214,11 @@ The final step is to upsert all of the movies into your Prisma database. (_takes
 
 Make sure that you have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`). You can alternatively use `prisma db migrate` and `prisma generate` if you prefer that workflow.
 
-Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into the database.
-
 **NOTE**: this script defaults to upserting movies into your database, so it shouldn't be destructive, but if you'd rather clear your `movies` table first, you can set `DROP_MOVIES=true` — which will drop the movies table and perform upserts in batches. This method is much faster, but be careful with it so that you don't accidentally wipe out movie data.
 
 **NOTE** if you set `DRY_RUN=true`, this script will not make any changes to your database. Instead, it will loop through all movies that would've been inserted and print the diffs — which can be extremely useful for making sure that your upsert will work as intended.
+
+Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into the database.
 
 ### 8. Query Movies from Prisma
 
