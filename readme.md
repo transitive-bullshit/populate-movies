@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  Populates a full database of movies from TMDB and IMDB into Postgres.
+  Populates a high quality database of movies from TMDB, IMDB, and Rotten Tomatoes.
 </p>
 
 <p align="center">
