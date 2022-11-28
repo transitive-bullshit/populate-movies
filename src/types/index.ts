@@ -125,6 +125,11 @@ export interface RTMovies {
   [tmdbId: string]: Partial<Movie>
 }
 
+// from local cache
+export interface OMDBMovies {
+  [imdbId: string]: Partial<omdb.Movie>
+}
+
 export type ExtractPropertyNames<T> = {
   [K in keyof T]: K
 }[keyof T]

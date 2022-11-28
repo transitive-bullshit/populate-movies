@@ -20,6 +20,17 @@ export namespace omdb {
     imdbVotes: string
     imdbID: string
     Type: string
+    tomatoMeter?: string
+    tomatoImage?: string
+    tomatoRating?: string
+    tomatoReviews?: string
+    tomatoFresh?: string
+    tomatoRotten?: string
+    tomatoConsensus?: string
+    tomatoUserMeter?: string
+    tomatoUserRating?: string
+    tomatoUserReviews?: string
+    tomatoURL?: string
     DVD: string
     BoxOffice: string
     Production: string
