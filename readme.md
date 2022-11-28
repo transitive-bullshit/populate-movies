@@ -180,7 +180,7 @@ This script also filters movies which are unlikely to be relevant for most use c
 
 **NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, since it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in the other steps into a normalized format and performing some filtering.
 
-The result is ~72k movies.
+The result is ~73k movies.
 
 ### 5. (Optional) Populate Rotten Tomatoes Movies
 
@@ -225,7 +225,7 @@ You can run `npx tsx scripts/scratch.ts` to run an example Prisma query.
 ## Stats
 
 - ~750k "movies" in TMDB
-- **~72k movies** after resolving and filtering
+- **~73k movies** after resolving and filtering
   - 8.6k documentaries
   - 44k english movies
   - 34k movies made in the U.S.
