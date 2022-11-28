@@ -16,12 +16,14 @@
 - [Movie Schema](#movie-schema)
 - [Prerequisites](#prerequisites)
 - [Steps](#steps)
-  - [1. Populate TMDB Movies](#1-populate-tmdb-movies)
-  - [2. Populate Flick Metrix Movies](#2-populate-flick-metrix-movies)
-  - [3. Process Movies](#3-process-movies)
-  - [4. Populate IMDB Movies](#4-populate-imdb-movies)
-  - [5. Upsert Movies into Prisma](#5-upsert-movies-into-prisma)
-  - [6. Query Movies from Prisma](#6-query-movies-from-prisma)
+  - [1. Download Data Dumps](#1-download-data-dumps)
+  - [2. Populate TMDB Movies](#2-populate-tmdb-movies)
+  - [3. (Optional) Populate Flick Metrix Movies](#3-optional-populate-flick-metrix-movies)
+  - [4. Process Movies](#4-process-movies)
+  - [5. (Optional) Populate Rotten Tomatoes Movies](#5-optional-populate-rotten-tomatoes-movies)
+  - [6. (Optional) Populate IMDB Movies](#6-optional-populate-imdb-movies)
+  - [7. Upsert Movies into Prisma](#7-upsert-movies-into-prisma)
+  - [8. Query Movies from Prisma](#8-query-movies-from-prisma)
 - [Stats](#stats)
 - [Database Notes](#database-notes)
 - [License](#license)
@@ -124,74 +126,97 @@ This may result in less metadata in your database for fallbacks and such, but th
 
 Store your `TMDB_BEARER_TOKEN` and `DATABASE_URL` in a local `.env` file.
 
-You'll need to download a recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz) and store the uncompressed version into `data/tmdb_dump_movie_ids.json`. This gives us a full list of TMDB movie IDs to kick things off.
-
-If you want movies to contain IMDB ratings (**optional**), you'll also need to download an official [IMDB title ratings data dump](https://www.imdb.com/interfaces/). You'll want to download `title.ratings` ([datasets.imdbws.com/title.ratings.tsv.gz](https://datasets.imdbws.com/title.ratings.tsv.gz)) and store the uncompressed version into `data/title.ratings.tsv`. This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that drastically reduces the amount of scraping we need to do. Note that IMDB has [an official API](https://developer.imdb.com/), but it is extremely expensive to use (starting at $50k + usage-based billing).
-
 ## Steps
 
-Once we have the data dumps downloaded into `data/` and our environment variables setup, we can start processing movies. Most of the processing steps break things up into batches (defaults to 32k movies per batch) in order to allow for incremental processing and easier debugging.
+Once we have our environment setup, we can start processing movies. Most of the processing steps break things up into batches (defaults to 32k movies per batch) in order to allow for incremental processing and easier debugging along the way.
 
 **All scripts are idempotent**, so you can run these steps repeatedly and expect up-to-date results.
 
 Before getting started, make sure you've run `pnpm install` to initialize the Node.js project.
 
-### 1. Populate TMDB Movies
+### 1. Download Data Dumps
 
-We'll start off by running `npx tsx src/populate-tmdb-movie-dump.ts` which populates each of the TMDB movie IDs with its corresponding TMDB movie details and stores the results into a series of batched JSON files `out/tmdb-0.json`, `out/tmdb-1.json`, etc. _(takes ~1 hour)_
+We'll start off by running `npx tsx src/download-data-dumps.tsx`, which downloads the following data dumps to seed our scripts:
+
+- The most recent [daily export of TMDB movie IDs](https://developers.themoviedb.org/3/getting-started/daily-file-exports) such as [10/30/2022](http://files.tmdb.org/p/exports/movie_ids_10_30_2022.json.gz)
+  - This gives us a full list of TMDB movie IDs to kick things off.
+- An official [IMDB title ratings data dump](https://www.imdb.com/interfaces/)
+  - This file contains a large sample of IMDB movie IDs and their associated IMDB ratings + number of votes, which is nice because it is an official data source that reduces the amount of scraping we need to do.
+
+### 2. Populate TMDB Movies
+
+Next, we'll run `npx tsx src/populate-tmdb-movie-dump.ts` which populates each of the TMDB movie IDs with its corresponding TMDB movie details and stores the results into a series of batched JSON files `out/tmdb-0.json`, `out/tmdb-1.json`, etc. _(takes ~1 hour)_
 
 The result is ~655k movies in 24 batches.
 
-### 2. Populate Flick Metrix Movies
+### 3. (Optional) Populate Flick Metrix Movies
 
 The next **optional** step is to download movie metadata using [Flick Metrix's](https://flickmetrix.com/) private API. This is really only necessary if you want Rotten Tomatoes scores. _(takes ~3 minutes)_
 
 Run `npx tsx src/populate-flick-metrix-movies` which will fetch ~70k movies and store the results into `out/flick-metrix-movies.json`. This optional metadata will be used by `src/process-movies.ts` if it exists and will be ignored if it doesn't.
 
-### 3. Process Movies
+### 4. Process Movies
 
 Next, we'll run `npx tsx src/process-movies.ts` which takes all of the previously resolved TMDB movies and transforms them to a normalized schema, adding in IMDB ratings from our partial IMDB data dump. This will output normalized JSON movies in batched JSON files `out/movies-0.json`, `out/movies-1.json`, etc. _(takes ~30 seconds)_
 
 This script also filters movies which are unlikely to be relevant for most use cases:
 
 - filters adult movies
-- filters movies which are not released yet (~1.5%)
 - filters movies which do not have a valid IMDB id (~40%)
 - filters movies which do not have a valid YouTube trailer (~58%)
+- filters movies which are too far in the future (~1.5%)
 - filters movies which are too short (< 30min)
 - filters music videos
 - filters tv series and episodes
 - filters live concerts
+- optionally computes LQIP placeholder images for all movie posters and backdrops
+  - caches the results in redis
+  - this is controlled by `enablePreviewImages` in `src/lib/config.ts`
+  - if you have it enabled, set `REDIS_HOST` and `REDIS_PASSWORD`
+  - I just use a local redis instance (`brew install redis`)
 - adds additional IMDB info from any previous `populate-imdb-movies` cache (if `out/imdb-movies.json` exists)
-- adds additional Rotten Tomatoes and Flick Metrix info from any previous `populate-flick-metrix` cache (if `out/flick-metrix-movies.json` exists)
+- adds additional Rotten Tomatoes info from any previous `populate-rt-movies` cache (if `out/rt-movies.json` exists)
+- adds additional Flick Metrix info from any previous `populate-flick-metrix-movies` cache (if `out/flick-metrix-movies.json` exists)
 
 **NOTE**: this is the most important step, and you will likely find yourself running it multiple times. It is pretty quick, though, since it doesn't require any network access. It is essentially just aggregating all of the data we've downloaded in the other steps into a normalized format and performing some filtering.
 
 The result is ~72k movies.
 
-### 4. Populate IMDB Movies
+### 5. (Optional) Populate Rotten Tomatoes Movies
 
-The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the IMDB scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~12 hours)_
+The next **optional** step is to download additional RT info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper. We self-impose a strict rate-limit on the scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~4 hours)_
 
-**NOTE**: see [IMDB's personal and non-commercial licensing](https://help.imdb.com/article/imdb/general-information/can-i-use-imdb-data-in-my-software/G5JTRESSHJBBHTGX#) before proceeding. This step is **optional** for a reason.
+Currently, this only way this script will work is if you've previously downloaded all Flick Metrix movies.
 
-If you want to proceed with this step, you'll need to run `npx tsx src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each IMDB movie individually with `movier` and store the results to `out/imdb-movies.json`.
+This step is important if you want up-to-date Rotten Tomatoes critic and audience scores, along with a `criticsConsensus` description.
+
+If you want to proceed with this step, you can run `npx tsx src/populate-rt-movies.tsx` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each RT movie and store the results to `out/rt-movies.json`.
+
+### 6. (Optional) Populate IMDB Movies
+
+The next **optional** step is to download additional IMDB info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper called [movier](https://github.com/Zoha/movier). We self-impose a strict rate-limit on the scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~12 hours)_
+
+**NOTE**: see [IMDB's personal and non-commercial licensing](https://help.imdb.com/article/imdb/general-information/can-i-use-imdb-data-in-my-software/G5JTRESSHJBBHTGX#) before proceeding. This step is **optional** for a reason. IMDB does have [an official API](https://developer.imdb.com/), but it is extremely expensive to use (starting at $50k + usage-based billing).
+
+If you want to proceed with this step, you'll can run `npx tsx src/populate-imdb-movies.ts` which will read in our normalized movies from `out/movie-0.json`, `out/movie-1.json`, etc, scrape each IMDB movie individually with `movier` and store the results to `out/imdb-movies.json`.
 
 If you are running into rate-limit issues (likely `503` errors), then you'll need to adjust the rate-limit in [src/lib/imdb.ts](./src/lib/imdb.ts).
 
 Once this step finishes, you'll need to re-run `npx tsx src/process-movies.ts`, which will now take into account all of the extra IMDB metadata that was downloaded to our local cache.
 
-### 5. Upsert Movies into Prisma
+### 7. Upsert Movies into Prisma
 
 The final step is to upsert all of the movies into your Prisma database. (_takes ~30 seconds)_
 
 Make sure that you have `DATABASE_URL` set to a Postgres instance in your `.env` file and then run `npx prisma db push` to sync the Prisma schema with your database (as well as generating the prisma client locally in `node_modules`). You can alternatively use `prisma db migrate` and `prisma generate` if you prefer that workflow.
 
-**NOTE**: this step defaults to emptying any existing movies from your database before inserting the new ones. This functionality can be tweaked to perform a less destructive per-movie `upsert` instead, though this approach is quite a bit slower. See the source file for details.
-
 Now you should be ready to run `npx tsx src/upsert-movies-to-db.ts` which will run through `out/movies-0.json`, `out/movies-1.json`, etc and insert each movie into the database.
 
-### 6. Query Movies from Prisma
+**NOTE**: this script defaults to upserting movies into your database, so it shouldn't be destructive, but if you'd rather clear your `movies` table first, you can set `DROP_MOVIES=true` — which will drop the movies table and perform upserts in batches. This method is much faster, but be careful with it so that you don't accidentally wipe out movie data.
+
+**NOTE** if you set `DRY_RUN=true`, this script will not make any changes to your database. Instead, it will loop through all movies that would've been inserted and print the diffs — which can be extremely useful for making sure that your upsert will work as intended.
+
+### 8. Query Movies from Prisma
 
 You should now have a full Postgres database of movies, complete with the most important metadata from TMDB and IMDB. Huzzah!
 
