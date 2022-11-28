@@ -24,6 +24,7 @@ async function main() {
 
   const omdbMovies = await loadOMDBMoviesFromCache()
 
+  // either a single API key or multiple keys separated by commas for cyling through
   const omdbApiKeySingle = process.env.OMDB_API_KEY
   const omdbApiKeys = new Set(
     process.env.OMDB_API_KEYS?.split(',').map((part) => part.trim())
@@ -120,7 +121,6 @@ async function main() {
                   }
                 }
 
-                // unrecoverable error
                 return null
               } else if (++numErrors >= 3) {
                 return null
@@ -131,7 +131,7 @@ async function main() {
           }
         },
         {
-          concurrency: 4
+          concurrency: 8
         }
       )
     ).filter(Boolean)

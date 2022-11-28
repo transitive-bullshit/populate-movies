@@ -19,7 +19,7 @@ export type OMDBGetOptions = {
  */
 const throttle = pThrottle({
   limit: 4,
-  interval: 50
+  interval: 10
 })
 
 export const getOMDBMovieByIMDBID = throttle(getOMDBMovieByIMDBIDImpl)
@@ -51,6 +51,9 @@ async function _get<T>(path: string, opts: OMDBGetOptions): Promise<T> {
       apiKey,
       tomatoes: !!opts.rt,
       i: opts.imdbId
+    },
+    timeout: {
+      request: 30000
     }
   }).json()
 }
