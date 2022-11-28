@@ -97,12 +97,18 @@ export function processMovie(movie: types.Movie): types.Movie | null {
     ? Math.pow(1.0 / (1.0 + Math.exp(-1.5 * (rating - 6.0))), 6.0)
     : 0
 
-  // movie.relevancyScore = imdbRatingFactor * movie.imdbCustomPopularity
+  // const yearsOld = Math.max(0, daysOld / 365)
+  // const invDaysOld = Math.max(0, (yearsOld - 20) / 30)
+  // const oldAgeFactor = Math.max(
+  //   0,
+  //   Math.min(1, 0.1 * invDaysOld + 1.0 * (1.0 - invDaysOld))
+  // )
 
   const imdbRatingFactor2 = Math.max(
     0.5,
     Math.pow(3.8, imdbRatingFactor + 0.5) - 1.85
   )
+
   movie.relevancyScore = movie.imdbCustomPopularity * imdbRatingFactor2
   // console.log({ recencyFactor, imdbRatingFactor })
 
