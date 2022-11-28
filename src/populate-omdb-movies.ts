@@ -23,6 +23,7 @@ async function main() {
 
   const omdbMovies = await loadOMDBMoviesFromCache()
 
+  let isRateLimited = false
   let batchNum = 0
   let numMoviesTotal = 0
   let numOMDBMoviesDownloadedTotal = 0
@@ -42,7 +43,7 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<Partial<types.omdb.Movie> | null> => {
-          if (!movie.imdbId) {
+          if (!movie.imdbId || isRateLimited) {
             return null
           }
 
@@ -88,6 +89,11 @@ async function main() {
                 err.response?.statusCode >= 400 &&
                 err.response?.statusCode < 500
               ) {
+                if (err.response?.statusCode === 401) {
+                  isRateLimited = true
+                  return null
+                }
+
                 // unrecoverable error
                 return null
               } else if (++numErrors >= 3) {
@@ -126,10 +132,10 @@ async function main() {
     )
 
     ++batchNum
-  } while (batchNum < config.numBatches)
+  } while (batchNum < config.numBatches && !isRateLimited)
 
   console.warn()
-  console.warn('done', {
+  console.warn(isRateLimited ? 'ERROR: encountered rate limits' : 'done', {
     numMoviesTotal,
     numOMDBMoviesDownloadedTotal,
     numOMDBMoviesTotal: Object.keys(omdbMovies).length
