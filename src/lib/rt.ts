@@ -32,6 +32,7 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
 
   const $ = cheerio.load(html)
   const movie: Partial<types.Movie> = {}
+  movie.rtUrl = url
 
   try {
     const schema = JSON.parse(

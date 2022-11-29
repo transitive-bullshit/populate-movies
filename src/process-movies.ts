@@ -14,6 +14,7 @@ import {
   loadIMDBRatingsFromDataDump
 } from './lib/imdb'
 import { keyv } from './lib/keyv'
+// import { loadOMDBMoviesFromCache } from './lib/omdb'
 import { enrichMovieWithPreviewImages } from './lib/preview-images'
 import { processMovie } from './lib/process-movie'
 import { loadRTMoviesFromCache, populateMovieWithRTInfo } from './lib/rt'
@@ -46,6 +47,7 @@ async function main() {
       loadIMDBMoviesFromCache(),
       loadRTMoviesFromCache(),
       loadFlickMetrixMoviesFromCache()
+      // loadOMDBMoviesFromCache()
     ])
 
   const statusToIgnore = new Set(['rumored', 'planned'])

@@ -54,7 +54,7 @@ async function main() {
             return null
           }
 
-          if (!ignoreExistingOMDBMovies && omdbMovies[movie.imdbId]) {
+          if (ignoreExistingOMDBMovies && omdbMovies[movie.imdbId]) {
             return null
           }
 
@@ -113,7 +113,11 @@ async function main() {
                 if (err.response?.statusCode === 401) {
                   if (!omdbApiKeySingle && omdbApiKeys.size) {
                     omdbApiKeys.delete(apiKey)
-                    console.warn('cycling omdb api key', apiKey)
+                    console.warn(
+                      'omdb cycling api key due to rate limit',
+                      apiKey,
+                      `(${omdbApiKeys.size} api keys remaining)`
+                    )
                     continue
                   } else {
                     hasUnrecoverableError = true
@@ -170,9 +174,9 @@ async function main() {
   if (hasUnrecoverableError) {
     console.warn()
     if (omdbApiKeySingle) {
-      console.error('OMDB API Key hit rate limit. Try using multiple keys.')
+      console.error('OMDB API key hit rate limit. Try using multiple keys.')
     } else {
-      console.error('Ran out of OMDB API Keys via rate limits.')
+      console.error('Ran out of OMDB API keys due to rate limits.')
     }
   }
 }

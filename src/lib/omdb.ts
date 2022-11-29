@@ -53,7 +53,7 @@ async function _get<T>(path: string, opts: OMDBGetOptions): Promise<T> {
       i: opts.imdbId
     },
     timeout: {
-      request: 30000
+      request: 20000
     }
   }).json()
 }

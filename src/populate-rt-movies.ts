@@ -6,6 +6,7 @@ import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
+import { loadOMDBMoviesFromCache } from './lib/omdb'
 import { loadRTMoviesFromCache, scrapeRottenTomatoesInfoByUrl } from './lib/rt'
 
 /**
@@ -24,7 +25,10 @@ async function main() {
   const ignoreExistingRTMovies = !!process.env.IGNORE_EXISTING_RT_MOVIES
   await makeDir(config.outDir)
 
-  const rtMovies = await loadRTMoviesFromCache()
+  const [rtMovies, omdbMovies] = await Promise.all([
+    loadRTMoviesFromCache(),
+    loadOMDBMoviesFromCache()
+  ])
 
   let batchNum = 0
   let numMoviesTotal = 0
@@ -45,11 +49,23 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<Partial<types.Movie> | null> => {
-          if (!movie.rtUrl) {
+          const rtUrl = movie.rtUrl || omdbMovies[movie.imdbId]?.tomatoURL
+
+          if (!rtUrl) {
             return null
           }
 
-          if (!ignoreExistingRTMovies && rtMovies[movie.tmdbId]) {
+          if (movie.rtUrl && omdbMovies[movie.imdbId]?.tomatoURL) {
+            if (movie.rtUrl !== omdbMovies[movie.imdbId]?.tomatoURL) {
+              console.log(
+                'rtUrl diff',
+                movie.rtUrl,
+                omdbMovies[movie.imdbId]?.tomatoURL
+              )
+            }
+          }
+
+          if (ignoreExistingRTMovies && rtMovies[movie.tmdbId]) {
             return null
           }
 
@@ -58,10 +74,10 @@ async function main() {
           while (true) {
             try {
               console.warn(
-                `${batchNum}:${index} rt ${movie.rtUrl} (${movie.releaseYear}) ${movie.title}`
+                `${batchNum}:${index} rt ${rtUrl} (${movie.releaseYear}) ${movie.title}`
               )
 
-              const rtMovie = await scrapeRottenTomatoesInfoByUrl(movie.rtUrl)
+              const rtMovie = await scrapeRottenTomatoesInfoByUrl(rtUrl)
               const result = (rtMovies[movie.tmdbId] = {
                 ...rtMovies[movie.tmdbId],
                 ...rtMovie
@@ -80,12 +96,7 @@ async function main() {
 
               return result
             } catch (err) {
-              console.error(
-                'rt error',
-                movie.rtUrl,
-                movie.title,
-                err.toString()
-              )
+              console.error('rt error', rtUrl, movie.title, err.toString())
 
               if (++numErrors >= 3) {
                 return null
