@@ -59,7 +59,9 @@ async function main() {
                 movie.rtUrl,
                 rtMovies[movie.tmdbId]?.rtUrl,
                 movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL
-              ].filter(Boolean)
+              ]
+                .filter(Boolean)
+                .map((url) => url.trim().replace(/\/+$/g, '').trim())
             )
           )
 
@@ -74,7 +76,8 @@ async function main() {
 
             try {
               console.warn(
-                `${batchNum}:${index} rt ${rtUrl} (${movie.releaseYear}) ${movie.title}`
+                `${batchNum}:${index} rt ${rtUrl} (${movie.releaseYear}) ${movie.title}`,
+                rtUrls
               )
 
               const rtMovie = await scrapeRottenTomatoesInfoByUrl(rtUrl)
@@ -105,8 +108,7 @@ async function main() {
                 if (
                   err.response.statusCode === 404 &&
                   rtUrls.length >= 2 &&
-                  rtUrl.replace(/\/+$/g, '').toLowerCase() !==
-                    rtUrls[1].replace(/\/+$/g, '').toLowerCase()
+                  rtUrl.toLowerCase() !== rtUrls[1].toLowerCase()
                 ) {
                   // try the second URL if the first one is not found
                   rtUrls.shift()
