@@ -49,18 +49,22 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<Partial<types.Movie> | null> => {
-          const rtUrl = movie.rtUrl || omdbMovies[movie.imdbId]?.tomatoURL
+          const rtUrl =
+            movie.rtUrl || (movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL)
 
           if (!rtUrl) {
             return null
           }
 
           if (movie.rtUrl && omdbMovies[movie.imdbId]?.tomatoURL) {
-            if (movie.rtUrl !== omdbMovies[movie.imdbId]?.tomatoURL) {
+            if (
+              movie.rtUrl.replace(/\/+$/g, '') !==
+              omdbMovies[movie.imdbId]?.tomatoURL.replace(/\/+$/g, '')
+            ) {
               console.log(
                 'rtUrl diff',
-                movie.rtUrl,
-                omdbMovies[movie.imdbId]?.tomatoURL
+                movie.rtUrl.replace(/\/+$/g, ''),
+                omdbMovies[movie.imdbId]?.tomatoURL.replace(/\/+$/g, '')
               )
             }
           }
@@ -97,6 +101,14 @@ async function main() {
               return result
             } catch (err) {
               console.error('rt error', rtUrl, movie.title, err.toString())
+
+              if (
+                err.response?.statusCode >= 400 &&
+                err.response?.statusCode < 500
+              ) {
+                // unrecoverable error
+                return null
+              }
 
               if (++numErrors >= 3) {
                 return null
