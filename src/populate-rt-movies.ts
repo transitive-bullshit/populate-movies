@@ -30,7 +30,8 @@ async function main() {
     loadOMDBMoviesFromCache()
   ])
 
-  let batchNum = 0
+  console.warn('TODO') // TODO
+  let batchNum = 3
   let numMoviesTotal = 0
   let numRTMoviesDownloadedTotal = 0
 
@@ -44,6 +45,8 @@ async function main() {
       `\npopulating ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
     )
 
+    let isRateLimited = false
+    let numDownloaded = 0
     let firstMovieInBatch = true
     const rtOutputMovies = (
       await pMap(
@@ -74,10 +77,20 @@ async function main() {
               return null
             }
 
+            if (isRateLimited) {
+              // TODO: handle rate limits more gracefully...
+              // pause for 10 minutes
+              await delay(10 * 60000)
+            }
+
             try {
               console.warn(
-                `${batchNum}:${index} rt ${rtUrl} (${movie.releaseYear}) ${movie.title}`,
-                rtUrls
+                `${batchNum}:${index}`,
+                'rt',
+                movie.tmdbId,
+                movie.title,
+                `(${movie.releaseYear})`,
+                rtUrl
               )
 
               const rtMovie = await scrapeRottenTomatoesInfoByUrl(rtUrl)
@@ -85,6 +98,8 @@ async function main() {
                 ...rtMovies[movie.tmdbId],
                 ...rtMovie
               })
+
+              isRateLimited = false
 
               if (firstMovieInBatch) {
                 firstMovieInBatch = false
@@ -94,29 +109,51 @@ async function main() {
               }
               console.log(JSON.stringify(result, null, 2))
 
+              if (++numDownloaded % 10 === 0) {
+                await fs.writeFile(
+                  config.rtMoviesPath,
+                  JSON.stringify(rtMovies, null, 2),
+                  {
+                    encoding: 'utf-8'
+                  }
+                )
+              }
+
               // console.log(movie)
               // console.log(rtMovie)
 
               return result
             } catch (err) {
-              console.error('rt error', rtUrl, movie.title, err.toString())
+              console.error(
+                `${batchNum}:${index}`,
+                'rt error',
+                movie.tmdbId,
+                movie.title,
+                rtUrl,
+                err.toString()
+              )
 
-              if (
-                err.response?.statusCode >= 400 &&
-                err.response?.statusCode < 500
-              ) {
-                if (
-                  err.response.statusCode === 404 &&
+              const statusCode = err.response?.statusCode
+              if (statusCode >= 400 && statusCode < 500) {
+                if (statusCode === 403) {
+                  // 403 is what RT uses for rate limiting
+                  isRateLimited = true
+                } else if (
+                  statusCode === 404 &&
                   rtUrls.length >= 2 &&
                   rtUrl.toLowerCase() !== rtUrls[1].toLowerCase()
                 ) {
+                  isRateLimited = false
                   // try the second URL if the first one is not found
+                  console.warn('rt falling back to second URL', rtUrls[1])
                   rtUrls.shift()
                   continue
                 } else {
                   // unrecoverable error
                   return null
                 }
+              } else {
+                isRateLimited = false
               }
 
               if (++numErrors >= 3) {
@@ -128,7 +165,7 @@ async function main() {
           }
         },
         {
-          concurrency: 8
+          concurrency: 16
         }
       )
     ).filter(Boolean)

@@ -12,7 +12,7 @@ import * as config from './config'
  */
 const throttle = pThrottle({
   limit: 4,
-  interval: 100
+  interval: 500
 })
 
 export const scrapeRottenTomatoesInfoByUrl = throttle(

@@ -14,6 +14,11 @@ import { dequal } from './lib/dequal'
  *
  * @note The batch create version is ~14x faster than the upsert version, but it's
  * potentially destructive, so it's not the default. (~30s vs ~7 minutes)
+ *
+ * @example
+ * ```
+ * DRY_RUN=true npx tsx src/upsert-movies-to-db.ts
+ * ```
  */
 async function main() {
   const dryRun = !!process.env.DRY_RUN
