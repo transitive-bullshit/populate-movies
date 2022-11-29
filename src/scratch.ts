@@ -16,34 +16,26 @@ async function main() {
 
   const res = await prisma.movie.findMany({
     where: {
+      foreign: false,
       imdbRating: {
         gte: 6
       },
-      releaseYear: {
-        gte: 1972
+      rtAudienceRating: {
+        not: null
       },
-      relevancyScore: {
-        gte: 31000
-      },
-      foreign: false,
-      NOT: {
-        genres: {
-          hasSome: ['stand-up', 'documentary', 'short']
-        }
+      rtCriticRating: {
+        not: null
       }
     },
     select: {
-      title: true,
-      releaseYear: true,
-      releaseDate: true,
-      imdbRating: true,
-      imdbVotes: true,
-      tmdbPopularity: true,
-      imdbCustomPopularity: true,
-      relevancyScore: true
+      // imdbRating: true,
+      // imdbVotes: true
+      // rtAudienceRating: true,
+      // rtCriticRating: true
+      // tmdbVotes: true,
     },
     orderBy: {
-      relevancyScore: 'desc'
+      rtAudienceRating: 'desc'
     }
   })
 

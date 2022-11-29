@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 import got from 'got'
 import pThrottle from 'p-throttle'
 
@@ -27,6 +27,10 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
     headers: {
       'user-agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+    },
+    timeout: {
+      // request: 10000
+      request: 20000
     }
   }).text()
 

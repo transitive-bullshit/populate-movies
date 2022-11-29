@@ -49,33 +49,29 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<Partial<types.Movie> | null> => {
-          const rtUrl =
-            movie.rtUrl || (movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL)
-
-          if (!rtUrl) {
-            return null
-          }
-
-          if (movie.rtUrl && omdbMovies[movie.imdbId]?.tomatoURL) {
-            if (
-              movie.rtUrl.replace(/\/+$/g, '') !==
-              omdbMovies[movie.imdbId]?.tomatoURL.replace(/\/+$/g, '')
-            ) {
-              console.log(
-                'rtUrl diff',
-                movie.rtUrl.replace(/\/+$/g, ''),
-                omdbMovies[movie.imdbId]?.tomatoURL.replace(/\/+$/g, '')
-              )
-            }
-          }
-
           if (ignoreExistingRTMovies && rtMovies[movie.tmdbId]) {
             return null
           }
 
+          const rtUrls = Array.from(
+            new Set(
+              [
+                movie.rtUrl,
+                rtMovies[movie.tmdbId]?.rtUrl,
+                movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL
+              ].filter(Boolean)
+            )
+          )
+
           let numErrors = 0
 
           while (true) {
+            const rtUrl = rtUrls[0]
+
+            if (!rtUrl) {
+              return null
+            }
+
             try {
               console.warn(
                 `${batchNum}:${index} rt ${rtUrl} (${movie.releaseYear}) ${movie.title}`
@@ -106,8 +102,19 @@ async function main() {
                 err.response?.statusCode >= 400 &&
                 err.response?.statusCode < 500
               ) {
-                // unrecoverable error
-                return null
+                if (
+                  err.response.statusCode === 404 &&
+                  rtUrls.length >= 2 &&
+                  rtUrl.replace(/\/+$/g, '').toLowerCase() !==
+                    rtUrls[1].replace(/\/+$/g, '').toLowerCase()
+                ) {
+                  // try the second URL if the first one is not found
+                  rtUrls.shift()
+                  continue
+                } else {
+                  // unrecoverable error
+                  return null
+                }
               }
 
               if (++numErrors >= 3) {
@@ -119,7 +126,7 @@ async function main() {
           }
         },
         {
-          concurrency: 4
+          concurrency: 8
         }
       )
     ).filter(Boolean)
