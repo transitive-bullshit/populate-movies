@@ -20,11 +20,11 @@ import { getNumBatches } from './lib/utils'
  *
  * @example
  * ```
- * IGNORE_EXISTING_IMDB_MOVIES=true time npx tsx src/populate-imdb-movies.ts
+ * FORCE=true time npx tsx src/populate-imdb-movies.ts
  * ```
  */
 async function main() {
-  const ignoreExistingIMDBMovies = !!process.env.IGNORE_EXISTING_IMDB_MOVIES
+  const force = !!process.env.FORCE
   await makeDir(config.outDir)
 
   const imdbMovies = await loadIMDBMoviesFromCache()
@@ -59,7 +59,7 @@ async function main() {
             return null
           }
 
-          if (ignoreExistingIMDBMovies && imdbMovies[movie.imdbId]) {
+          if (!force && imdbMovies[movie.imdbId]) {
             return null
           }
 

@@ -20,11 +20,11 @@ import { getNumBatches } from './lib/utils'
  * @example
  * ```
  * npx tsx src/populate-rt-movies.ts
- * IGNORE_EXISTING_RT_MOVIES=true npx tsx src/populate-rt-movies.ts
+ * FORCE=true npx tsx src/populate-rt-movies.ts
  * ```
  */
 async function main() {
-  const ignoreExistingRTMovies = !!process.env.IGNORE_EXISTING_RT_MOVIES
+  const force = !!process.env.FORCE
   await makeDir(config.outDir)
 
   const [rtMovies, omdbMovies, numBatches] = await Promise.all([
@@ -33,20 +33,15 @@ async function main() {
     getNumBatches()
   ])
 
-  let batchNum = 4 // TODO: TEMP
+  let batchNum = 0
   let numMoviesTotal = 0
   let numRTMoviesDownloadedTotal = 0
 
   do {
     const srcFile = `${config.outDir}/movies-${batchNum}.json`
-    let movies: types.Movie[] = JSON.parse(
+    const movies: types.Movie[] = JSON.parse(
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
-
-    // TODO: TEMP
-    if (batchNum === 4) {
-      movies = movies.slice(2350)
-    }
 
     console.warn(
       `\npopulating ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
@@ -60,7 +55,7 @@ async function main() {
       await pMap(
         movies,
         async (movie, index): Promise<Partial<types.Movie> | null> => {
-          if (ignoreExistingRTMovies && rtMovies[movie.tmdbId]) {
+          if (!force && rtMovies[movie.tmdbId]) {
             return null
           }
 
@@ -205,9 +200,6 @@ async function main() {
     })
 
     ++batchNum
-
-    // TODO: TEMP
-    // break
   } while (batchNum < numBatches)
 
   console.warn()

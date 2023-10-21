@@ -262,9 +262,10 @@ export function populateMovieWithRTInfo(
   const fieldOptionals: types.MovieField[] = ['title', 'mpaaRating', 'plot']
 
   for (const field of fieldOptionals) {
+    if (movie[field]) continue
     const value = rtMovie[field]
 
-    if (!movie[field] && (value || value === 0)) {
+    if (value || value === 0) {
       ;(movie as any)[field] = value
     }
   }

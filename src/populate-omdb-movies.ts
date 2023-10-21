@@ -16,11 +16,11 @@ import { getNumBatches } from './lib/utils'
  * @example
  * ```
  * npx tsx src/populate-omdb-movies.ts
- * IGNORE_EXISTING_OMDB_MOVIES=true npx tsx src/populate-omdb-movies.ts
+ * FORCE=true npx tsx src/populate-omdb-movies.ts
  * ```
  */
 async function main() {
-  const ignoreExistingOMDBMovies = !!process.env.IGNORE_EXISTING_OMDB_MOVIES
+  const force = !!process.env.FORCE
   await makeDir(config.outDir)
 
   const omdbMovies = await loadOMDBMoviesFromCache()
@@ -56,7 +56,7 @@ async function main() {
             return null
           }
 
-          if (ignoreExistingOMDBMovies && omdbMovies[movie.imdbId]) {
+          if (!force && omdbMovies[movie.imdbId]) {
             return null
           }
 

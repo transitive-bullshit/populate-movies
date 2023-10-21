@@ -23,6 +23,10 @@ import {
   getNumBatches,
   populateMovieWithIMDBInfo
 } from './lib/utils'
+import {
+  loadWikidataMoviesFromCache,
+  populateMovieWithWikidataInfo
+} from './lib/wikidata'
 
 /**
  * Process downloaded TMDB movies with the following transforms:
@@ -36,21 +40,29 @@ import {
  *  - (optional) adds IMDB ratings from an official IMDB data dump
  *  - (optional) adds additional IMDB metadata from previous `populate-imdb-movies` cache
  *  - (optional) adds additional Rotten Tomatoes metadata from previous `populate-rt-movies` cache
+ *  - (optional) adds additional Wikidata metadata from previous `populate-wikidata-movies` cache
  *  - (optional) adds additional Flick Metrix metadata from previous `populate-flick-metrix-movies` cache
  */
 async function main() {
   await makeDir(config.outDir)
 
   // load all of our (possibly empty) cached data from disk
-  const [imdbRatings, imdbMovies, rtMovies, flickMetrixMovies, numBatches] =
-    await Promise.all([
-      loadIMDBRatingsFromDataDump(),
-      loadIMDBMoviesFromCache(),
-      loadRTMoviesFromCache(),
-      loadFlickMetrixMoviesFromCache(),
-      getNumBatches()
-      // loadOMDBMoviesFromCache()
-    ])
+  const [
+    imdbRatings,
+    imdbMovies,
+    rtMovies,
+    wikidataMovies,
+    flickMetrixMovies,
+    numBatches
+  ] = await Promise.all([
+    loadIMDBRatingsFromDataDump(),
+    loadIMDBMoviesFromCache(),
+    loadRTMoviesFromCache(),
+    loadWikidataMoviesFromCache(),
+    loadFlickMetrixMoviesFromCache(),
+    getNumBatches()
+    // loadOMDBMoviesFromCache()
+  ])
 
   const statusToIgnore = new Set(['rumored', 'planned'])
   let batchNum = 0
@@ -109,6 +121,10 @@ async function main() {
           }
 
           if (!populateMovieWithRTInfo(movie, { rtMovies })) {
+            return null
+          }
+
+          if (!populateMovieWithWikidataInfo(movie, { wikidataMovies })) {
             return null
           }
 

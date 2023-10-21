@@ -76,6 +76,8 @@ export function convertTMDBMovieDetailsToMovie(
     id: movieDetails.id,
     tmdbId: movieDetails.id,
     imdbId: movieDetails.imdb_id,
+
+    // external ids
     wikidataId: movieDetails.external_ids?.wikidata_id,
     facebookId: movieDetails.external_ids?.facebook_id,
     instagramId: movieDetails.external_ids?.instagram_id,

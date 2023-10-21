@@ -2,20 +2,37 @@ import { flickMetrix } from './flick-metrix-types'
 import { imdb } from './imdb-types'
 import { omdb } from './omdb-types'
 import { tmdb } from './tmdb-types'
+import { wikidata } from './wikidata-types'
 
 export type { tmdb }
 export type { omdb }
 export type { imdb }
 export type { flickMetrix }
+export type { wikidata }
 
 export interface Movie {
   // ids
   tmdbId: number
   imdbId: string
+
+  // external ids
   wikidataId?: string
   facebookId?: string
   instagramId?: string
   twitterId?: string
+  netflixId?: string
+  huluId?: string
+  amazonId?: string
+  appleTVId?: string
+  twitterUsername?: string
+  googleKGId?: string
+  traktTVId?: string
+  redditTopicId?: string
+  letterboxdId?: string
+  metacriticId?: string
+  allMovieId?: string
+  disneyPlusId?: string
+  hboMaxId?: string
 
   // general metadata
   title: string
@@ -126,6 +143,11 @@ export interface FlickMetrixMovies {
 
 // from local cache
 export interface RTMovies {
+  [tmdbId: string]: Partial<Movie>
+}
+
+// from local cache
+export interface WikidataMovies {
   [tmdbId: string]: Partial<Movie>
 }
 

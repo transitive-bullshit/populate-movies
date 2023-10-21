@@ -148,17 +148,8 @@ export function populateMovieWithFlickMetrixInfo(
 
   // for these fields, we want to prioritize the flick metrix values
   const fieldOverrides: Partial<Record<types.MovieField, () => any>> = {
-    director: () => flickMetrixMovie.Director || null,
-    production: () => flickMetrixMovie.Production || null,
-    awardsSummary: () => flickMetrixMovie.Awards || null,
-    letterboxdScore: () => flickMetrixMovie.LetterboxdScore ?? null,
-    letterboxdVotes: () => flickMetrixMovie.letterboxdVotes ?? null,
     flickMetrixId: () => flickMetrixMovie.ID || null,
-    flickMetrixScore: () => flickMetrixMovie.ComboScore ?? null,
-    cast: () =>
-      flickMetrixMovie.Cast?.split(',')
-        .map((name) => name.trim())
-        .filter(Boolean) ?? []
+    flickMetrixScore: () => flickMetrixMovie.ComboScore ?? null
   }
 
   for (const [field, valueFn] of Object.entries(fieldOverrides)) {
@@ -171,20 +162,30 @@ export function populateMovieWithFlickMetrixInfo(
 
   // for these fields, we want to prioritize values from other sources
   const fieldOptionals: Partial<Record<types.MovieField, () => any>> = {
+    plot: () => flickMetrixMovie.Plot ?? null,
+    director: () => flickMetrixMovie.Director || null,
+    production: () => flickMetrixMovie.Production || null,
+    awardsSummary: () => flickMetrixMovie.Awards || null,
+    letterboxdScore: () => flickMetrixMovie.LetterboxdScore ?? null,
+    letterboxdVotes: () => flickMetrixMovie.letterboxdVotes ?? null,
     rtCriticRating: () => flickMetrixMovie.CriticRating ?? null,
     rtCriticVotes: () => flickMetrixMovie.CriticReviews ?? null,
     rtAudienceRating: () => flickMetrixMovie.AudienceRating ?? null,
     rtAudienceVotes: () => flickMetrixMovie.AudienceReviews ?? null,
-    rtUrl: () => flickMetrixMovie.RTUrl.replace(/\/$/g, '').trim() || null,
-    plot: () => flickMetrixMovie.Plot ?? null,
+    rtUrl: () => flickMetrixMovie.RTUrl?.replace(/\/$/g, '').trim() || null,
     imdbRating: () => flickMetrixMovie.imdbRating ?? null,
-    imdbVotes: () => flickMetrixMovie.imdbVotes ?? null
+    imdbVotes: () => flickMetrixMovie.imdbVotes ?? null,
+    cast: () =>
+      flickMetrixMovie.Cast?.split(',')
+        .map((name) => name.trim())
+        .filter(Boolean) ?? []
   }
 
-  for (const [field, valueFn] of Object.entries(fieldOverrides)) {
+  for (const [field, valueFn] of Object.entries(fieldOptionals)) {
+    if (movie[field]) continue
     const value = valueFn()
 
-    if (!movie[field] && (value || value === 0)) {
+    if (value || value === 0) {
       ;(movie as any)[field] = value
     }
   }
