@@ -215,11 +215,13 @@ export async function loadRTMoviesFromCache(): Promise<types.RTMovies> {
       })`
     )
   } catch (err) {
-    console.warn(`warn: unable to load RT movie cache (${config.rtMoviesPath})`)
+    console.warn(
+      `warn: unable to load RT movie cache (${config.rtMoviesPath})`,
+      err.toString()
+    )
     console.warn(
       "You can safely ignore this warning if you haven't run `populate-rt-movies.ts`."
     )
-    console.warn(err)
   }
 
   return rtMovies

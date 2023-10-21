@@ -75,12 +75,12 @@ export async function loadOMDBMoviesFromCache(): Promise<types.OMDBMovies> {
     )
   } catch (err) {
     console.warn(
-      `warn: unable to load OMDB movie cache (${config.omdbMoviesPath})`
+      `warn: unable to load OMDB movie cache (${config.omdbMoviesPath})`,
+      err.toString()
     )
     console.warn(
       "You can safely ignore this warning if you haven't run `populate-omdb-movies.ts`."
     )
-    console.warn(err)
   }
 
   return omdbMovies

@@ -58,19 +58,19 @@ export async function loadIMDBMoviesFromCache(): Promise<types.IMDBMovies> {
     )
   } catch (err) {
     console.warn(
-      `warn: unable to load IMDB movie cache (${config.imdbMoviesPath})`
+      `warn: unable to load IMDB movie cache (${config.imdbMoviesPath})`,
+      err.toString()
     )
     console.warn(
       "You can safely ignore this warning if you haven't run `populate-imdb-movies.ts`."
     )
-    console.warn(err)
   }
 
   return imdbMovies
 }
 
 export async function loadIMDBRatingsFromDataDump(): Promise<types.IMDBRatings> {
-  let imdbRatings: types.IMDBRatings = {}
+  const imdbRatings: types.IMDBRatings = {}
 
   try {
     console.log(

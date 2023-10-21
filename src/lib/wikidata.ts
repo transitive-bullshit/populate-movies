@@ -415,12 +415,12 @@ export async function loadWikidataMoviesFromCache(): Promise<types.WikidataMovie
     )
   } catch (err) {
     console.warn(
-      `warn: unable to load Wikidata movie cache (${config.wikidataMoviesPath})`
+      `warn: unable to load Wikidata movie cache (${config.wikidataMoviesPath})`,
+      err.toString()
     )
     console.warn(
       "You can safely ignore this warning if you haven't run `populate-wikidata-movies.ts`."
     )
-    console.warn(err)
   }
 
   return wikidataMovies

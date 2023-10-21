@@ -24,9 +24,12 @@ export async function loadFlickMetrixMoviesFromCache(): Promise<types.FlickMetri
     )
   } catch (err) {
     console.warn(
-      `warn: unable to load flick metrix movie cache (${config.flickMetrixMoviesPath})`
+      `warn: unable to load flick metrix movie cache (${config.flickMetrixMoviesPath})`,
+      err.toString()
     )
-    console.warn(err)
+    console.warn(
+      "You can safely ignore this warning if you haven't run `populate-flick-metrix-movies.ts`."
+    )
   }
 
   return flickMetrixMovies
