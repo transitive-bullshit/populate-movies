@@ -5,8 +5,6 @@ dotenv.config()
 export const dataDir = 'data'
 export const outDir = 'out'
 
-// TODO: numBatches should not be hard-coded
-export const numBatches = 24
 export const batchSize = 32000
 
 // local data dumps
@@ -22,7 +20,7 @@ export const omdbMoviesPath = `${outDir}/omdb-movies.json`
 // ----------------------------------------------------------------------------
 
 // Optional redis instance for persisting preview images
-export const enablePreviewImages = true
+export const enablePreviewImages = false
 export const redisHost = process.env.REDIS_HOST
 export const redisPassword = process.env.REDIS_PASSWORD
 export const redisUser = process.env.REDIS_USER || 'default'

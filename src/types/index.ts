@@ -12,6 +12,10 @@ export interface Movie {
   // ids
   tmdbId: number
   imdbId: string
+  wikidataId?: string
+  facebookId?: string
+  instagramId?: string
+  twitterId?: string
 
   // general metadata
   title: string

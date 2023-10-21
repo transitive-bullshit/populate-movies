@@ -28,9 +28,19 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
       'user-agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     },
+    https: {
+      // needed for bright data request unblocker proxy support
+      rejectUnauthorized: false
+    },
+    retry: {
+      limit: 3,
+      // adding 403 here to retry w/ a diff proxy if we get blocked
+      statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]
+    },
     timeout: {
       // request: 10000
-      request: 20000
+      // larger for bright data request unblocker proxy support
+      request: 60000
     }
   }).text()
 
@@ -42,9 +52,9 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
     const schema = JSON.parse(
       $('script[type="application/ld+json"]').html().trim()
     )
-    const type = schema['@type']
+    const type = schema['@type']?.toLowerCase()
 
-    if (type === 'Movie') {
+    if (type === 'movie') {
       if (schema.name) {
         movie.title = schema.name
       }
@@ -57,12 +67,28 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
         movie.rtUrl = schema.url
       }
 
+      if (schema.description) {
+        movie.plot = schema.description
+      }
+
       if (schema.contentRating) {
         movie.mpaaRating = schema.contentRating
       }
 
-      if (schema.aggregateRating?.ratingCount) {
+      if (schema.aggregateRating?.ratingCount >= 0) {
         movie.rtCriticVotes = schema.aggregateRating.ratingCount
+      }
+
+      if (schema.aggregateRating?.ratingValue) {
+        const rtCriticRating = parseInt(schema.aggregateRating.ratingValue, 10)
+
+        if (
+          !movie.rtCriticRating &&
+          !isNaN(rtCriticRating) &&
+          rtCriticRating >= 0
+        ) {
+          movie.rtCriticRating = rtCriticRating
+        }
       }
     } else {
       console.warn('rotten tomatoes unexpected schema type', type, schema, url)
@@ -102,41 +128,68 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
     )
   }
 
-  const $scores = $('score-board')
-  const rtAudienceRating = parseInt($scores.attr('audiencescore'), 10)
-  if (!movie.rtAudienceRating && !isNaN(rtAudienceRating)) {
-    movie.rtAudienceRating = rtAudienceRating
+  const $scores = $('score-board-deprecated')
+
+  if (!movie.rtAudienceRating) {
+    const rtAudienceRating = parseInt($scores.attr('audiencescore'), 10)
+
+    if (!isNaN(rtAudienceRating) && rtAudienceRating >= 0) {
+      movie.rtAudienceRating = rtAudienceRating
+    }
   }
 
-  const rtCriticRating = parseInt($scores.attr('tomatometerscore'), 10)
-  if (!movie.rtCriticRating && !isNaN(rtCriticRating)) {
-    movie.rtCriticRating = rtCriticRating
+  if (!movie.rtCriticRating) {
+    const rtCriticRating = parseInt($scores.attr('tomatometerscore'), 10)
+
+    if (!isNaN(rtCriticRating) && rtCriticRating >= 0) {
+      movie.rtCriticRating = rtCriticRating
+    }
   }
 
-  const audienceVotes = $scores.find('a[slot="audience-count"]').text() // 1,000+ Ratings
-  const rtAudienceVotes = parseInt(
-    audienceVotes.replace(/[^\d]/g, '').trim(),
-    10
-  )
-  if (!movie.rtAudienceVotes && !isNaN(rtAudienceVotes)) {
-    movie.rtAudienceVotes = rtAudienceVotes
+  if (!movie.rtAudienceVotes) {
+    // 1,000+ Ratings
+    const audienceVotes = $scores.find('a[slot="audience-count"]').text()
+    const rtAudienceVotes = parseInt(
+      audienceVotes.replace(/[^\d]/g, '').trim(),
+      10
+    )
+
+    if (!isNaN(rtAudienceVotes) && rtAudienceVotes >= 0) {
+      movie.rtAudienceVotes = rtAudienceVotes
+    }
   }
 
-  const criticVotes = $scores.find('a[slot="critics-count"]').text() // 110 Reviews
-  const rtCriticVotes = parseInt(criticVotes.replace(/[^\d]/g, '').trim(), 10)
-  if (!movie.rtCriticVotes && !isNaN(rtCriticVotes)) {
-    movie.rtCriticVotes = rtCriticVotes
+  if (!movie.rtCriticVotes) {
+    // 110 Reviews
+    const criticVotes = $scores.find('a[slot="critics-count"]').text()
+    const rtCriticVotes = parseInt(criticVotes.replace(/[^\d]/g, '').trim(), 10)
+
+    if (!isNaN(rtCriticVotes) && rtCriticVotes >= 0) {
+      movie.rtCriticVotes = rtCriticVotes
+    }
   }
 
-  movie.mpaaRating = $scores.attr('rating').trim()
-  movie.plot = $('#movieSynopsis').text().trim()
-  movie.genres = $('.content-meta .genre')
+  const rating = $scores.attr('rating')?.trim()
+  if (rating) {
+    movie.mpaaRating = rating
+  }
+
+  const plot = $('[data-qa="movie-info-synopsis"]').text().trim()
+  if (plot) {
+    movie.plot = plot
+  }
+
+  const genres = $('#movie-info .genre')
     .text()
     .replace(/\s+/gm, ' ')
     .trim()
     .split(',')
     .map((genre) => genre.trim())
     .filter(Boolean)
+
+  if (genres.length) {
+    movie.genres = genres
+  }
 
   const criticsConsensus = $('[data-qa="critics-consensus"]').text().trim()
   if (criticsConsensus) {

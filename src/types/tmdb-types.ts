@@ -37,10 +37,20 @@ export namespace tmdb {
     // optional via append_to_response
     videos?: Videos
     images?: Images
+    external_ids?: ExternalIds
+    credits?: Credits
 
     // added separately
     cast?: string[]
     director?: string
+  }
+
+  export interface ExternalIds {
+    imdb_id: string | null
+    wikidata_id: string | null
+    facebook_id: string | null
+    instagram_id: string | null
+    twitter_id: string | null
   }
 
   export interface AuthorDetails {

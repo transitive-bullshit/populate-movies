@@ -7,6 +7,7 @@ import pMap from 'p-map'
 import * as config from './lib/config'
 import * as types from './types'
 import { getTitleDetailsByIMDBId, loadIMDBMoviesFromCache } from './lib/imdb'
+import { getNumBatches } from './lib/utils'
 
 /**
  * Fetches info on all previously downloaded movies from IMDB using a cheerio-based
@@ -27,6 +28,7 @@ async function main() {
   await makeDir(config.outDir)
 
   const imdbMovies = await loadIMDBMoviesFromCache()
+  const numBatches = await getNumBatches()
 
   let batchNum = 0
   let numMoviesTotal = 0
@@ -128,7 +130,7 @@ async function main() {
     )
 
     ++batchNum
-  } while (batchNum < config.numBatches)
+  } while (batchNum < numBatches)
 
   console.log()
   console.log('done', {

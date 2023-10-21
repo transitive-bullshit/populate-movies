@@ -6,8 +6,10 @@ import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
+import './lib/bootstrap-proxy'
 import { loadOMDBMoviesFromCache } from './lib/omdb'
 import { loadRTMoviesFromCache, scrapeRottenTomatoesInfoByUrl } from './lib/rt'
+import { getNumBatches } from './lib/utils'
 
 /**
  * Fetches info on all previously downloaded movies from Rotten Tomatoes using
@@ -25,21 +27,26 @@ async function main() {
   const ignoreExistingRTMovies = !!process.env.IGNORE_EXISTING_RT_MOVIES
   await makeDir(config.outDir)
 
-  const [rtMovies, omdbMovies] = await Promise.all([
+  const [rtMovies, omdbMovies, numBatches] = await Promise.all([
     loadRTMoviesFromCache(),
-    loadOMDBMoviesFromCache()
+    loadOMDBMoviesFromCache(),
+    getNumBatches()
   ])
 
-  console.warn('TODO') // TODO
-  let batchNum = 3
+  let batchNum = 4 // TODO: TEMP
   let numMoviesTotal = 0
   let numRTMoviesDownloadedTotal = 0
 
   do {
     const srcFile = `${config.outDir}/movies-${batchNum}.json`
-    const movies: types.Movie[] = JSON.parse(
+    let movies: types.Movie[] = JSON.parse(
       await fs.readFile(srcFile, { encoding: 'utf-8' })
     )
+
+    // TODO: TEMP
+    if (batchNum === 4) {
+      movies = movies.slice(2350)
+    }
 
     console.warn(
       `\npopulating ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
@@ -48,6 +55,7 @@ async function main() {
     let isRateLimited = false
     let numDownloaded = 0
     let firstMovieInBatch = true
+
     const rtOutputMovies = (
       await pMap(
         movies,
@@ -68,6 +76,14 @@ async function main() {
             )
           )
 
+          // console.log(
+          //   `${batchNum}:${index}`,
+          //   movie.tmdbId,
+          //   movie.title,
+          //   'rtUrls',
+          //   Array.from(rtUrls)
+          // )
+
           let numErrors = 0
 
           while (true) {
@@ -77,11 +93,11 @@ async function main() {
               return null
             }
 
-            if (isRateLimited) {
-              // TODO: handle rate limits more gracefully...
-              // pause for 10 minutes
-              await delay(10 * 60000)
-            }
+            // if (isRateLimited) {
+            //   // TODO: handle rate limits more gracefully...
+            //   // pause for 10 minutes
+            //   await delay(10 * 60000)
+            // }
 
             try {
               console.warn(
@@ -134,6 +150,7 @@ async function main() {
               )
 
               const statusCode = err.response?.statusCode
+
               if (statusCode >= 400 && statusCode < 500) {
                 if (statusCode === 403) {
                   // 403 is what RT uses for rate limiting
@@ -188,7 +205,10 @@ async function main() {
     })
 
     ++batchNum
-  } while (batchNum < config.numBatches)
+
+    // TODO: TEMP
+    // break
+  } while (batchNum < numBatches)
 
   console.warn()
   console.warn('done', {

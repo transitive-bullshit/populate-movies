@@ -1,4 +1,7 @@
+import fs from 'node:fs/promises'
+
 import * as types from '../types'
+import * as config from './config'
 
 /**
  * Converts a TMDB movie to our normalized format.
@@ -73,6 +76,10 @@ export function convertTMDBMovieDetailsToMovie(
     id: movieDetails.id,
     tmdbId: movieDetails.id,
     imdbId: movieDetails.imdb_id,
+    wikidataId: movieDetails.external_ids?.wikidata_id,
+    facebookId: movieDetails.external_ids?.facebook_id,
+    instagramId: movieDetails.external_ids?.instagram_id,
+    twitterId: movieDetails.external_ids?.twitter_id,
 
     // general metadata
     title: movieDetails.title || movieDetails.original_title,
@@ -317,4 +324,23 @@ export function getBestTMDBTrailerVideo(
   if (candidate) return candidate
 
   return null
+}
+
+export async function getTMDBMovieDump() {
+  const rawMovieDump = await fs.readFile(config.tmdbMovieIdsDumpPath, {
+    encoding: 'utf-8'
+  })
+  const dumpedMovies: types.tmdb.DumpedMovie[] = JSON.parse(rawMovieDump)
+  return dumpedMovies
+}
+
+let numBatches: number = undefined
+
+export async function getNumBatches(): Promise<number> {
+  if (numBatches === undefined) {
+    const dumpedMovies = await getTMDBMovieDump()
+    numBatches = Math.ceil(dumpedMovies.length / config.batchSize)
+  }
+
+  return numBatches
 }

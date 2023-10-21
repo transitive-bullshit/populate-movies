@@ -49,3 +49,4 @@ next-env.d.ts
 /data/tmdb_dump_*.json
 /data/movie_ids_*.json
 /data/*.tsv
+backup

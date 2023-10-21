@@ -8,6 +8,7 @@ import * as config from './lib/config'
 import * as types from './types'
 import { prisma } from './lib/db'
 import { dequal } from './lib/dequal'
+import { getNumBatches } from './lib/utils'
 
 /**
  * Upserts all movies downloaded on disk into our Prisma database.
@@ -32,6 +33,8 @@ async function main() {
     console.warn('\nWARNING: dropping movies from db\n')
     await prisma.movie.deleteMany()
   }
+
+  const numBatches = await getNumBatches()
 
   let batchNum = 0
   let numMoviesTotal = 0
@@ -170,7 +173,7 @@ async function main() {
     console.warn()
 
     ++batchNum
-  } while (batchNum < config.numBatches)
+  } while (batchNum < numBatches)
 
   console.warn('done', {
     numMoviesTotal,

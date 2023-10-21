@@ -20,6 +20,7 @@ import { processMovie } from './lib/process-movie'
 import { loadRTMoviesFromCache, populateMovieWithRTInfo } from './lib/rt'
 import {
   convertTMDBMovieDetailsToMovie,
+  getNumBatches,
   populateMovieWithIMDBInfo
 } from './lib/utils'
 
@@ -41,12 +42,13 @@ async function main() {
   await makeDir(config.outDir)
 
   // load all of our (possibly empty) cached data from disk
-  const [imdbRatings, imdbMovies, rtMovies, flickMetrixMovies] =
+  const [imdbRatings, imdbMovies, rtMovies, flickMetrixMovies, numBatches] =
     await Promise.all([
       loadIMDBRatingsFromDataDump(),
       loadIMDBMoviesFromCache(),
       loadRTMoviesFromCache(),
-      loadFlickMetrixMoviesFromCache()
+      loadFlickMetrixMoviesFromCache(),
+      getNumBatches()
       // loadOMDBMoviesFromCache()
     ])
 
@@ -55,7 +57,7 @@ async function main() {
   let numTMDBMoviesTotal = 0
   let numMoviesTotal = 0
 
-  console.log(`\nprocessing TMDB movies in ${config.numBatches} batches\n`)
+  console.log(`\nprocessing TMDB movies in ${numBatches} batches\n`)
   do {
     const srcFile = `${config.outDir}/tmdb-${batchNum}.json`
     const tmdbMovies: types.tmdb.MovieDetails[] = JSON.parse(
@@ -148,7 +150,7 @@ async function main() {
     )
 
     ++batchNum
-  } while (batchNum < config.numBatches)
+  } while (batchNum < numBatches)
 
   console.log()
   console.log('done', {

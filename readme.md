@@ -188,7 +188,7 @@ The result is ~73k movies.
 
 The next **optional** step is to download additional RT info for each movie, using a [cheerio](https://github.com/cheeriojs/cheerio)-based scraper. We self-impose a strict rate-limit on the scraping, so this step takes a long time to run and requires a solid internet connection with minimal interruptions. _(takes ~4 hours)_
 
-Currently, this only way this script will work is if you've previously downloaded all Flick Metrix movies.
+Currently, the only way this script will work is if you've previously downloaded all Flick Metrix movies.
 
 This step is important if you want up-to-date Rotten Tomatoes critic and audience scores, along with a `criticsConsensus` description.
 

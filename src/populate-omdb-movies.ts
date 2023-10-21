@@ -8,6 +8,7 @@ import random from 'random'
 import * as config from './lib/config'
 import * as types from './types'
 import { getOMDBMovieByIMDBID, loadOMDBMoviesFromCache } from './lib/omdb'
+import { getNumBatches } from './lib/utils'
 
 /**
  * Fetches info on all previously downloaded movies from OMDB by IMDB ID.
@@ -23,6 +24,7 @@ async function main() {
   await makeDir(config.outDir)
 
   const omdbMovies = await loadOMDBMoviesFromCache()
+  const numBatches = await getNumBatches()
 
   // either a single API key or multiple keys separated by commas for cyling through
   const omdbApiKeySingle = process.env.OMDB_API_KEY
@@ -162,7 +164,7 @@ async function main() {
     )
 
     ++batchNum
-  } while (batchNum < config.numBatches && !hasUnrecoverableError)
+  } while (batchNum < numBatches && !hasUnrecoverableError)
 
   console.warn()
   console.warn(hasUnrecoverableError ? 'ERROR' : 'done', {

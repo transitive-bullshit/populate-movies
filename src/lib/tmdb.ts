@@ -19,16 +19,28 @@ export class TMDB {
     movieId: string | number,
     {
       videos = false,
-      images = false
+      images = false,
+      externalIds = false,
+      credits = false,
+      keywords = false
     }: {
       videos?: boolean
       images?: boolean
+      externalIds?: boolean
+      credits?: boolean
+      keywords?: boolean
     } = {}
   ): Promise<tmdb.MovieDetails> {
     const opts =
       videos || images
         ? {
-            appendToResponse: [videos && 'videos', images && 'images']
+            appendToResponse: [
+              videos && 'videos',
+              images && 'images',
+              externalIds && 'external_ids',
+              credits && 'credits',
+              keywords && 'keywords'
+            ]
               .filter(Boolean)
               .join(',')
           }

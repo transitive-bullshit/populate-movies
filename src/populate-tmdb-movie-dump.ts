@@ -7,6 +7,7 @@ import pMap from 'p-map'
 import * as config from './lib/config'
 import * as types from './types'
 import { TMDB } from './lib/tmdb'
+import { getNumBatches, getTMDBMovieDump } from './lib/utils'
 
 /**
  * Takes a dump of movies from TMDB and fetches all of the movie details from
@@ -15,10 +16,8 @@ import { TMDB } from './lib/tmdb'
 async function main() {
   await makeDir(config.outDir)
 
-  const rawMovieDump = await fs.readFile(config.tmdbMovieIdsDumpPath, {
-    encoding: 'utf-8'
-  })
-  const dumpedMovies: types.tmdb.DumpedMovie[] = JSON.parse(rawMovieDump)
+  const dumpedMovies = await getTMDBMovieDump()
+  const numBatches = await getNumBatches()
 
   // sort input movies by popularity so we process more popular movies first
   dumpedMovies.sort((a, b) => b.popularity - a.popularity)
@@ -33,9 +32,6 @@ async function main() {
       startIndex,
       startIndex + config.batchSize
     )
-    if (!dumpedMoviesBatch.length) {
-      break
-    }
 
     console.log(
       `\npopulating ${dumpedMoviesBatch.length} movies in batch ${batchNum} (${config.tmdbMovieIdsDumpPath})\n`
@@ -65,8 +61,12 @@ async function main() {
               if (!movieDetails) {
                 movieDetails = await tmdb.getMovieDetails(dumpedMovie.id, {
                   videos: true,
-                  images: true
+                  images: true,
+                  externalIds: true
                 })
+
+                // console.log(JSON.stringify(movieDetails, null, 2))
+                // return
               }
 
               // uncomment if you want to record credits as well
@@ -146,7 +146,7 @@ async function main() {
     console.log()
 
     ++batchNum
-  } while (true)
+  } while (batchNum < numBatches)
 
   console.log(`done; ${batchNum} batches;`, {
     numDumpedMoviesTotal: dumpedMovies.length,
