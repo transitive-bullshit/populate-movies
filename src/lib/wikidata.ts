@@ -9,6 +9,7 @@ import wdk from 'wikibase-sdk/wikidata.org'
 import * as types from '../types'
 import * as config from './config'
 
+// P345 IMDB ID
 // P1258 RT ID
 // P1712 Metacritic ID
 // P2061 AllMovie movie ID
@@ -53,6 +54,9 @@ const wikidataEntityToMpaaRating: Record<string, string> = {
   Q29841078: 'GP'
 }
 
+const wikidataUserAgent =
+  'populate-movies/0.0 (https://github.com/transitive-bullshit/populate-movies)'
+
 /**
  * Rate-limit HTTP requests to Rotten Tomatoes.
  */
@@ -61,9 +65,76 @@ const throttle = pThrottle({
   interval: 1000
 })
 
-export const getWikidataEntities = throttle(getWikidataEntitiesImpl)
+export const getWikidataMovies = throttle(getWikidataMoviesImpl)
 
-export async function getWikidataEntitiesImpl(
+export async function fetchAllWikidataMovies({
+  languages = ['en']
+}: {
+  languages?: string[]
+} = {}) {
+  const movies: types.WikidataMovies = {}
+  const limit = 500
+  let offset = 0
+
+  do {
+    // find all entities which are films and have both an IMDB id
+    // and a rotten tomatoes id
+    const url = wdk.sparqlQuery(`
+      SELECT DISTINCT ?item WHERE {
+        ?item p:P31 ?statement0.
+        ?statement0 (ps:P31/(wdt:P279*)) wd:Q11424.
+        ?item p:P345 ?statement1.
+        ?statement1 (ps:P345) _:anyValueP345.
+        ?item p:P1258 ?statement2.
+        ?statement2 (ps:P1258) _:anyValueP1258.
+      }
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `)
+    console.log('wikidata search', offset, '>>>', url)
+
+    const res = await got(url, {
+      headers: {
+        'user-agent': wikidataUserAgent
+      }
+    }).json<any>()
+
+    const ids = wdk.simplify.sparqlResults(res, { minimize: true })
+    console.log('wikidata search', offset, '<<<', ids.length)
+    if (!ids.length) break
+    offset += limit
+
+    const moviesBatch = await getWikidataMovies(ids, { languages })
+    for (const movie of moviesBatch) {
+      if (!movie.imdbId) continue
+      movies[movie.imdbId] = movie
+    }
+
+    // // find all films which have both an IMDB id and a rotten tomatoes id
+    // const url = wdk.cirrusSearchPages({
+    //   search: query,
+    //   haswbstatement: ['P31=Q11424', 'P345', 'P1258'],
+    //   limit,
+    //   offset
+    // })
+
+    // console.log('wikidata search', offset, url)
+    // const res = await got(url).json<any>()
+    // if (res.error) {
+    //   console.error('wikidata search error', res.error)
+    //   break
+    // }
+
+    // total = res.query.searchinfo.totalhits
+    // offset += limit
+
+    // const ids = res.query.search.map((result: any) => result.title)
+  } while (true)
+
+  return movies
+}
+
+export async function getWikidataMoviesImpl(
   ids: string | string[],
   {
     languages = ['en']
@@ -96,7 +167,9 @@ export async function getWikidataEntitiesImpl(
         keepReferences: true
       })
 
-      return Object.values(entities).map(resolveSimplifiedWikidataEntity)
+      return Object.values(entities)
+        .map(convertSimplifiedWikidataEntityToMovie)
+        .filter(Boolean)
     },
     { concurrency: 4 }
   )
@@ -107,12 +180,19 @@ export async function getWikidataEntitiesImpl(
 /**
  * Converts a simplified wikidata entity to a partial movie.
  */
-function resolveSimplifiedWikidataEntity(
+function convertSimplifiedWikidataEntityToMovie(
   entity: types.wikidata.SimplifiedEntity
-): Partial<types.Movie> {
+): Partial<types.Movie> | null {
   const movie: Partial<types.Movie> = {
     wikidataId: entity.id,
     title: entity.labels?.en
+  }
+
+  if (entity.claims.P31?.[0]?.value !== 'Q11424') {
+    // entity is not an instance of a film
+
+    // TODO: ensure this doesn't lead to false negatives
+    return null
   }
 
   const reviews = entity.claims.P444
@@ -194,10 +274,8 @@ function resolveSimplifiedWikidataEntity(
     filter?: (claims: types.wikidata.Claim[]) => types.wikidata.Claim[]
   }> = [
     {
-      property: 'P1258',
-      field: 'rtUrl',
-      transform: (value: string | number) =>
-        `https://www.rottentomatoes.com/${value}`
+      property: 'P345',
+      field: 'imdbId'
     },
     {
       property: 'P1874',
@@ -266,6 +344,12 @@ function resolveSimplifiedWikidataEntity(
     {
       property: 'P8298',
       field: 'hboMaxId'
+    },
+    {
+      property: 'P1258',
+      field: 'rtUrl',
+      transform: (value: string | number) =>
+        `https://www.rottentomatoes.com/${value}`
     },
     {
       property: 'P2142',
@@ -350,7 +434,7 @@ export function populateMovieWithWikidataInfo(
     return movie
   }
 
-  const wikidataMovie = wikidataMovies[movie.tmdbId]
+  const wikidataMovie = wikidataMovies[movie.imdbId]
   if (!wikidataMovie) {
     return movie
   }
@@ -375,6 +459,7 @@ export function populateMovieWithWikidataInfo(
     'mpaaRating',
     'homepage',
     'rtUrl',
+    'imdbId',
     'netflixId',
     'huluId',
     'amazonId',

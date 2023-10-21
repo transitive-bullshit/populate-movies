@@ -10,6 +10,7 @@ import './lib/bootstrap-proxy'
 import { loadOMDBMoviesFromCache } from './lib/omdb'
 import { loadRTMoviesFromCache, scrapeRottenTomatoesInfoByUrl } from './lib/rt'
 import { getNumBatches } from './lib/utils'
+import { loadWikidataMoviesFromCache } from './lib/wikidata'
 
 /**
  * Fetches info on all previously downloaded movies from Rotten Tomatoes using
@@ -27,9 +28,10 @@ async function main() {
   const force = !!process.env.FORCE
   await makeDir(config.outDir)
 
-  const [rtMovies, omdbMovies, numBatches] = await Promise.all([
+  const [rtMovies, omdbMovies, wikidataMovies, numBatches] = await Promise.all([
     loadRTMoviesFromCache(),
     loadOMDBMoviesFromCache(),
+    loadWikidataMoviesFromCache(),
     getNumBatches()
   ])
 
@@ -64,6 +66,7 @@ async function main() {
               [
                 movie.rtUrl,
                 rtMovies[movie.tmdbId]?.rtUrl,
+                movie.imdbId && wikidataMovies[movie.imdbId]?.rtUrl,
                 movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL
               ]
                 .filter(Boolean)
@@ -148,6 +151,8 @@ async function main() {
 
               if (statusCode >= 400 && statusCode < 500) {
                 if (statusCode === 403) {
+                  // TODO: 404s may also be presenting themselves as 403s, but we're not checking the next rtUrl in this case...
+
                   // 403 is what RT uses for rate limiting
                   isRateLimited = true
                 } else if (
@@ -156,8 +161,8 @@ async function main() {
                   rtUrl.toLowerCase() !== rtUrls[1].toLowerCase()
                 ) {
                   isRateLimited = false
-                  // try the second URL if the first one is not found
-                  console.warn('rt falling back to second URL', rtUrls[1])
+                  // try the next URL if this one is not found
+                  console.warn('rt falling back to next rt URL', rtUrls[1])
                   rtUrls.shift()
                   continue
                 } else {
@@ -169,9 +174,11 @@ async function main() {
               }
 
               if (++numErrors >= 3) {
+                console.error(movie.tmdbId, 'too many errors')
                 return null
               } else {
-                await delay(10000 + 1000 * numErrors * numErrors)
+                console.error('sleeping...')
+                await delay(1000 * numErrors * numErrors)
               }
             }
           }

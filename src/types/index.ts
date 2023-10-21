@@ -138,7 +138,7 @@ export interface IMDBMovies {
 
 // from local cache
 export interface FlickMetrixMovies {
-  [tmdbId: string]: flickMetrix.Movie
+  [imdbId: string]: flickMetrix.Movie
 }
 
 // from local cache
@@ -148,7 +148,7 @@ export interface RTMovies {
 
 // from local cache
 export interface WikidataMovies {
-  [tmdbId: string]: Partial<Movie>
+  [imdbId: string]: Partial<Movie>
 }
 
 // from local cache
