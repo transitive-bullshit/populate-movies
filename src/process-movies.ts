@@ -10,19 +10,16 @@ import {
   populateMovieWithFlickMetrixInfo
 } from './lib/flick-metrix'
 import {
-  loadIMDBMoviesFromCache,
-  loadIMDBRatingsFromDataDump
+  loadIMDBMoviesDB,
+  loadIMDBRatingsFromDataDump,
+  populateMovieWithIMDBInfo
 } from './lib/imdb'
 import { keyv } from './lib/keyv'
 // import { loadOMDBMoviesFromCache } from './lib/omdb'
 import { enrichMovieWithPreviewImages } from './lib/preview-images'
 import { processMovie } from './lib/process-movie'
 import { loadRTMoviesFromCache, populateMovieWithRTInfo } from './lib/rt'
-import {
-  convertTMDBMovieDetailsToMovie,
-  getNumBatches,
-  populateMovieWithIMDBInfo
-} from './lib/utils'
+import { convertTMDBMovieDetailsToMovie, getNumBatches } from './lib/utils'
 import {
   loadWikidataMoviesFromCache,
   populateMovieWithWikidataInfo
@@ -56,7 +53,7 @@ async function main() {
     numBatches
   ] = await Promise.all([
     loadIMDBRatingsFromDataDump(),
-    loadIMDBMoviesFromCache(),
+    loadIMDBMoviesDB(),
     loadRTMoviesFromCache(),
     loadWikidataMoviesFromCache(),
     loadFlickMetrixMoviesFromCache(),
@@ -116,7 +113,16 @@ async function main() {
             return null
           }
 
-          if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovies })) {
+          let imdbMovie: types.imdb.Movie
+          try {
+            imdbMovie = await imdbMovies.get(movie.imdbId)
+          } catch (err) {
+            if (err.code !== 'LEVEL_NOT_FOUND') {
+              console.error('imdb error unexpected leveldb', err.toString())
+            }
+          }
+
+          if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovie })) {
             return null
           }
 

@@ -6,7 +6,7 @@ import pMap from 'p-map'
 
 import * as config from './lib/config'
 import * as types from './types'
-import { getTitleDetailsByIMDBId, loadIMDBMoviesFromCache } from './lib/imdb'
+import { getTitleDetailsByIMDBId, loadIMDBMoviesDB } from './lib/imdb'
 import { getNumBatches } from './lib/utils'
 
 /**
@@ -18,8 +18,11 @@ import { getNumBatches } from './lib/utils'
  * In the future, a more sophisticated distributed scraping method would be
  * preferred.
  *
+ * @TODO movier is using hard-coded headers for cookie and user-agent.
+ *
  * @example
  * ```
+ * npx tsx src/populate-imdb-movies.ts
  * FORCE=true time npx tsx src/populate-imdb-movies.ts
  * ```
  */
@@ -27,8 +30,8 @@ async function main() {
   const force = !!process.env.FORCE
   await makeDir(config.outDir)
 
-  const imdbMovies = await loadIMDBMoviesFromCache()
   const numBatches = await getNumBatches()
+  const imdbMoviesDb = await loadIMDBMoviesDB()
 
   let batchNum = 0
   let numMoviesTotal = 0
@@ -44,74 +47,104 @@ async function main() {
       `\npopulating ${movies.length} movies in batch ${batchNum} (${srcFile})\n`
     )
 
-    let firstMovieInBatch = true
-    const imdbOutputMovies = (
-      await pMap(
-        movies,
-        async (movie, index): Promise<types.imdb.Movie | null> => {
-          if (!movie.imdbId) {
-            return null
+    let numDownloaded = 0
+
+    await pMap(
+      movies,
+      async (movie, index): Promise<types.imdb.Movie | null> => {
+        if (!movie.imdbId) {
+          return null
+        }
+
+        // filter out movies which are too short like shorts, tv episodes, specials,
+        // and art projects
+        if (movie.runtime < 30) {
+          return null
+        }
+
+        let existingIMDBMovie: types.imdb.Movie
+        try {
+          existingIMDBMovie = await imdbMoviesDb.get(movie.imdbId)
+        } catch (err) {
+          if (err.code !== 'LEVEL_NOT_FOUND') {
+            console.error('imdb error unexpected leveldb', err.toString())
           }
+        }
 
-          // filter out movies which are too short like shorts, tv episodes, specials,
-          // and art projects
-          if (movie.runtime < 30) {
-            return null
-          }
+        if (!force && existingIMDBMovie) {
+          return null
+        }
 
-          if (!force && imdbMovies[movie.imdbId]) {
-            return null
-          }
+        let numErrors = 0
 
-          let numErrors = 0
+        while (true) {
+          try {
+            console.log(
+              `${batchNum}:${index} imdb ${movie.imdbId} (${movie.releaseYear}) ${movie.title}`
+            )
 
-          while (true) {
-            try {
-              console.log(
-                `${batchNum}:${index} imdb ${movie.imdbId} (${movie.releaseYear}) ${movie.title}`
-              )
+            const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
 
-              const imdbMovie = await getTitleDetailsByIMDBId(movie.imdbId)
-              imdbMovies[movie.imdbId] = {
-                ...imdbMovies[movie.imdbId],
-                ...imdbMovie
-              }
+            const result: types.imdb.Movie = {
+              ...existingIMDBMovie,
+              ...imdbMovie
+            }
 
-              if (firstMovieInBatch) {
-                firstMovieInBatch = false
-                console.log()
-                console.log(JSON.stringify(imdbMovies[movie.imdbId], null, 2))
-                console.log()
-              }
+            delete result.otherNames
+            delete result.directors
+            delete result.writers
+            delete result.producers
+            delete result.casts
+            delete result.posterImage
+            delete result.allImages
+            delete result.goofs
+            delete result.quotes
+            delete result.taglines
+            delete result.productionCompanies
+            delete result.awards
+            delete result.awardsSummary
+            delete result.dates
+            delete result.allReleaseDates
 
-              // console.log(movie)
-              // console.log(imdbMovie)
+            await imdbMoviesDb.put(movie.imdbId, result)
+            ++numDownloaded
 
-              return imdbMovies[movie.imdbId]
-            } catch (err) {
-              console.error(
-                'imdb error',
-                movie.imdbId,
-                movie.title,
-                err.toString()
-              )
+            if (numDownloaded === 1 || numDownloaded % 50 === 0) {
+              console.log()
+              console.log(JSON.stringify(result, null, 2))
+              console.log()
+            }
 
-              if (++numErrors >= 3) {
-                return null
-              } else {
-                await delay(10000 + 1000 * numErrors * numErrors)
-              }
+            return
+          } catch (err) {
+            console.error(
+              'imdb error',
+              movie.imdbId,
+              movie.title,
+              err.toString(),
+              err
+            )
+
+            const statusCode = err.response?.statusCode
+            if (statusCode === 404) {
+              return null
+            }
+
+            if (++numErrors >= 3) {
+              return null
+            } else {
+              await delay(10000 + 1000 * numErrors * numErrors)
             }
           }
-        },
-        {
-          concurrency: 4
         }
-      )
-    ).filter(Boolean)
+      },
+      {
+        concurrency: 4
+      }
+    )
 
     const numMovies = movies.length
-    const numIMDBMoviesDownloaded = imdbOutputMovies.length
+    const numIMDBMoviesDownloaded = numDownloaded
 
     numMoviesTotal += numMovies
     numIMDBMoviesDownloadedTotal += numIMDBMoviesDownloaded
@@ -119,15 +152,8 @@ async function main() {
     console.log()
     console.log(`batch ${batchNum} done`, {
       numMovies,
-      numIMDBMoviesDownloaded,
-      numIMDBMoviesTotal: Object.keys(imdbMovies).length
+      numIMDBMoviesDownloaded
     })
-
-    await fs.writeFile(
-      config.imdbMoviesPath,
-      JSON.stringify(imdbMovies, null, 2),
-      { encoding: 'utf-8' }
-    )
 
     ++batchNum
   } while (batchNum < numBatches)
@@ -135,9 +161,10 @@ async function main() {
   console.log()
   console.log('done', {
     numMoviesTotal,
-    numIMDBMoviesDownloadedTotal,
-    numIMDBMoviesTotal: Object.keys(imdbMovies).length
+    numIMDBMoviesDownloadedTotal
   })
+
+  await imdbMoviesDb.close()
 }
 
 main()

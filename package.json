@@ -33,6 +33,7 @@
     "isobject": "^4.0.0",
     "json-diff": "^1.0.0",
     "keyv": "^4.5.2",
+    "level": "^8.0.0",
     "lodash.omit": "^4.5.0",
     "lqip-modern": "^2.0.0",
     "make-dir": "^3.1.0",

@@ -13,6 +13,7 @@ export const imdbRatingsPath = `${dataDir}/title.ratings.tsv`
 
 // local caches
 export const imdbMoviesPath = `${outDir}/imdb-movies.json`
+export const imdbMoviesDbPath = `${outDir}/imdb-movies-db`
 export const rtMoviesPath = `${outDir}/rt-movies.json`
 export const wikidataMoviesPath = `${outDir}/wikidata-movies.json`
 export const flickMetrixMoviesPath = `${outDir}/flick-metrix-movies.json`

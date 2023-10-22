@@ -1,3 +1,5 @@
+import type { Level } from 'level'
+
 import { flickMetrix } from './flick-metrix-types'
 import { imdb } from './imdb-types'
 import { omdb } from './omdb-types'
@@ -131,10 +133,8 @@ export interface IMDBRating {
   numVotes: number
 }
 
-// from local cache
-export interface IMDBMovies {
-  [imdbId: string]: imdb.Movie
-}
+// from local db cache
+export type IMDBMovies = Level<string, imdb.Movie>
 
 // from local cache
 export interface FlickMetrixMovies {
