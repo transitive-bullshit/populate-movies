@@ -90,21 +90,22 @@ async function main() {
               ...imdbMovie
             }
 
-            delete result.otherNames
-            delete result.directors
-            delete result.writers
-            delete result.producers
-            delete result.casts
-            delete result.posterImage
-            delete result.allImages
-            delete result.goofs
-            delete result.quotes
-            delete result.taglines
-            delete result.productionCompanies
-            delete result.awards
-            delete result.awardsSummary
-            delete result.dates
-            delete result.allReleaseDates
+            // remove extra fields that we're not using (optional)
+            // delete result.otherNames
+            // delete result.directors
+            // delete result.writers
+            // delete result.producers
+            // delete result.casts
+            // delete result.posterImage
+            // delete result.allImages
+            // delete result.goofs
+            // delete result.quotes
+            // delete result.taglines
+            // delete result.productionCompanies
+            // delete result.awards
+            // delete result.awardsSummary
+            // delete result.dates
+            // delete result.allReleaseDates
 
             await imdbMoviesDb.put(movie.imdbId, result)
             ++numDownloaded
