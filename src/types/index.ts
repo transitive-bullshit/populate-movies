@@ -13,11 +13,11 @@ export type { flickMetrix }
 export type { wikidata }
 
 export interface Movie {
-  // ids
+  // main external ids
   tmdbId: number
   imdbId: string
 
-  // external ids
+  // other external ids
   wikidataId?: string
   facebookId?: string
   instagramId?: string

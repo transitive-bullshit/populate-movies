@@ -50,3 +50,5 @@ next-env.d.ts
 /data/movie_ids_*.json
 /data/*.tsv
 backup
+
+dbschema/edgeql-js
