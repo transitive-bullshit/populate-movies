@@ -36,18 +36,18 @@ model Movie {
   hboMaxId        String?
 
   // general metadata
-  title             String   @db.VarChar(256)
-  originalTitle     String?  @db.VarChar(256)
+  title             String   @db.VarChar(1024)
+  originalTitle     String?  @db.VarChar(1024)
   language          String?
   releaseYear       Int?
   releaseDate       String?
   genres            String[]
-  plot              String   @db.VarChar(4096)
+  plot              String?
   runtime           Int
   adult             Boolean  @default(false)
   budget            String? // overflows int (esp foreign currencies)
   revenue           String? // overflows int (Avatar 2009)
-  homepage          String?  @db.VarChar(511)
+  homepage          String?  @db.VarChar(1024)
   status            String
   mpaaRating        String?
   keywords          String[] @default([])
@@ -91,7 +91,7 @@ model Movie {
   rtCriticVotes      Int?
   rtAudienceRating   Int?
   rtAudienceVotes    Int?
-  rtCriticsConsensus String? @db.VarChar(1024)
+  rtCriticsConsensus String?
   rtId               String?
   emsId              String?
   rtUrl              String?

@@ -176,7 +176,7 @@ export async function getWikidataMoviesImpl(
         .map(convertSimplifiedWikidataEntityToMovie)
         .filter(Boolean)
     },
-    { concurrency: 4 }
+    { concurrency: 10 }
   )
 
   return entities.flat()
@@ -193,8 +193,9 @@ function convertSimplifiedWikidataEntityToMovie(
     title: entity.labels?.en
   }
 
-  if (entity.claims.P31?.[0]?.value !== 'Q11424') {
-    // entity is not a film
+  const entityInstanceType = entity.claims.P31?.[0]?.value
+  if (entityInstanceType !== 'Q11424' && entityInstanceType !== 'Q18011172') {
+    // entity is not a film or a film project (unfinished film)
 
     // TODO: ensure this doesn't lead to false negatives
     return null

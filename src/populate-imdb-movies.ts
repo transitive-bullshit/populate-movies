@@ -10,13 +10,16 @@ import { getTitleDetailsByIMDBId, loadIMDBMoviesDB } from './lib/imdb'
 import { getNumBatches } from './lib/utils'
 
 /**
- * Fetches info on all previously downloaded movies from IMDB using a cheerio-based
+ * Fetches info on all previously downloaded movies from IMDB using a graphql-based
  * scraper called `movier`.
  *
  * Note that we strictly rate limit IMDB access in order to prevent IMDB 503s and
- * IP blacklisting. This results in this script taking hours / days to run fully.
+ * IP blacklisting. This results in this script taking much longer to run fully.
  * In the future, a more sophisticated distributed scraping method would be
  * preferred.
+ *
+ * Note that the resulting IMDB data is larger than 500MB when serialized to JSON,
+ * so we're using LevelDB as a lightweight, local database instead of JSON files.
  *
  * @TODO movier is using hard-coded headers for cookie and user-agent.
  *
