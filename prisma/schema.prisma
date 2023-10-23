@@ -12,9 +12,30 @@ model Movie {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // main external ids
   tmdbId Int    @unique
   imdbId String @unique
 
+  // other external ids
+  wikidataId      String?
+  facebookId      String?
+  instagramId     String?
+  twitterId       String?
+  netflixId       String?
+  huluId          String?
+  amazonId        String?
+  appleTVId       String?
+  twitterUsername String?
+  googleKGId      String?
+  traktTVId       String?
+  redditTopicId   String?
+  letterboxdId    String?
+  metacriticId    String?
+  allMovieId      String?
+  disneyPlusId    String?
+  hboMaxId        String?
+
+  // general metadata
   title             String   @db.VarChar(256)
   originalTitle     String?  @db.VarChar(256)
   language          String?
