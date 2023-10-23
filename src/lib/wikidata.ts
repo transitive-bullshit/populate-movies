@@ -77,9 +77,10 @@ export async function fetchAllWikidataMovies({
   let offset = 0
 
   do {
-    // find all entities which are films and have both an IMDB id
-    // and a rotten tomatoes id
-    const url = wdk.sparqlQuery(`
+    try {
+      // find all entities which are films and have both an IMDB id
+      // and a rotten tomatoes id
+      const url = wdk.sparqlQuery(`
       SELECT DISTINCT ?item WHERE {
         ?item p:P31 ?statement0.
         ?statement0 (ps:P31/(wdt:P279*)) wd:Q11424.
@@ -91,25 +92,29 @@ export async function fetchAllWikidataMovies({
       LIMIT ${limit}
       OFFSET ${offset}
     `)
-    console.log('wikidata search', offset, '>>>', url)
+      console.log('wikidata search', offset, '>>>', url)
 
-    const res = await got(url, {
-      headers: {
-        'user-agent': wikidataUserAgent
+      const res = await got(url, {
+        headers: {
+          'user-agent': wikidataUserAgent
+        }
+      }).json<any>()
+
+      const ids = wdk.simplify.sparqlResults(res, { minimize: true })
+      console.log('wikidata search', offset, '<<<', ids.length)
+      if (!ids.length) break
+
+      const moviesBatch = await getWikidataMovies(ids, { languages })
+      for (const movie of moviesBatch) {
+        if (movie.imdbId) {
+          movies[movie.imdbId] = movie
+        }
       }
-    }).json<any>()
-
-    const ids = wdk.simplify.sparqlResults(res, { minimize: true })
-    console.log('wikidata search', offset, '<<<', ids.length)
-    if (!ids.length) break
-    offset += limit
-
-    const moviesBatch = await getWikidataMovies(ids, { languages })
-    for (const movie of moviesBatch) {
-      if (!movie.imdbId) continue
-      movies[movie.imdbId] = movie
+    } catch (err) {
+      console.error('wikidata search error', offset, err.toString())
     }
 
+    offset += limit
     // // find all films which have both an IMDB id and a rotten tomatoes id
     // const url = wdk.cirrusSearchPages({
     //   search: query,
@@ -189,7 +194,7 @@ function convertSimplifiedWikidataEntityToMovie(
   }
 
   if (entity.claims.P31?.[0]?.value !== 'Q11424') {
-    // entity is not an instance of a film
+    // entity is not a film
 
     // TODO: ensure this doesn't lead to false negatives
     return null
