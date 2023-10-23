@@ -63,9 +63,10 @@ export async function scrapeRottenTomatoesInfoByUrlImpl(
         movie.genres = schema.genre
       }
 
-      if (schema.url) {
-        movie.rtUrl = schema.url
-      }
+      // TODO
+      // if (schema.url) {
+      //   movie.rtUrl = schema.url
+      // }
 
       if (schema.description) {
         movie.plot = schema.description

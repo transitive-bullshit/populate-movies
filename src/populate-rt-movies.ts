@@ -61,26 +61,29 @@ async function main() {
             return null
           }
 
-          const rtUrls = Array.from(
-            new Set(
-              [
-                movie.rtUrl,
-                rtMovies[movie.tmdbId]?.rtUrl,
-                movie.imdbId && wikidataMovies[movie.imdbId]?.rtUrl,
-                movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL
-              ]
-                .filter(Boolean)
-                .map((url) => url.trim().replace(/\/+$/g, '').trim())
-            )
-          )
+          const tempUrls = [
+            movie.rtUrl,
+            rtMovies[movie.tmdbId]?.rtUrl,
+            movie.imdbId && wikidataMovies[movie.imdbId]?.rtUrl,
+            movie.imdbId && omdbMovies[movie.imdbId]?.tomatoURL
+          ]
+            .filter(Boolean)
+            .map((url) => url.trim().replace(/\/+$/g, '').trim())
 
-          // console.log(
-          //   `${batchNum}:${index}`,
-          //   movie.tmdbId,
-          //   movie.title,
-          //   'rtUrls',
-          //   Array.from(rtUrls)
-          // )
+          const rtUrlsTemp = new Set<string>()
+          const rtUrls: string[] = []
+          for (const tempUrl of tempUrls) {
+            if (!rtUrlsTemp.has(tempUrl)) {
+              rtUrlsTemp.add(tempUrl)
+              rtUrls.push(tempUrl)
+            }
+          }
+
+          if (rtUrls.length > 1) {
+            console.log(`${batchNum}:${index}`, movie.tmdbId, movie.title, {
+              rtUrls
+            })
+          }
 
           let numErrors = 0
 

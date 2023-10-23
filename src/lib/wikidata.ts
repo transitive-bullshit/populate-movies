@@ -115,9 +115,12 @@ export async function fetchAllWikidataMovies({
     }
 
     offset += limit
+
+    // this approach has a hard offset limit of 10k imposed by wikidata
     // // find all films which have both an IMDB id and a rotten tomatoes id
     // const url = wdk.cirrusSearchPages({
     //   search: query,
+    //     // TODO: this doesn't support children of Q11424 films (like unfinished films)
     //   haswbstatement: ['P31=Q11424', 'P345', 'P1258'],
     //   limit,
     //   offset

@@ -156,19 +156,20 @@ async function main() {
     console.log()
     console.log(`batch ${batchNum} done`, {
       numMovies,
-      numIMDBMoviesDownloaded
+      numIMDBMoviesDownloaded,
+      numIMDBMoviesDownloadedTotal
     })
 
     ++batchNum
   } while (batchNum < numBatches)
+
+  await imdbMoviesDb.close()
 
   console.log()
   console.log('done', {
     numMoviesTotal,
     numIMDBMoviesDownloadedTotal
   })
-
-  await imdbMoviesDb.close()
 }
 
 main()
