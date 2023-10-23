@@ -118,7 +118,7 @@ async function main() {
             imdbMovie = await imdbMovies.get(movie.imdbId)
           } catch (err) {
             if (err.code !== 'LEVEL_NOT_FOUND') {
-              console.error('imdb error unexpected leveldb', err.toString())
+              console.error('imdb leveldb error', err.toString())
             }
           }
 

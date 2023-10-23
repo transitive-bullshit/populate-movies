@@ -239,3 +239,16 @@ export async function getNumBatches(): Promise<number> {
 
   return numBatches
 }
+
+export function removeNulls<T extends object>(obj: T): T | null {
+  if (!obj) return null
+  const result = {} as T
+
+  for (const key in obj) {
+    if (obj[key] !== null) {
+      result[key] = obj[key]
+    }
+  }
+
+  return result
+}

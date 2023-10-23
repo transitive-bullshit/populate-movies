@@ -18,6 +18,8 @@ import { loadWikidataMoviesFromCache } from './lib/wikidata'
  *
  * @todo figure out a better mapping from tmdb/imdb IDs => rtUrl
  *
+ * @todo store URLs which 404 so subsequent runs are faster
+ *
  * @example
  * ```
  * npx tsx src/populate-rt-movies.ts

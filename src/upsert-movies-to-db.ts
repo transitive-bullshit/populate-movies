@@ -8,7 +8,7 @@ import * as config from './lib/config'
 import * as types from './types'
 import { prisma } from './lib/db'
 import { dequal } from './lib/dequal'
-import { getNumBatches } from './lib/utils'
+import { getNumBatches, removeNulls } from './lib/utils'
 
 /**
  * Upserts all movies downloaded on disk into our Prisma database.
@@ -113,12 +113,15 @@ async function main() {
                   'backdropPlaceholderUrl'
                 ]
 
-                if (!dbMovie) {
+                const tempDBMovie = _omit(removeNulls(dbMovie), ignore)
+                const tempMovie = _omit(removeNulls(movie), ignore)
+
+                if (!tempDBMovie) {
                   console.log(
                     `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title} - NEW MOVIE`
                   )
                 } else if (
-                  dequal(dbMovie, movie, {
+                  dequal(tempDBMovie, tempMovie, {
                     omit: ignore
                   })
                 ) {
@@ -128,7 +131,7 @@ async function main() {
                 } else {
                   console.log(
                     `${batchNum}:${index}) ${movie.tmdbId} ${movie.imdbId} ${movie.title}\n`,
-                    jsonDiff(_omit(dbMovie, ignore), _omit(movie, ignore))
+                    jsonDiff(tempDBMovie, tempMovie)
                   )
                 }
 
