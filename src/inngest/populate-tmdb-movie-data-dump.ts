@@ -15,7 +15,7 @@ export const populateTMDBMovieDataDump = inngest.createFunction(
       .filter((dumpedMovie) => !dumpedMovie.adult)
       // sort input movies by popularity so we process more popular movies first
       .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
-      .slice(0, 32) // for testing
+    // .slice(0, 32) // for testing
 
     logger.info('downloaded', rawDumpedMovies.length, 'movies')
     logger.info('processing', dumpedMovies.length, 'movies')
