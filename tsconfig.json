@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -13,8 +15,20 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "incremental": true,
-    "outDir": "build"
+    "outDir": "build",
+    "noEmit": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "exclude": ["node_modules"],
-  "include": ["**/*.ts"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "**/*.ts",
+    ".next/types/**/*.ts"
+  ]
 }

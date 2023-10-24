@@ -9,26 +9,24 @@ export const populateTMDBMovie = inngest.createFunction(
   },
   { event: 'db/populate-tmdb-movie' },
   async ({ event, step, logger }) => {
-    // ignore adult movies
-    if (event.data.adult) {
-      return null
-    }
-
-    const tmdbMovie = await step.run('get-tmdb-movie', () => {
+    const tmdbMovie = await step.run('get-tmdb-movie', async () => {
       const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN })
-      logger.info(event.data.id, event.data.original_title)
+      logger.info('tmdb get', event.data.tmdbId)
 
-      return tmdb.getMovieDetails(event.data.id, {
+      const res = await tmdb.getMovieDetails(event.data.tmdbId, {
         videos: true,
         images: true,
         externalIds: true
       })
+
+      return res
     })
 
-    const redisId = await step.run('upsert-tmdb-movie', () =>
+    logger.info({ tmdbId: tmdbMovie.id, imdbId: tmdbMovie.imdb_id })
+    const status = await step.run('upsert-tmdb-movie', async () =>
       redis.upsertTMDBMovie(tmdbMovie)
     )
 
-    return { redisId, tmdbId: tmdbMovie.id }
+    return { status, tmdbId: tmdbMovie.id }
   }
 )

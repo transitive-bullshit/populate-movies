@@ -1,16 +1,18 @@
-import {
-  type ClientOptions,
-  EventSchemas,
-  type GetEvents,
-  Inngest
-} from 'inngest'
+import { EventSchemas, type GetEvents, Inngest } from 'inngest'
 
 import * as types from '../types'
 
 type RawEvents = {
   'db/populate-tmdb-movie-data-dump': {}
+  'db/populate-tmdb-movie-data-dump-batch': {
+    data: {
+      tmdbIds: number[]
+    }
+  }
   'db/populate-tmdb-movie': {
-    data: types.Jsonify<types.tmdb.DumpedMovie>
+    data: {
+      tmdbId: number
+    }
   }
 }
 
@@ -20,4 +22,3 @@ export const inngest = new Inngest({
 })
 
 export type Events = GetEvents<typeof inngest>
-export type Logger = ClientOptions['logger']
