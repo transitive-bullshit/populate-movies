@@ -23,6 +23,7 @@
   "dependencies": {
     "@keyv/redis": "^2.8.0",
     "@prisma/client": "^5.4.2",
+    "@upstash/redis": "^1.23.4",
     "cheerio": "1.0.0-rc.12",
     "csv-parse": "^5.5.2",
     "delay": "^6.0.0",
@@ -30,6 +31,7 @@
     "dotenv-safe": "^8.2.0",
     "global-agent": "^3.0.0",
     "got": "^12.6.1",
+    "inngest": "^3.3.0",
     "isobject": "^4.0.0",
     "json-diff": "^1.0.6",
     "keyv": "^4.5.4",
@@ -43,6 +45,7 @@
     "p-memoize": "^7.1.1",
     "p-throttle": "^5.1.0",
     "random": "^4.1.0",
+    "type-fest": "^4.5.0",
     "wikibase-sdk": "^9.2.3"
   },
   "devDependencies": {

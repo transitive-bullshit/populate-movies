@@ -1,4 +1,5 @@
 import type { Level } from 'level'
+import type { Jsonify } from 'type-fest'
 
 import { flickMetrix } from './flick-metrix-types'
 import { imdb } from './imdb-types'
@@ -11,6 +12,7 @@ export type { omdb }
 export type { imdb }
 export type { flickMetrix }
 export type { wikidata }
+export type { Jsonify }
 
 export interface Movie {
   // ids
