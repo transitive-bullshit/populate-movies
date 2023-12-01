@@ -66,6 +66,14 @@ async function main() {
   let numTMDBMoviesTotal = 0
   let numMoviesTotal = 0
 
+  let numAdult = 0
+  let numStatus = 0
+  let numIMDB = 0
+  let numRuntime = 0
+  let numTrailer = 0
+  let numIMDBType = 0
+  let numProcess = 0
+
   console.log(`\nprocessing TMDB movies in ${numBatches} batches\n`)
   do {
     const srcFile = `${config.outDir}/tmdb-${batchNum}.json`
@@ -87,6 +95,7 @@ async function main() {
 
           if (movie.adult) {
             // console.log('warn adult movie', movie.tmdbId, movie.title)
+            ++numAdult
             return null
           }
 
@@ -96,20 +105,24 @@ async function main() {
             //   movie.tmdbId,
             //   movie.title
             // )
+            ++numStatus
             return null
           }
 
           if (!movie.imdbId) {
             // console.log('warn missing imdb id', movie.tmdbId, movie.title)
+            ++numIMDB
             return null
           }
 
           if (movie.runtime < 60) {
+            ++numRuntime
             return null
           }
 
           if (!movie.trailerUrl) {
             // console.log('warn missing trailer', movie.tmdbId, movie.title)
+            ++numTrailer
             return null
           }
 
@@ -123,6 +136,7 @@ async function main() {
           }
 
           if (!populateMovieWithIMDBInfo(movie, { imdbRatings, imdbMovie })) {
+            ++numIMDBType
             return null
           }
 
@@ -139,6 +153,7 @@ async function main() {
           }
 
           if (!processMovie(movie)) {
+            ++numProcess
             return null
           }
 
@@ -178,7 +193,16 @@ async function main() {
   console.log('done', {
     numTMDBMoviesTotal,
     numMoviesTotal,
-    percentMoviesTotal: `${((numMoviesTotal / numTMDBMoviesTotal) * 100) | 0}%`
+    percentMoviesTotal: `${((numMoviesTotal / numTMDBMoviesTotal) * 100) | 0}%`,
+    filters: {
+      numAdult,
+      numStatus,
+      numIMDB,
+      numRuntime,
+      numTrailer,
+      numIMDBType,
+      numProcess
+    }
   })
 }
 

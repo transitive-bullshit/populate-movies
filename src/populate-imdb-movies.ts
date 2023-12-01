@@ -136,7 +136,7 @@ async function main() {
             if (++numErrors >= 3) {
               return null
             } else {
-              await delay(10000 + 1000 * numErrors * numErrors)
+              await delay(5000 + 1000 * numErrors * numErrors)
             }
           }
         }

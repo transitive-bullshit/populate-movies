@@ -107,7 +107,7 @@ In addition to basic movie metadata, most movies also include:
   - Letterboxd ratings
   - FlickMetrix ratings
 - Media
-  - **YouTube traileras**
+  - **YouTube trailers**
   - Poster images
   - Backdrop images
 

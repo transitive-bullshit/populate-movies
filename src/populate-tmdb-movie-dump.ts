@@ -108,7 +108,7 @@ async function main() {
           }
         },
         {
-          concurrency: 16
+          concurrency: 32
         }
       )
     ).filter(Boolean)

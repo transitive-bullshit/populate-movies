@@ -1,6 +1,6 @@
 import got from 'got'
 
-import type { tmdb } from '../types'
+import * as types from '../types'
 
 const BASE_URL_V3 = 'https://api.themoviedb.org/3'
 
@@ -30,7 +30,7 @@ export class TMDB {
       credits?: boolean
       keywords?: boolean
     } = {}
-  ): Promise<tmdb.MovieDetails> {
+  ): Promise<types.tmdb.MovieDetails> {
     const opts =
       videos || images
         ? {
@@ -46,13 +46,13 @@ export class TMDB {
           }
         : undefined
 
-    return this._get<tmdb.MovieDetails>(`/movie/${movieId}`, opts)
+    return this._get<types.tmdb.MovieDetails>(`/movie/${movieId}`, opts)
   }
 
   public async getMovieCredits(
     movieId: string | number
-  ): Promise<tmdb.Credits> {
-    return this._get<tmdb.Credits>(`/movie/${movieId}/credits`)
+  ): Promise<types.tmdb.Credits> {
+    return this._get<types.tmdb.Credits>(`/movie/${movieId}/credits`)
   }
 
   private async _get<T>(path: string, opts?: GetOptions): Promise<T> {

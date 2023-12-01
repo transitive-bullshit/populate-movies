@@ -5,12 +5,14 @@ import { imdb } from './imdb-types'
 import { omdb } from './omdb-types'
 import { tmdb } from './tmdb-types'
 import { wikidata } from './wikidata-types'
+import { yts } from './yts-types'
 
 export type { tmdb }
 export type { omdb }
 export type { imdb }
 export type { flickMetrix }
 export type { wikidata }
+export type { yts }
 
 export interface Movie {
   // ids
