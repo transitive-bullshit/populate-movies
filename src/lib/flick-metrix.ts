@@ -178,6 +178,8 @@ export function populateMovieWithFlickMetrixInfo(
     rtUrl: () => flickMetrixMovie.RTUrl?.replace(/\/$/g, '').trim() || null,
     imdbRating: () => flickMetrixMovie.imdbRating ?? null,
     imdbVotes: () => flickMetrixMovie.imdbVotes ?? null,
+    metacriticRating: () => flickMetrixMovie.MetacriticRating ?? null,
+    metacriticVotes: () => flickMetrixMovie.MetacriticReviews ?? null,
     cast: () =>
       flickMetrixMovie.Cast?.split(',')
         .map((name) => name.trim())
