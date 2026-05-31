@@ -12,6 +12,8 @@ import { getNumBatches, getTMDBMovieDump } from './lib/utils'
 /**
  * Takes a dump of movies from TMDB and fetches all of the movie details from
  * TMDB in batches.
+ *
+ * @TODO Ignore IDs which we know previously to be filtered / invalid.
  */
 async function main() {
   await makeDir(config.outDir)
@@ -22,7 +24,7 @@ async function main() {
   // sort input movies by popularity so we process more popular movies first
   dumpedMovies.sort((a, b) => b.popularity - a.popularity)
 
-  const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN })
+  const tmdb = new TMDB({ bearerToken: process.env.TMDB_BEARER_TOKEN! })
   let batchNum = 0
   let numPopulatedMoviesTotal = 0
 
@@ -46,7 +48,7 @@ async function main() {
             return null
           }
 
-          let movieDetails: types.tmdb.MovieDetails
+          let movieDetails: types.tmdb.MovieDetails | null = null
           // let movieCredits: types.tmdb.Credits
           let numErrors = 0
 
@@ -89,7 +91,7 @@ async function main() {
               // }
 
               return movieDetails
-            } catch (err) {
+            } catch (err: any) {
               if (++numErrors >= 3 || err.response?.statusCode === 404) {
                 console.error(
                   'tmdb unrecoverable error',

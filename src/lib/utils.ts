@@ -128,6 +128,8 @@ export function convertTMDBMovieDetailsToMovie(
  * Ideally, this would be the official trailer in English, but we also consider a
  * series of fallbacks like teaser trailers and film clips if no trailer videos are
  * included in the data from TMDB.
+ *
+ * @TODO Use the number of views as an important signal.
  */
 export function getBestTMDBTrailerVideo(
   inputVideos: types.tmdb.Video[]

@@ -22,7 +22,7 @@ export async function loadFlickMetrixMoviesFromCache(): Promise<types.FlickMetri
         Object.keys(flickMetrixMovies).length
       } flick metrix movies from cache (${config.flickMetrixMoviesPath})`
     )
-  } catch (err) {
+  } catch (err: any) {
     console.warn(
       `warn: unable to load flick metrix movie cache (${config.flickMetrixMoviesPath})`,
       err.toString()
@@ -53,7 +53,7 @@ export async function fetchAllFlickMetrixMovies() {
       }
 
       movies = movies.concat(res)
-    } catch (err) {
+    } catch (err: any) {
       console.error('flickmetrix error', err.toString())
       break
     }

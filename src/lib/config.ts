@@ -1,6 +1,4 @@
-import dotenv from 'dotenv-safe'
-
-dotenv.config()
+import 'dotenv/config'
 
 export const dataDir = 'data'
 export const outDir = 'out'

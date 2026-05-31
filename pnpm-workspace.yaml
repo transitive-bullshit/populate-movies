@@ -1,0 +1,15 @@
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  classic-level: true
+  esbuild: true
+  prisma: true
+  sharp: true
+enablePrePostScripts: true
+
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude:
+  - '@fisch0920/config'
+
+packageManagerStrict: false

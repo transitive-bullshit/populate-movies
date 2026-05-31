@@ -73,7 +73,7 @@ export async function loadOMDBMoviesFromCache(): Promise<types.OMDBMovies> {
         config.omdbMoviesPath
       })`
     )
-  } catch (err) {
+  } catch (err: any) {
     console.warn(
       `warn: unable to load OMDB movie cache (${config.omdbMoviesPath})`,
       err.toString()

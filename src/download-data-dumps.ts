@@ -6,7 +6,7 @@ import zlib from 'node:zlib'
 
 import got from 'got'
 import makeDir from 'make-dir'
-import minizlib from 'minizlib'
+import { Gunzip } from 'minizlib'
 
 import * as config from './lib/config'
 
@@ -44,7 +44,7 @@ async function downloadIMDBTitleRatingsDump() {
   console.log('downloading IMDB title ratings data dump', url)
   return pipeline(
     got.stream(url),
-    new minizlib.Gunzip(),
+    new Gunzip({}) as any, // TODO
     fs.createWriteStream(config.imdbRatingsPath)
   )
 }

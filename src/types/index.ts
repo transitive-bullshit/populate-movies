@@ -1,11 +1,11 @@
 import type { Level } from 'level'
 
-import { flickMetrix } from './flick-metrix-types'
-import { imdb } from './imdb-types'
-import { omdb } from './omdb-types'
-import { tmdb } from './tmdb-types'
-import { wikidata } from './wikidata-types'
-import { yts } from './yts-types'
+import type { flickMetrix } from './flick-metrix-types'
+import type { imdb } from './imdb-types'
+import type { omdb } from './omdb-types'
+import type { tmdb } from './tmdb-types'
+import type { wikidata } from './wikidata-types'
+import type { yts } from './yts-types'
 
 export type { tmdb }
 export type { omdb }

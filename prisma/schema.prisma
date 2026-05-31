@@ -36,8 +36,8 @@ model Movie {
   hboMaxId        String?
 
   // general metadata
-  title             String   @db.VarChar(1024)
-  originalTitle     String?  @db.VarChar(1024)
+  title             String   @db.VarChar(2048)
+  originalTitle     String?  @db.VarChar(2048)
   language          String?
   releaseYear       Int?
   releaseDate       String?
@@ -59,17 +59,17 @@ model Movie {
   awardsSummary     String?
 
   // images
-  posterUrl              String? @db.VarChar(512)
+  posterUrl              String? @db.VarChar(2048)
   posterPlaceholderUrl   String? @db.VarChar(4096)
   posterWidth            Int?
   posterHeight           Int?
-  backdropUrl            String? @db.VarChar(512)
+  backdropUrl            String? @db.VarChar(2048)
   backdropPlaceholderUrl String? @db.VarChar(4096)
   backdropWidth          Int?
   backdropHeight         Int?
 
   // video
-  trailerUrl       String? @db.VarChar(512)
+  trailerUrl       String? @db.VarChar(2048)
   trailerYouTubeId String?
 
   // imdb

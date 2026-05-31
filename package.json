@@ -27,9 +27,9 @@
     "csv-parse": "^5.5.2",
     "delay": "^6.0.0",
     "dequal": "^2.0.3",
-    "dotenv-safe": "^8.2.0",
+    "dotenv": "^17.4.2",
     "global-agent": "^3.0.0",
-    "got": "^12.6.1",
+    "got": "^15.0.5",
     "isobject": "^4.0.0",
     "json-diff": "^1.0.6",
     "keyv": "^4.5.4",
@@ -37,30 +37,37 @@
     "lodash.omit": "^4.5.0",
     "lqip-modern": "^2.0.0",
     "make-dir": "^4.0.0",
-    "minizlib": "^2.1.2",
+    "minizlib": "^3.1.0",
     "movier": "^3.0.4",
-    "p-map": "^6.0.0",
+    "p-map": "^7.0.4",
     "p-memoize": "^7.1.1",
     "p-throttle": "^5.1.0",
-    "random": "^4.1.0",
+    "random": "^5.4.1",
     "wikibase-sdk": "^9.2.3"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
+    "@fisch0920/config": "^1.4.1",
     "@types/lodash.omit": "^4.5.8",
-    "@types/node": "^20.8.7",
+    "@types/minizlib": "^2.1.7",
+    "@types/node": "^25.9.1",
     "del-cli": "^5.1.0",
+    "eslint": "^9.39.4",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.8",
+    "prettier": "^3.8.3",
     "prisma": "^5.4.2",
-    "tsx": "^3.14.0",
-    "typescript": "^5.2.2"
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  },
+  "prettier": "@fisch0920/config/prettier",
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write"
+      "prettier --ignore-unknown --write",
+      "eslint --cache --fix"
     ]
   }
 }
